@@ -8,7 +8,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: SplashScreen(
+        onComplete: () {
+          // Navigate to the next screen or perform any action after splash
+        },
+      ),
     );
       
   }
