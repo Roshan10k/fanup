@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:fanup/screens/login_screen.dart';
 import 'package:fanup/screens/onboarding/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -47,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Logo
-          Image.asset('assets/images/logo.png', width: 487, height: 300),
+          Image.asset('assets/images/logo.png', width: 487, height: 300,),
           RichText(
             text: const TextSpan(
               children: [
@@ -79,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
             "Build your Dream Team",
             style: TextStyle(
               fontFamily: "assets/fonts/Poppins-Medium.ttf",
-              color: Colors.white,
+              color: Colors.black54,
               fontSize: 18,
               fontWeight: FontWeight.w500,
               decoration: TextDecoration.none,

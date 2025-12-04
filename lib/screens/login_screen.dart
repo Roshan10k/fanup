@@ -1,3 +1,4 @@
+import 'package:fanup/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -21,7 +22,7 @@ Widget build(BuildContext context) {
                 "assets/images/logo.png", 
                 height: 200,
               ),
-              const SizedBox(height: 40),
+              
 
               // Welcome text
               const Text(
@@ -87,7 +88,7 @@ Widget build(BuildContext context) {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Handle login
+                    // will do later
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFE304C), 
@@ -125,13 +126,21 @@ Widget build(BuildContext context) {
                     onTap: () {
                       
                     },
-                    child: const Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFFE304C),
+                    child: GestureDetector(
+                      onTap:  () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                        );
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFFE304C),
+                        ),
                       ),
                     ),
                   ),
