@@ -1,4 +1,3 @@
-import 'package:fanup/screens/login_screen.dart';
 import 'package:fanup/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
