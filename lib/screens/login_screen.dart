@@ -12,7 +12,7 @@ Widget build(BuildContext context) {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -27,7 +27,7 @@ Widget build(BuildContext context) {
               const Text(
                 "Welcome back!",
                 style: TextStyle(
-                  fontFamily: "Poppins",
+                  fontFamily: "assets/fonts/Poppins-Bold.ttf",
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -39,7 +39,7 @@ Widget build(BuildContext context) {
               const Text(
                 "Log in to existing FanUp account",
                 style: TextStyle(
-                  fontFamily: "Poppins",
+                  fontFamily: "assets/fonts/Poppins-Regular.ttf",
                   fontSize: 16,
                   color: Colors.black54,
                 ),
@@ -52,7 +52,7 @@ Widget build(BuildContext context) {
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
                   labelText: "Username",
-                  labelStyle: const TextStyle(color: Colors.grey),
+                  labelStyle: const TextStyle(color: Colors.grey,fontFamily: "assets/fonts/Poppins-Regular.ttf",),
                   filled: true,
                   fillColor: const Color(0xFFF5F5F5),
                   border: OutlineInputBorder(
@@ -70,7 +70,7 @@ Widget build(BuildContext context) {
                   prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
                   suffixIcon: const Icon(Icons.visibility_off, color: Colors.grey),
                   labelText: "Password",
-                  labelStyle: const TextStyle(color: Colors.grey),
+                  labelStyle: const TextStyle(color: Colors.grey,fontFamily: "assets/fonts/Poppins-Regular.ttf",),
                   filled: true,
                   fillColor: const Color(0xFFF5F5F5),
                   border: OutlineInputBorder(
@@ -99,7 +99,7 @@ Widget build(BuildContext context) {
                   child: const Text(
                     "Login",
                     style: TextStyle(
-                      fontFamily: "Poppins",
+                      fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -116,7 +116,7 @@ Widget build(BuildContext context) {
                   const Text(
                     "Don't have an Account? ",
                     style: TextStyle(
-                      fontFamily: "Poppins",
+                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
                       fontSize: 15,
                       color: Colors.black54,
                     ),
@@ -128,7 +128,7 @@ Widget build(BuildContext context) {
                     child: const Text(
                       "Sign Up",
                       style: TextStyle(
-                        fontFamily: "Poppins",
+                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFFFE304C),

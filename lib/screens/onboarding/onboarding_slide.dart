@@ -12,24 +12,24 @@ class OnboardingSlide extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          height: 90,
-          width: 90,
+          height: 200,
+          width: 200,
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Colors.grey.shade200,
             shape: BoxShape.circle,
           ),
-          child: Icon(data.icon, size: 42, color: Theme.of(context).primaryColor),
+          child: Icon(data.icon, size: 100, color: Colors.orange,),
         ),
         const SizedBox(height: 30),
         Text(
           data.title,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600,fontFamily: "assets/fonts/Poppins-Bold.ttf",),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
         Text(
           data.description,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 16, color: Colors.grey.shade600,fontFamily: "assets/fonts/Poppins-Regular.ttf",),
           textAlign: TextAlign.center,
         ),
       ],

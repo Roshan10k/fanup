@@ -1,11 +1,10 @@
+import 'package:fanup/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'onboarding_data.dart';
 import 'onboarding_slide.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  final VoidCallback onComplete;
-
-  const OnboardingScreen({super.key, required this.onComplete});
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -16,7 +15,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void next() {
     if (step == onboardingSlides.length - 1) {
-      widget.onComplete();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+      ;
     } else {
       setState(() => step++);
     }
@@ -36,18 +39,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Getting Started"),
+                  const Text("Getting Started",style: TextStyle(fontFamily: "assets/fonts/Poppins-SemiBold.ttf"),),
                   TextButton(
-                    onPressed: widget.onComplete,
-                    child: const Text("Skip"),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                    child: const Text("Skip",style: TextStyle(fontFamily: "assets/fonts/Poppins-SemiBold.ttf"),),
                   ),
                 ],
               ),
 
               // Slide
-              Expanded(
-                child: OnboardingSlide(data: onboardingSlides[step]),
-              ),
+              Expanded(child: OnboardingSlide(data: onboardingSlides[step])),
 
               // Indicator
               Row(
@@ -60,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: i == step ? 20 : 8,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color: i == step ? Colors.blue : Colors.grey.shade300,
+                      color: i == step ? Colors.red : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -73,8 +79,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                  
                   onPressed: next,
-                  child: Text(isLast ? "Get Started" : "Next"),
+                  child: Text(isLast ? "Get Started" : "Next",style: TextStyle(fontFamily:"assets/fonts/Poppins-SemiBold.ttf", fontSize: 18 ),),
                 ),
               ),
             ],

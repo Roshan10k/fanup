@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:fanup/screens/login_screen.dart';
+import 'package:fanup/screens/onboarding/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
    Timer(const Duration(milliseconds: 2500), () {
   Navigator.pushReplacement(
     context,
-    MaterialPageRoute(builder: (context) => LoginScreen()),
+    MaterialPageRoute(builder: (context) => OnboardingScreen()),
   );
 });
   }
@@ -53,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 TextSpan(
                   text: "Fan",
                   style: TextStyle(
-                    fontFamily: "Poppins",
+                    fontFamily: "assets/fonts/Poppins-Bold.ttf",
                     fontSize: 36,
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -62,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 TextSpan(
                   text: "Up",
                   style: TextStyle(
-                    fontFamily: "Poppins",
+                    fontFamily: "assets/fonts/Poppins-Bold.ttf",
                     fontSize: 36,
                     color: Color(0xFFFF3B30), // Red
                     fontWeight: FontWeight.bold,
@@ -77,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Text(
             "Build your Dream Team",
             style: TextStyle(
-              fontFamily: "Poppins",
+              fontFamily: "assets/fonts/Poppins-Medium.ttf",
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w500,
