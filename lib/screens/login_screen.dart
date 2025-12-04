@@ -1,11 +1,18 @@
 import 'package:fanup/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isPasswordVisible = false;
+  @override
 Widget build(BuildContext context) {
+  
     // responsive layout
     final size = MediaQuery.of(context).size;
 
@@ -65,22 +72,37 @@ Widget build(BuildContext context) {
               const SizedBox(height: 20),
 
             
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-                  suffixIcon: const Icon(Icons.visibility_off, color: Colors.grey),
-                  labelText: "Password",
-                  labelStyle: const TextStyle(color: Colors.grey,fontFamily: "assets/fonts/Poppins-Regular.ttf",),
-                  filled: true,
-                  fillColor: const Color(0xFFF5F5F5),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+              // Password
+                TextFormField(
+                  obscureText: !_isPasswordVisible,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                    labelText: "Password",
+                    labelStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF5F5F5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
+
 
               // Login button
               SizedBox(

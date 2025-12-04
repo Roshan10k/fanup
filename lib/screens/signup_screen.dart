@@ -8,6 +8,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 100,
                 ),
                 
+
                 // Welcome text
                 const Text(
                   "Let's Get Started!",
@@ -132,11 +135,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Password 
+                // Password
                 TextFormField(
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                     labelText: "Password",
                     labelStyle: const TextStyle(
                       color: Colors.grey,
@@ -152,11 +166,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Confirm Password 
+                // Confirm Password
                 TextFormField(
-                  obscureText: true,
+                  obscureText: !_isConfirmPasswordVisible,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
                     labelText: "Confirm Password",
                     labelStyle: const TextStyle(
                       color: Colors.grey,
@@ -198,7 +223,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 40),
 
                 // Already have an account
@@ -215,6 +239,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
+                        // Navigate to login screen
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -229,7 +254,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 40),
               ],
             ),
