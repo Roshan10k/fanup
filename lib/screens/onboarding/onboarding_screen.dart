@@ -17,9 +17,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (step == onboardingSlides.length - 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
-      ;
     } else {
       setState(() => step++);
     }
@@ -27,72 +26,107 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final isLast = step == onboardingSlides.length - 1;
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Getting Started",style: TextStyle(fontFamily: "assets/fonts/Poppins-SemiBold.ttf"),),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                      );
-                    },
-                    child: const Text("Skip",style: TextStyle(fontFamily: "assets/fonts/Poppins-SemiBold.ttf"),),
-                  ),
-                ],
-              ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: size.width * 0.06,
+              vertical: size.height * 0.02,
+            ),
+            child: Column(
+              children: [
+                // Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Getting Started",
+                      style: TextStyle(
+                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                        fontSize: size.width * 0.045,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Skip",
+                        style: TextStyle(
+                          fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                          fontSize: size.width * 0.045,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
 
-              // Slide
-              Expanded(child: OnboardingSlide(data: onboardingSlides[step])),
+                SizedBox(height: size.height * 0.02),
 
-              // Indicator
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  onboardingSlides.length,
-                  (i) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    height: 6,
-                    width: i == step ? 20 : 8,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: i == step ? Colors.red : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
+                // Slide
+                SizedBox(
+                  height: size.height * 0.60, // adjusts for all screens
+                  child: OnboardingSlide(data: onboardingSlides[step]),
+                ),
+
+                SizedBox(height: size.height * 0.03),
+
+                // Indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    onboardingSlides.length,
+                    (i) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      height: 6,
+                      width: i == step ? 22 : 8,
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: i == step
+                            ? const Color(0xFFFE304C)
+                            : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 24),
+                SizedBox(height: size.height * 0.04),
 
-              // Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
+                // Next / Get Started Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(vertical: size.height * 0.02),
+                      backgroundColor: const Color(0xFFFE304C),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    onPressed: next,
+                    child: Text(
+                      isLast ? "Get Started" : "Next",
+                      style: TextStyle(
+                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                        fontSize: size.width * 0.05,
+                      ),
                     ),
                   ),
-                  
-                  onPressed: next,
-                  child: Text(isLast ? "Get Started" : "Next",style: TextStyle(fontFamily:"assets/fonts/Poppins-SemiBold.ttf", fontSize: 18 ),),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

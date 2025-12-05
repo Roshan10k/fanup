@@ -13,22 +13,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // responsive layout
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size; // For responsiveness
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
+                SizedBox(height: size.height * 0.04),
 
                 // Logo
-                Image.asset("assets/images/logo.png", height: 100),
+                Image.asset(
+                  "assets/images/logo.png",
+                  height: size.height * 0.15,
+                ),
+
+                SizedBox(height: size.height * 0.01),
 
                 // Welcome text
                 const Text(
@@ -41,7 +44,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+
+                SizedBox(height: size.height * 0.01),
 
                 const Text(
                   "Create an account on FanUp to get all features",
@@ -52,184 +56,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
+
+                SizedBox(height: size.height * 0.04),
 
                 // First Name
-                TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.person_outline,
-                      color: Colors.grey,
-                    ),
-                    labelText: "First Name",
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                _buildInputField("First Name", Icons.person_outline),
+                SizedBox(height: size.height * 0.02),
 
                 // Last Name
-                TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.person_outline,
-                      color: Colors.grey,
-                    ),
-                    labelText: "Last Name",
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                _buildInputField("Last Name", Icons.person_outline),
+                SizedBox(height: size.height * 0.02),
 
                 // Username
-                TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.person_outline,
-                      color: Colors.grey,
-                    ),
-                    labelText: "User Name",
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                _buildInputField("User Name", Icons.person_outline),
+                SizedBox(height: size.height * 0.02),
 
                 // Email
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.email_outlined,
-                      color: Colors.grey,
-                    ),
-                    labelText: "Email",
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                _buildInputField("Email", Icons.email_outlined,
+                    inputType: TextInputType.emailAddress),
+                SizedBox(height: size.height * 0.02),
 
                 // Password
-                TextFormField(
-                  obscureText: !_isPasswordVisible,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
-                      color: Colors.grey,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                    labelText: "Password",
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                _passwordField(
+                  label: "Password",
+                  isVisible: _isPasswordVisible,
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: size.height * 0.02),
 
                 // Confirm Password
-                TextFormField(
-                  obscureText: !_isConfirmPasswordVisible,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
-                      color: Colors.grey,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible =
-                              !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
-                    labelText: "Confirm Password",
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                _passwordField(
+                  label: "Confirm Password",
+                  isVisible: _isConfirmPasswordVisible,
+                  onPressed: () {
+                    setState(() {
+                      _isConfirmPasswordVisible =
+                          !_isConfirmPasswordVisible;
+                    });
+                  },
                 ),
-                const SizedBox(height: 40),
+
+                SizedBox(height: size.height * 0.05),
 
                 // Sign Up button
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: size.height * 0.065,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Handle sign up
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFE304C),
+                      elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      elevation: 4,
                     ),
                     child: const Text(
                       "Sign Up",
@@ -242,7 +126,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+
+                SizedBox(height: size.height * 0.04),
 
                 // Already have an account
                 Row(
@@ -257,10 +142,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        // Navigate to login screen
-                        Navigator.pop(context);
-                      },
+                      onTap: () => Navigator.pop(context),
                       child: const Text(
                         "Login",
                         style: TextStyle(
@@ -273,10 +155,65 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+
+                SizedBox(height: size.height * 0.04),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+ 
+  Widget _buildInputField(String label, IconData icon,
+      {TextInputType inputType = TextInputType.text}) {
+    return TextFormField(
+      keyboardType: inputType,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: Colors.grey),
+        labelText: label,
+        labelStyle: const TextStyle(
+          color: Colors.grey,
+          fontFamily: "assets/fonts/Poppins-Regular.ttf",
+        ),
+        filled: true,
+        fillColor: const Color(0xFFF5F5F5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
+
+  Widget _passwordField({
+    required String label,
+    required bool isVisible,
+    required VoidCallback onPressed,
+  }) {
+    return TextFormField(
+      obscureText: !isVisible,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+        suffixIcon: IconButton(
+          icon: Icon(
+            isVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: onPressed,
+        ),
+        labelText: label,
+        labelStyle: const TextStyle(
+          color: Colors.grey,
+          fontFamily: "assets/fonts/Poppins-Regular.ttf",
+        ),
+        filled: true,
+        fillColor: const Color(0xFFF5F5F5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
       ),
     );
