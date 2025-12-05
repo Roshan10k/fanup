@@ -1,3 +1,4 @@
+import 'package:fanup/screens/dashboard_screen.dart';
 import 'package:fanup/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -110,7 +111,10 @@ Widget build(BuildContext context) {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // will do later
+                    Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                        );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFE304C), 

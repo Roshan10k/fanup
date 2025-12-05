@@ -26,13 +26,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 40),
-                
+
                 // Logo
-                Image.asset(
-                  "assets/images/logo.png",
-                  height: 100,
-                ),
-                
+                Image.asset("assets/images/logo.png", height: 100),
 
                 // Welcome text
                 const Text(
@@ -61,7 +57,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // First Name
                 TextFormField(
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: Colors.grey,
+                    ),
                     labelText: "First Name",
                     labelStyle: const TextStyle(
                       color: Colors.grey,
@@ -80,7 +79,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // Last Name
                 TextFormField(
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: Colors.grey,
+                    ),
                     labelText: "Last Name",
                     labelStyle: const TextStyle(
                       color: Colors.grey,
@@ -99,7 +101,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // Username
                 TextFormField(
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: Colors.grey,
+                    ),
                     labelText: "User Name",
                     labelStyle: const TextStyle(
                       color: Colors.grey,
@@ -119,7 +124,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: Colors.grey,
+                    ),
                     labelText: "Email",
                     labelStyle: const TextStyle(
                       color: Colors.grey,
@@ -139,10 +147,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.grey,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.grey,
                       ),
                       onPressed: () {
@@ -170,15 +183,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   obscureText: !_isConfirmPasswordVisible,
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.grey,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.grey,
                       ),
                       onPressed: () {
                         setState(() {
-                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
                         });
                       },
                     ),
