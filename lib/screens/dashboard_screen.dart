@@ -9,9 +9,27 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),
-      body: const Center(
-        child: Text('Welcome to the Dashboard!'),
-      ),
+       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const[
+        BottomNavigationBarItem(icon: Icon(Icons.home),
+        label: 'Home',
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.leaderboard),
+        label: 'LeaderBoard',
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.wallet),
+        label: 'Wallet',
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.person),
+        label: 'Profile',
+        ),
+      ],
+      unselectedItemColor: Colors.grey,
+      selectedItemColor: Colors.red,
+      selectedLabelStyle: TextStyle(fontFamily: "assets/fonts/Poppins-Bold.ttf",fontSize: 18),
+      unselectedLabelStyle: TextStyle(fontFamily: "assets/fonts/Poppins-SemiBold.ttf",fontSize: 16),
+    )
     );
   }
 }
