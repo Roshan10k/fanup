@@ -1,4 +1,6 @@
+import 'package:fanup/widgets/match_card_widget.dart';
 import 'package:flutter/material.dart';
+
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -9,27 +11,66 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),
-       bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const[
-        BottomNavigationBarItem(icon: Icon(Icons.home),
-        label: 'Home',
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.leaderboard),
+            label: 'LeaderBoard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wallet),
+            label: 'Wallet',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        unselectedItemColor: Colors.grey,
+        selectedItemColor: Colors.red,
+        selectedLabelStyle: const TextStyle(
+          fontFamily: "Poppins-Bold",
+          fontSize: 15,
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.leaderboard),
-        label: 'LeaderBoard',
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: "Poppins-SemiBold",
+          fontSize: 13,
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.wallet),
-        label: 'Wallet',
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            MatchCard(
+              league: "NPL",
+              dateTime: "4th Nov, 26, 3:15 PM",
+              teamA: "IND",
+              teamB: "AUS",
+              onCreateTeam: () {},
+            ),
+            MatchCard(
+              league: "NPL",
+              dateTime: "4th Nov, 26, 3:15 PM",
+              teamA: "IND",
+              teamB: "AUS",
+              onCreateTeam: () {},
+            ),
+            MatchCard(
+              league: "BBL",
+              dateTime: "5th Nov, 26, 5:30 PM",
+              teamA: "PAK",
+              teamB: "SL",
+              onCreateTeam: () {},
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.person),
-        label: 'Profile',
-        ),
-      ],
-      unselectedItemColor: Colors.grey,
-      selectedItemColor: Colors.red,
-      selectedLabelStyle: TextStyle(fontFamily: "assets/fonts/Poppins-Bold.ttf",fontSize: 18),
-      unselectedLabelStyle: TextStyle(fontFamily: "assets/fonts/Poppins-SemiBold.ttf",fontSize: 16),
-    )
+      ),
     );
   }
 }
