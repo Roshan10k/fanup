@@ -1,5 +1,6 @@
 import 'package:fanup/screens/dashboard_screen.dart';
 import 'package:fanup/screens/signup_screen.dart';
+import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,12 +12,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -35,21 +37,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: size.height * 0.02),
 
                   // Welcome text
-                  const Text(
+                  Text(
                     "Welcome back!",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                    style: AppTextStyles.poppinsBold28.copyWith(
+                      color: AppColors.textDark,
                     ),
                     textAlign: TextAlign.center,
                   ),
 
                   SizedBox(height: size.height * 0.01),
 
-                  const Text(
+                  Text(
                     "Log in to existing FanUp account",
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                    style: AppTextStyles.poppinsRegular16.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
 
@@ -58,13 +60,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Username
                   TextFormField(
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.person_outline,
-                        color: Colors.grey,
+                        color: AppColors.iconGrey,
                       ),
                       labelText: "Username",
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: AppColors.inputBackground,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -78,16 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.lock_outline,
-                        color: Colors.grey,
+                        color: AppColors.iconGrey,
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _isPasswordVisible
                               ? Icons.visibility
                               : Icons.visibility_off,
-                          color: Colors.grey,
+                          color: AppColors.iconGrey,
                         ),
                         onPressed: () {
                           setState(() {
@@ -97,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       labelText: "Password",
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: AppColors.inputBackground,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -121,19 +123,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFE304C),
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
+                        textStyle: AppTextStyles.buttonText,
                       ),
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: const Text("Login"),
                     ),
                   ),
 
@@ -142,9 +138,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         "Don't have an Account? ",
-                        style: TextStyle(fontSize: 15, color: Colors.black54),
+                        style: AppTextStyles.poppinsRegular15.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -155,12 +153,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           "Sign Up",
-                          style: TextStyle(
+                          style: AppTextStyles.poppinsBold28.copyWith(
                             fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFFE304C),
+                            color: AppColors.primary,
                           ),
                         ),
                       ),

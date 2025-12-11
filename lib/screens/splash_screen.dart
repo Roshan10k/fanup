@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:fanup/screens/onboarding/onboarding_screen.dart';
 import 'package:flutter/material.dart';
+import '../themes/theme.dart'; // make sure to import your theme
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,20 +17,20 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Animating dots every 400ms
+    // Animate dots every 400ms
     Timer.periodic(const Duration(milliseconds: 400), (timer) {
       setState(() {
         activeDot = (activeDot + 1) % 3;
       });
     });
 
-    // Move to next screen
-   Timer(const Duration(milliseconds: 2500), () {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => OnboardingScreen()),
-  );
-});
+    // Navigate to onboarding after 2.5s
+    Timer(const Duration(milliseconds: 2500), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+      );
+    });
   }
 
   @override
@@ -39,55 +40,54 @@ class _SplashScreenState extends State<SplashScreen> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFFFFD300), Color(0xFFFF8C00)],
+          colors: [
+            AppColors.splashGradientStart,
+            AppColors.splashGradientEnd
+          ],
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Logo
-          Image.asset('assets/images/logo.png', width: 487, height: 300,),
+          Image.asset(
+            'assets/images/logo.png',
+            width: 487,
+            height: 300,
+          ),
+
+          // Rich Text Logo
           RichText(
-            text: const TextSpan(
+            text: TextSpan(
               children: [
                 TextSpan(
                   text: "Fan",
-                  style: TextStyle(
-                    fontFamily: "assets/fonts/Poppins-Bold.ttf",
-                    fontSize: 36,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.poppinsBold36.copyWith(
+                    color: AppColors.textDark,
                   ),
                 ),
                 TextSpan(
                   text: "Up",
-                  style: TextStyle(
-                    fontFamily: "assets/fonts/Poppins-Bold.ttf",
-                    fontSize: 36,
-                    color: Color(0xFFFF3B30), // Red
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.poppinsBold36.copyWith(
+                    color: AppColors.primary,
                   ),
                 ),
               ],
             ),
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           Text(
             "Build your Dream Team",
-            style: TextStyle(
-              fontFamily: "assets/fonts/Poppins-Medium.ttf",
-              color: Colors.black54,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              decoration: TextDecoration.none,
+            style: AppTextStyles.poppinsMedium18.copyWith(
+              color: AppColors.textLight,
             ),
           ),
 
           const SizedBox(height: 120),
 
-          // Loading Dots
+          // Loading dots
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -111,7 +111,7 @@ class _SplashScreenState extends State<SplashScreen> {
       width: isActive ? 12 : 10,
       height: isActive ? 12 : 10,
       decoration: BoxDecoration(
-        color: const Color(0xFFFF3B30), // Red dots
+        color: AppColors.primary,
         shape: BoxShape.circle,
       ),
     );
