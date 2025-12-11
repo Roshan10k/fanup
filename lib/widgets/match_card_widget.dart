@@ -34,37 +34,29 @@ class MatchCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-
-          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-
               // League Badge
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 5,
+                  horizontal: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   league,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
 
               // Date + Live indicator
               Row(
                 children: [
-                  Text(
-                    dateTime,
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
+                  Text(dateTime, style: TextStyle(color: Colors.grey.shade600)),
                   const SizedBox(width: 10),
                   const Icon(Icons.circle, color: Colors.red, size: 10),
                   const SizedBox(width: 4),
@@ -82,7 +74,7 @@ class MatchCard extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          ///Teams Row 
+          ///Teams Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -100,7 +92,7 @@ class MatchCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          /// CREATE TEAM BUTTON 
+          /// CREATE TEAM BUTTON
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -121,7 +113,7 @@ class MatchCard extends StatelessWidget {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -140,12 +132,7 @@ class MatchCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          teamName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        )
+        Text(teamName, style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
   }
