@@ -48,8 +48,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     Text(
                       "Getting Started",
-                      style: AppTextStyles.poppinsSemiBold13.copyWith(
-                        fontSize: size.width * 0.045,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Poppins Regular',
                         color: AppColors.textDark,
                       ),
                     ),
@@ -63,10 +64,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       },
                       child: Text(
                         "Skip",
-                        style: AppTextStyles.poppinsSemiBold13.copyWith(
-                          fontSize: size.width * 0.045,
-                          color: AppColors.textSecondary,
-                        ),
+                        style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Poppins SemiBold',
+                        color: AppColors.textDark,
+                      ),
                       ),
                     ),
                   ],
@@ -120,7 +122,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: next,
                     child: Text(
                       isLast ? "Get Started" : "Next",
-                      style: AppTextStyles.poppinsSemiBold15.copyWith(
+                      style: AppTextStyles.poppinsSemiBold13.copyWith(
                         fontSize: size.width * 0.05,
                         color: Colors.white,
                       ),

@@ -19,13 +19,13 @@ class OnboardingSlide extends StatelessWidget {
           height: 200,
           width: 200,
           decoration: BoxDecoration(
-            color: AppColors.inputBackground, // centralized color
+            color: AppColors.inputBackground, 
             shape: BoxShape.circle,
           ),
           child: Icon(
             data.icon,
             size: 100,
-            color: AppColors.primary, // use primary app color
+            color: AppColors.primary, 
           ),
         ),
 

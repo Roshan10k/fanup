@@ -1,8 +1,6 @@
 import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
 
-
-
 class BalanceCardWidget extends StatelessWidget {
   final double credit;
   final VoidCallback onAddCredit;
@@ -20,10 +18,7 @@ class BalanceCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFFFCE043),
-            Color(0xFFFF5E62),
-          ],
+          colors: [Color(0xFFFCE043), Color(0xFFFF5E62)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -37,11 +32,15 @@ class BalanceCardWidget extends StatelessWidget {
             children: [
               Text(
                 "Available credit",
-                style: AppTextStyles.poppinsSemiBold15.copyWith(color: AppColors.textDark),
+                style: AppTextStyles.poppinsSemiBold15.copyWith(
+                  color: AppColors.textDark,
+                ),
               ),
               Text(
                 credit.toStringAsFixed(1),
-                style: AppTextStyles.poppinsSemiBold18.copyWith(color: AppColors.textDark),
+                style: AppTextStyles.poppinsSemiBold18.copyWith(
+                  color: AppColors.textDark,
+                ),
               ),
             ],
           ),
@@ -58,7 +57,9 @@ class BalanceCardWidget extends StatelessWidget {
             ),
             child: Text(
               "Add Credit",
-              style: AppTextStyles.poppinsRegular15.copyWith(color: AppColors.primary),
+              style: AppTextStyles.poppinsRegular15.copyWith(
+                color: AppColors.primary,
+              ),
             ),
           ),
         ],

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class AppColors {
   // Primary Colors
   static const Color primary = Color(0xFFFE304C);
@@ -14,14 +12,14 @@ class AppColors {
   static const Color splashGradientEnd = Color(0xFFFF8C00);
 
   // Text Colors
-  static const Color textPrimary = Color(0xFF333333); // dark text
-  static const Color textSecondary = Color(0xFF777777); // medium grey
-  static const Color textLight = Color(0xFF999999); // light grey
-  static const Color textDark = Color(0xFF000000); // pure black
+  static const Color textPrimary = Color(0xFF333333); 
+  static const Color textSecondary = Color(0xFF777777); 
+  static const Color textLight = Color(0xFF999999); 
+  static const Color textDark = Color(0xFF000000); 
 
   // Background Colors
   static const Color background = Color(0xFFF5F5F5);
-  static const Color inputBackground = Color(0xFFF5F5F5);
+  static const Color inputBackground = Color(0xFFFFFFFF);
   static const Color cardShadow = Color(0xFFE0E0E0);
 
   // Other Colors
@@ -143,9 +141,14 @@ ThemeData getApplicationTheme() {
         color: Colors.grey,
         fontFamily: 'Poppins Regular',
       ),
-      border: OutlineInputBorder(
+
+      enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.primary, width: 1),
       ),
       prefixIconColor: AppColors.iconGrey,
       suffixIconColor: AppColors.iconGrey,
@@ -155,7 +158,9 @@ ThemeData getApplicationTheme() {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: AppColors.primary,
       unselectedItemColor: Colors.grey,
-      selectedLabelStyle: AppTextStyles.poppinsSemiBold13.copyWith(fontSize: 15),
+      selectedLabelStyle: AppTextStyles.poppinsSemiBold13.copyWith(
+        fontSize: 15,
+      ),
       unselectedLabelStyle: AppTextStyles.poppinsSemiBold13,
     ),
 

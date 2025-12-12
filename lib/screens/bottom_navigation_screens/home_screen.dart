@@ -10,7 +10,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Home',style: AppTextStyles.poppinsSemiBold18,),
+        
         backgroundColor: AppColors.primary,
         elevation: 0,
       ),
@@ -58,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 4),
+                   
 
                     Text(
                       "Build your dream team",

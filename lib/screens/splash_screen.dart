@@ -80,8 +80,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
           Text(
             "Build your Dream Team",
-            style: AppTextStyles.poppinsMedium18.copyWith(
-              color: AppColors.textLight,
+            style: AppTextStyles.poppinsRegular16.copyWith(
+              color: Colors.white,
+              decoration: TextDecoration.none
             ),
           ),
 
