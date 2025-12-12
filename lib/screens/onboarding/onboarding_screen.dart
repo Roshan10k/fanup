@@ -1,7 +1,10 @@
-import 'package:fanup/screens/login_screen.dart';
+import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:fanup/screens/login_screen.dart';
 import 'onboarding_data.dart';
 import 'onboarding_slide.dart';
+
+
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -17,7 +20,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (step == onboardingSlides.length - 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     } else {
       setState(() => step++);
@@ -45,9 +48,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     Text(
                       "Getting Started",
-                      style: TextStyle(
-                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                      style: AppTextStyles.poppinsSemiBold13.copyWith(
                         fontSize: size.width * 0.045,
+                        color: AppColors.textDark,
                       ),
                     ),
                     TextButton(
@@ -55,15 +58,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
+                              builder: (_) => const LoginScreen()),
                         );
                       },
                       child: Text(
                         "Skip",
-                        style: TextStyle(
-                          fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                        style: AppTextStyles.poppinsSemiBold13.copyWith(
                           fontSize: size.width * 0.045,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -74,7 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                 // Slide
                 SizedBox(
-                  height: size.height * 0.60, // adjusts for all screens
+                  height: size.height * 0.60,
                   child: OnboardingSlide(data: onboardingSlides[step]),
                 ),
 
@@ -92,8 +94,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         color: i == step
-                            ? const Color(0xFFFE304C)
-                            : Colors.grey.shade300,
+                            ? AppColors.primary
+                            : AppColors.textSecondary.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -109,7 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     style: ElevatedButton.styleFrom(
                       padding:
                           EdgeInsets.symmetric(vertical: size.height * 0.02),
-                      backgroundColor: const Color(0xFFFE304C),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -118,9 +120,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: next,
                     child: Text(
                       isLast ? "Get Started" : "Next",
-                      style: TextStyle(
-                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
+                      style: AppTextStyles.poppinsSemiBold15.copyWith(
                         fontSize: size.width * 0.05,
+                        color: Colors.white,
                       ),
                     ),
                   ),

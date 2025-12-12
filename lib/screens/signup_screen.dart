@@ -1,4 +1,7 @@
+import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
+
+
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,7 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final size = MediaQuery.of(context).size; // For responsiveness
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -34,26 +37,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: size.height * 0.01),
 
                 // Welcome text
-                const Text(
+                Text(
                   "Let's Get Started!",
-                  style: TextStyle(
-                    fontFamily: "assets/fonts/Poppins-Bold.ttf",
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: AppTextStyles.poppinsBold28,
                   textAlign: TextAlign.center,
                 ),
 
                 SizedBox(height: size.height * 0.01),
 
-                const Text(
+                Text(
                   "Create an account on FanUp to get all features",
-                  style: TextStyle(
-                    fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
+                  style: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
 
@@ -94,8 +88,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   isVisible: _isConfirmPasswordVisible,
                   onPressed: () {
                     setState(() {
-                      _isConfirmPasswordVisible =
-                          !_isConfirmPasswordVisible;
+                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                     });
                   },
                 ),
@@ -109,20 +102,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFE304C),
+                      backgroundColor: AppColors.primary,
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Sign Up",
-                      style: TextStyle(
-                        fontFamily: "assets/fonts/Poppins-SemiBold.ttf",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.buttonText,
                     ),
                   ),
                 ),
@@ -133,25 +121,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Already have an account? ",
-                      style: TextStyle(
-                        fontFamily: "assets/fonts/Poppins-Regular.ttf",
-                        fontSize: 15,
-                        color: Colors.black54,
-                      ),
+                      style: AppTextStyles.poppinsRegular15.copyWith(color: AppColors.textSecondary),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontFamily: "assets/fonts/Poppins-Bold.ttf",
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFFE304C),
-                        ),
-                      ),
+                      child: Text(
+  "Login",
+  style: AppTextStyles.poppinsBold28.copyWith(fontSize: 18, color: AppColors.primary),
+)
                     ),
                   ],
                 ),
@@ -165,20 +144,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
- 
   Widget _buildInputField(String label, IconData icon,
       {TextInputType inputType = TextInputType.text}) {
     return TextFormField(
       keyboardType: inputType,
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.grey),
+        prefixIcon: Icon(icon, color: AppColors.iconGrey),
         labelText: label,
-        labelStyle: const TextStyle(
-          color: Colors.grey,
-          fontFamily: "assets/fonts/Poppins-Regular.ttf",
-        ),
+        labelStyle: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textLight),
         filled: true,
-        fillColor: const Color(0xFFF5F5F5),
+        fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -186,7 +161,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
-
 
   Widget _passwordField({
     required String label,
@@ -200,17 +174,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         suffixIcon: IconButton(
           icon: Icon(
             isVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey,
+            color: AppColors.iconGrey,
           ),
           onPressed: onPressed,
         ),
         labelText: label,
-        labelStyle: const TextStyle(
-          color: Colors.grey,
-          fontFamily: "assets/fonts/Poppins-Regular.ttf",
-        ),
+        labelStyle: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textLight),
         filled: true,
-        fillColor: const Color(0xFFF5F5F5),
+        fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

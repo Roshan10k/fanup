@@ -1,5 +1,8 @@
+import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'onboarding_data.dart';
+
+
 
 class OnboardingSlide extends StatelessWidget {
   final OnboardingSlideData data;
@@ -11,25 +14,36 @@ class OnboardingSlide extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // Icon Container
         Container(
           height: 200,
           width: 200,
           decoration: BoxDecoration(
-            color: Colors.grey.shade200,
+            color: AppColors.inputBackground, // centralized color
             shape: BoxShape.circle,
           ),
-          child: Icon(data.icon, size: 100, color: Colors.orange,),
+          child: Icon(
+            data.icon,
+            size: 100,
+            color: AppColors.primary, // use primary app color
+          ),
         ),
+
         const SizedBox(height: 30),
+
+        // Title
         Text(
           data.title,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600,fontFamily: "assets/fonts/Poppins-Bold.ttf",),
+          style: AppTextStyles.poppinsBold24,
           textAlign: TextAlign.center,
         ),
+
         const SizedBox(height: 12),
+
+        // Description
         Text(
           data.description,
-          style: TextStyle(fontSize: 16, color: Colors.grey.shade600,fontFamily: "assets/fonts/Poppins-Regular.ttf",),
+          style: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
       ],
