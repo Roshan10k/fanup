@@ -1,4 +1,4 @@
-import 'package:fanup/screens/dashboard_screen.dart';
+import 'package:fanup/screens/bottom_navigation_screen.dart';
 import 'package:fanup/screens/signup_screen.dart';
 import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const DashboardScreen(),
+                            builder: (context) => const BottomNavigationScreen(),
                           ),
                         );
                       },

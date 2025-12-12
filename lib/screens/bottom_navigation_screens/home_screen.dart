@@ -1,79 +1,83 @@
-import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:fanup/themes/theme.dart';
 import 'package:fanup/widgets/balance_card_widget.dart';
 import 'package:fanup/widgets/match_card_widget.dart';
 
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text('Home'),
         backgroundColor: AppColors.primary,
         elevation: 0,
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.leaderboard),
-            label: 'LeaderBoard',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: 'Wallet'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        unselectedItemColor: AppColors.textSecondary,
-        selectedItemColor: AppColors.primary,
-        selectedLabelStyle: AppTextStyles.poppinsSemiBold15,
-        unselectedLabelStyle: AppTextStyles.poppinsSemiBold13,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0 ),
-              child: RichText(
-                text: TextSpan(
+            // Logo and Title
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                
+                Image.asset(
+                  "assets/images/logo.png",
+                  height: 90,
+                  width: 90,
+                  fit: BoxFit.contain,
+                ),
+
+                const SizedBox(width: 14),
+
+               
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextSpan(
-                      text: "Fan",
-                      style: AppTextStyles.poppinsBold24.copyWith(
-                        color: AppColors.textDark,
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Fan",
+                            style: AppTextStyles.poppinsBold24.copyWith(
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "Up",
+                            style: AppTextStyles.poppinsBold24.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    TextSpan(
-                      text: "Up",
-                      style: AppTextStyles.poppinsBold24.copyWith(
-                        color: AppColors.primary,
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      "Build your dream team",
+                      style: AppTextStyles.poppinsRegular16.copyWith(
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left:8.0, bottom: 10.0),
-              child: Text(
-                "Build your dream team",
-                style: AppTextStyles.poppinsRegular16.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
+
             const SizedBox(height: 10),
 
             // Balance Card
             BalanceCardWidget(credit: 100.0, onAddCredit: () {}),
             const SizedBox(height: 10),
 
-            // Upcoming Matches
+            // Upcoming Matches Title
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -106,6 +110,7 @@ class DashboardScreen extends StatelessWidget {
               teamB: "SL",
               onCreateTeam: () {},
             ),
+
             const SizedBox(height: 20),
           ],
         ),
