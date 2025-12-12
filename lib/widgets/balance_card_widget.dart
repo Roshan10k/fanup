@@ -1,4 +1,7 @@
+import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
+
+
 
 class BalanceCardWidget extends StatelessWidget {
   final double credit;
@@ -28,24 +31,17 @@ class BalanceCardWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Credit info
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Available credit",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.poppinsSemiBold15.copyWith(color: AppColors.textDark),
               ),
               Text(
                 credit.toStringAsFixed(1),
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                style: AppTextStyles.poppinsSemiBold18.copyWith(color: AppColors.textDark),
               ),
             ],
           ),
@@ -55,20 +51,14 @@ class BalanceCardWidget extends StatelessWidget {
             onPressed: onAddCredit,
             style: TextButton.styleFrom(
               backgroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Text(
+            child: Text(
               "Add Credit",
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.poppinsRegular15.copyWith(color: AppColors.primary),
             ),
           ),
         ],
