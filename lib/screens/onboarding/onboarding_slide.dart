@@ -25,7 +25,7 @@ class OnboardingSlide extends StatelessWidget {
           child: Icon(
             data.icon,
             size: 100,
-            color: AppColors.primary, 
+            color: Colors.amber, 
           ),
         ),
 
