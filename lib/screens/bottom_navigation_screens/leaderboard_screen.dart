@@ -14,7 +14,7 @@ class LeaderboardScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _topThree(),
             const SizedBox(height: 16),
-            
+            Expanded(child: _leaderList()),
           ],
         ),
       ),
@@ -165,4 +165,54 @@ class LeaderboardScreen extends StatelessWidget {
   }
 
 
+  Widget _leaderList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        final rank = index + 4;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Text(
+                "$rank.",
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      "Player Name",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text("pts", style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              ),
+              const Text(
+                "20.0",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
