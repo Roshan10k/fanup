@@ -1,8 +1,6 @@
 import 'package:fanup/themes/theme.dart';
 import 'package:flutter/material.dart';
 
-
-
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -16,142 +14,190 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size; // For responsiveness
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
-            child: Column(
-              children: [
-                SizedBox(height: size.height * 0.04),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isTablet = constraints.maxWidth >= 600;
 
-                // Logo
-                Image.asset(
-                  "assets/images/logo.png",
-                  height: size.height * 0.15,
-                ),
+            // Responsive sizing
+            final double horizontalPadding = isTablet
+                ? constraints.maxWidth * 0.2
+                : constraints.maxWidth * 0.06;
+            final double logoHeight = isTablet
+                ? constraints.maxHeight * 0.25
+                : constraints.maxHeight * 0.12;
+            final double spacingExtraSmall = isTablet
+                ? constraints.maxHeight * 0.01
+                : constraints.maxHeight * 0.01;
+            final double spacingSmall = isTablet
+                ? constraints.maxHeight * 0.02
+                : constraints.maxHeight * 0.02;
+            final double spacingMedium = isTablet
+                ? constraints.maxHeight * 0.03
+                : constraints.maxHeight * 0.04;
+            final double spacingLarge = isTablet
+                ? constraints.maxHeight * 0.05
+                : constraints.maxHeight * 0.05;
+            final double buttonHeight = isTablet
+                ? constraints.maxHeight * 0.07
+                : constraints.maxHeight * 0.065;
+            final double fontSizeTitle = isTablet ? 32 : 28;
+            final double fontSizeSubtitle = isTablet ? 18 : 16;
+            final double fontSizeSignUpLink = isTablet ? 20 : 18;
 
-                SizedBox(height: size.height * 0.01),
+            return SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Column(
+                  children: [
+                    SizedBox(height: spacingMedium),
 
-                // Welcome text
-                Text(
-                  "Let's Get Started!",
-                  style: AppTextStyles.poppinsBold28,
-                  textAlign: TextAlign.center,
-                ),
+                    // Logo
+                    Image.asset(
+                      "assets/images/logo.png",
+                      height: logoHeight,
+                      fit: BoxFit.contain,
+                    ),
 
-                SizedBox(height: size.height * 0.01),
+                    SizedBox(height: spacingExtraSmall),
 
-                Text(
-                  "Create an account on FanUp to get all features",
-                  style: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
+                    // Welcome text
+                    Text(
+                      "Let's Get Started!",
+                      style: AppTextStyles.poppinsBold28.copyWith(
+                        fontSize: fontSizeTitle,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
 
-                SizedBox(height: size.height * 0.04),
+                    SizedBox(height: spacingExtraSmall),
 
-                // First Name
-                _buildInputField("First Name", Icons.person_outline),
-                SizedBox(height: size.height * 0.02),
+                    Text(
+                      "Create an account on FanUp to get all features",
+                      style: AppTextStyles.poppinsRegular16.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: fontSizeSubtitle,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
 
-                // Last Name
-                _buildInputField("Last Name", Icons.person_outline),
-                SizedBox(height: size.height * 0.02),
+                    SizedBox(height: spacingMedium),
 
-                // Username
-                _buildInputField("User Name", Icons.person_outline),
-                SizedBox(height: size.height * 0.02),
+                    // First Name
+                    _buildInputField("First Name", Icons.person_outline),
+                    SizedBox(height: spacingSmall),
 
-                // Email
-                _buildInputField("Email", Icons.email_outlined,
-                    inputType: TextInputType.emailAddress),
-                SizedBox(height: size.height * 0.02),
+                    // Last Name
+                    _buildInputField("Last Name", Icons.person_outline),
+                    SizedBox(height: spacingSmall),
 
-                // Password
-                _passwordField(
-                  label: "Password",
-                  isVisible: _isPasswordVisible,
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                ),
-                SizedBox(height: size.height * 0.02),
+                    // Username
+                    _buildInputField("User Name", Icons.person_outline),
+                    SizedBox(height: spacingSmall),
 
-                // Confirm Password
-                _passwordField(
-                  label: "Confirm Password",
-                  isVisible: _isConfirmPasswordVisible,
-                  onPressed: () {
-                    setState(() {
-                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                    });
-                  },
-                ),
+                    // Email
+                    _buildInputField(
+                      "Email",
+                      Icons.email_outlined,
+                      inputType: TextInputType.emailAddress,
+                    ),
+                    SizedBox(height: spacingSmall),
 
-                SizedBox(height: size.height * 0.05),
+                    // Password
+                    _passwordField(
+                      label: "Password",
+                      isVisible: _isPasswordVisible,
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                    SizedBox(height: spacingSmall),
 
-                // Sign Up button
-                SizedBox(
-                  width: double.infinity,
-                  height: size.height * 0.065,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                    // Confirm Password
+                    _passwordField(
+                      label: "Confirm Password",
+                      isVisible: _isConfirmPasswordVisible,
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
+
+                    SizedBox(height: spacingLarge),
+
+                    // Sign Up button
+                    SizedBox(
+                      width: double.infinity,
+                      height: buttonHeight,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text("Sign Up", style: AppTextStyles.buttonText),
                       ),
                     ),
-                    child: Text(
-                      "Sign Up",
-                      style: AppTextStyles.buttonText,
-                    ),
-                  ),
-                ),
 
-                SizedBox(height: size.height * 0.04),
+                    SizedBox(height: spacingMedium),
 
-                // Already have an account
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Already have an account? ",
-                      style: AppTextStyles.poppinsRegular15.copyWith(color: AppColors.textSecondary),
+                    // Already have an account
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Already have an account? ",
+                          style: AppTextStyles.poppinsRegular15.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: fontSizeSubtitle,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Text(
+                            "Login",
+                            style: AppTextStyles.poppinsBold28.copyWith(
+                              fontSize: fontSizeSignUpLink,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Text(
-  "Login",
-  style: AppTextStyles.poppinsBold28.copyWith(fontSize: 18, color: AppColors.primary),
-)
-                    ),
+
+                    SizedBox(height: spacingMedium),
                   ],
                 ),
-
-                SizedBox(height: size.height * 0.04),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildInputField(String label, IconData icon,
-      {TextInputType inputType = TextInputType.text}) {
+  Widget _buildInputField(
+    String label,
+    IconData icon, {
+    TextInputType inputType = TextInputType.text,
+  }) {
     return TextFormField(
       keyboardType: inputType,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: AppColors.iconGrey),
         labelText: label,
-        labelStyle: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textLight),
+        labelStyle: AppTextStyles.poppinsRegular16.copyWith(
+          color: AppColors.textLight,
+        ),
         filled: true,
         fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
@@ -179,7 +225,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           onPressed: onPressed,
         ),
         labelText: label,
-        labelStyle: AppTextStyles.poppinsRegular16.copyWith(color: AppColors.textLight),
+        labelStyle: AppTextStyles.poppinsRegular16.copyWith(
+          color: AppColors.textLight,
+        ),
         filled: true,
         fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
