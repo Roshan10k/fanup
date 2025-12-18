@@ -24,43 +24,66 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isTablet = constraints.maxWidth >= 600;
 
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(28),
-            topRight: Radius.circular(28),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: SizedBox(
-            height: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(Icons.home, "Home", 0),
-                _buildNavItem(Icons.leaderboard, "Leaderboard", 1),
-                _buildNavItem(Icons.wallet, "Wallet", 2),
-                _buildNavItem(Icons.person, "Profile", 3),
+        // Responsive sizes
+        final double navBarHeight = isTablet ? 80 : 60;
+        final double iconSize = isTablet ? 28 : 24;
+        final double indicatorWidth = isTablet ? 40 : 32;
+        final double indicatorHeight = isTablet ? 5 : 4;
+        final double spacing = isTablet ? 8 : 6;
+        final double fontSize = isTablet ? 16 : 13;
+
+        return Scaffold(
+          body: _screens[_selectedIndex],
+
+          bottomNavigationBar: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(28),
+                topRight: Radius.circular(28),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, -2),
+                ),
               ],
             ),
+            child: SafeArea(
+              child: SizedBox(
+                height: navBarHeight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(Icons.home, "Home", 0, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
+                    _buildNavItem(Icons.leaderboard, "Leaderboard", 1, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
+                    _buildNavItem(Icons.wallet, "Wallet", 2, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
+                    _buildNavItem(Icons.person, "Profile", 3, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index) {
+  Widget _buildNavItem(
+      IconData icon,
+      String label,
+      int index,
+      double iconSize,
+      double fontSize,
+      double indicatorWidth,
+      double indicatorHeight,
+      double spacing,
+      ) {
     final bool isSelected = _selectedIndex == index;
 
     return GestureDetector(
@@ -71,8 +94,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           // Top Indicator Bar
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
-            height: 4,
-            width: isSelected ? 32 : 0,
+            height: indicatorHeight,
+            width: isSelected ? indicatorWidth : 0,
             decoration: BoxDecoration(
               gradient: isSelected
                   ? const LinearGradient(
@@ -85,11 +108,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             ),
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: spacing),
 
           Icon(
             icon,
-            size: 24,
+            size: iconSize,
             color: isSelected ? AppColors.primary : AppColors.textSecondary,
           ),
 
@@ -97,9 +120,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             label,
             style: isSelected
                 ? AppTextStyles.poppinsSemiBold13.copyWith(
+                    fontSize: fontSize,
                     color: AppColors.primary,
                   )
                 : AppTextStyles.poppinsSemiBold13.copyWith(
+                    fontSize: fontSize,
                     color: AppColors.textSecondary,
                   ),
           ),
