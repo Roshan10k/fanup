@@ -11,181 +11,171 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _agreeToTerms = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final bool isTablet = constraints.maxWidth >= 600;
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
 
-            // Responsive sizing
-            final double horizontalPadding = isTablet
-                ? constraints.maxWidth * 0.2
-                : constraints.maxWidth * 0.06;
-            final double logoHeight = isTablet
-                ? constraints.maxHeight * 0.25
-                : constraints.maxHeight * 0.12;
-            final double spacingExtraSmall = isTablet
-                ? constraints.maxHeight * 0.01
-                : constraints.maxHeight * 0.01;
-            final double spacingSmall = isTablet
-                ? constraints.maxHeight * 0.02
-                : constraints.maxHeight * 0.02;
-            final double spacingMedium = isTablet
-                ? constraints.maxHeight * 0.03
-                : constraints.maxHeight * 0.04;
-            final double spacingLarge = isTablet
-                ? constraints.maxHeight * 0.05
-                : constraints.maxHeight * 0.05;
-            final double buttonHeight = isTablet
-                ? constraints.maxHeight * 0.07
-                : constraints.maxHeight * 0.065;
-            final double fontSizeTitle = isTablet ? 32 : 28;
-            final double fontSizeSubtitle = isTablet ? 18 : 16;
-            final double fontSizeSignUpLink = isTablet ? 20 : 18;
+              Image.asset("assets/images/logo.png", height: 120),
 
-            return SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: Column(
-                  children: [
-                    SizedBox(height: spacingMedium),
+              const SizedBox(height: 16),
 
-                    // Logo
-                    Image.asset(
-                      "assets/images/logo.png",
-                      height: logoHeight,
-                      fit: BoxFit.contain,
-                    ),
+              Text(
+                "Let’s Get Started!",
+                style: AppTextStyles.poppinsBold28,
+                textAlign: TextAlign.center,
+              ),
 
-                    SizedBox(height: spacingExtraSmall),
+              const SizedBox(height: 8),
 
-                    // Welcome text
-                    Text(
-                      "Let's Get Started!",
-                      style: AppTextStyles.poppinsBold28.copyWith(
-                        fontSize: fontSizeTitle,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+              Text(
+                "Create an account on FanUp",
+                style: AppTextStyles.poppinsRegular16.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
 
-                    SizedBox(height: spacingExtraSmall),
+              const SizedBox(height: 32),
 
-                    Text(
-                      "Create an account on FanUp to get all features",
-                      style: AppTextStyles.poppinsRegular16.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: fontSizeSubtitle,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+              _inputField("Full Name", Icons.person_outline),
+              const SizedBox(height: 16),
 
-                    SizedBox(height: spacingMedium),
+              _inputField(
+                "Email",
+                Icons.email_outlined,
+                inputType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
 
-                    // First Name
-                    _buildInputField("First Name", Icons.person_outline),
-                    SizedBox(height: spacingSmall),
+              _passwordField(
+                label: "Password",
+                isVisible: _isPasswordVisible,
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
 
-                    // Last Name
-                    _buildInputField("Last Name", Icons.person_outline),
-                    SizedBox(height: spacingSmall),
+              _passwordField(
+                label: "Confirm Password",
+                isVisible: _isConfirmPasswordVisible,
+                onPressed: () {
+                  setState(() {
+                    _isConfirmPasswordVisible =
+                        !_isConfirmPasswordVisible;
+                  });
+                },
+              ),
 
-                    // Username
-                    _buildInputField("User Name", Icons.person_outline),
-                    SizedBox(height: spacingSmall),
+              const SizedBox(height: 20),
 
-                    // Email
-                    _buildInputField(
-                      "Email",
-                      Icons.email_outlined,
-                      inputType: TextInputType.emailAddress,
-                    ),
-                    SizedBox(height: spacingSmall),
-
-                    // Password
-                    _passwordField(
-                      label: "Password",
-                      isVisible: _isPasswordVisible,
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                    SizedBox(height: spacingSmall),
-
-                    // Confirm Password
-                    _passwordField(
-                      label: "Confirm Password",
-                      isVisible: _isConfirmPasswordVisible,
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible =
-                              !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
-
-                    SizedBox(height: spacingLarge),
-
-                    // Sign Up button
-                    SizedBox(
-                      width: double.infinity,
-                      height: buttonHeight,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+              // Terms
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Checkbox(
+                    value: _agreeToTerms,
+                    activeColor: AppColors.primary,
+                    onChanged: (value) {
+                      setState(() {
+                        _agreeToTerms = value ?? false;
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: AppTextStyles.poppinsRegular16.copyWith(
+                          color: AppColors.textSecondary,
                         ),
-                        child: Text("Sign Up", style: AppTextStyles.buttonText),
-                      ),
-                    ),
-
-                    SizedBox(height: spacingMedium),
-
-                    // Already have an account
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Already have an account? ",
-                          style: AppTextStyles.poppinsRegular15.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: fontSizeSubtitle,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Text(
-                            "Login",
-                            style: AppTextStyles.poppinsBold28.copyWith(
-                              fontSize: fontSizeSignUpLink,
+                        children: [
+                          const TextSpan(text: "I agree to the "),
+                          TextSpan(
+                            text: "Terms of Service",
+                            style: TextStyle(
                               color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ),
-                      ],
+                          const TextSpan(text: " and "),
+                          TextSpan(
+                            text: "Privacy Policy",
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
+                ],
+              ),
 
-                    SizedBox(height: spacingMedium),
-                  ],
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _agreeToTerms ? () {} : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: Text(
+                    "Sign Up",
+                    style: AppTextStyles.buttonText,
+                  ),
                 ),
               ),
-            );
-          },
+
+              const SizedBox(height: 24),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Already have an account? ",
+                    style: AppTextStyles.poppinsRegular15.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Text(
+                      "Login",
+                      style: AppTextStyles.poppinsBold24.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildInputField(
+  Widget _inputField(
     String label,
     IconData icon, {
     TextInputType inputType = TextInputType.text,
@@ -195,9 +185,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: AppColors.iconGrey),
         labelText: label,
-        labelStyle: AppTextStyles.poppinsRegular16.copyWith(
-          color: AppColors.textLight,
-        ),
         filled: true,
         fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
@@ -216,18 +203,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return TextFormField(
       obscureText: !isVisible,
       decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+        prefixIcon: const Icon(Icons.lock_outline),
         suffixIcon: IconButton(
           icon: Icon(
             isVisible ? Icons.visibility : Icons.visibility_off,
-            color: AppColors.iconGrey,
           ),
           onPressed: onPressed,
         ),
         labelText: label,
-        labelStyle: AppTextStyles.poppinsRegular16.copyWith(
-          color: AppColors.textLight,
-        ),
         filled: true,
         fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(

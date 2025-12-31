@@ -18,178 +18,160 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final bool isTablet = constraints.maxWidth >= 600;
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
 
-            // Responsive sizing
-            final double horizontalPadding =
-                isTablet ? constraints.maxWidth * 0.2 : constraints.maxWidth * 0.08;
-            final double logoHeight = isTablet ? constraints.maxHeight * 0.3 : constraints.maxHeight * 0.25;
-            final double spacingSmall = isTablet ? constraints.maxHeight * 0.02 : constraints.maxHeight * 0.01;
-            final double spacingMedium = isTablet ? constraints.maxHeight * 0.04 : constraints.maxHeight * 0.02;
-            final double spacingLarge = isTablet ? constraints.maxHeight * 0.06 : constraints.maxHeight * 0.05;
-            final double buttonHeight = isTablet ? constraints.maxHeight * 0.07 : constraints.maxHeight * 0.065;
-            final double fontSizeWelcome = isTablet ? 32 : 28;
-            final double fontSizeSubtitle = isTablet ? 18 : 16;
-            final double fontSizeSignUp = isTablet ? 20 : 18;
+              Image.asset(
+                "assets/images/logo.png",
+                height: 220,
+              ),
 
-            return SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: SizedBox(
-                  height: constraints.maxHeight * 0.9,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo
-                      Image.asset(
-                        "assets/images/logo.png",
-                        height: logoHeight,
-                        fit: BoxFit.contain,
+              const SizedBox(height: 24),
+
+              Text(
+                "Welcome back!",
+                style: AppTextStyles.poppinsBold28,
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Log in to your FanUp account",
+                style: AppTextStyles.poppinsRegular16.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 32),
+
+              // Email
+              _inputField(
+                label: "Email",
+                icon: Icons.email_outlined,
+                inputType: TextInputType.emailAddress,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Password
+              _passwordField(),
+
+              const SizedBox(height: 32),
+
+              // Login button
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BottomNavigationScreen(),
                       ),
-
-                      SizedBox(height: spacingMedium),
-
-                      // Welcome text
-                      Text(
-                        "Welcome back!",
-                        style: AppTextStyles.poppinsBold28.copyWith(
-                          color: AppColors.textDark,
-                          fontSize: fontSizeWelcome,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      SizedBox(height: spacingSmall),
-
-                      // Subtitle
-                      Text(
-                        "Log in to existing FanUp account",
-                        style: AppTextStyles.poppinsRegular16.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: fontSizeSubtitle,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      SizedBox(height: spacingLarge),
-
-                      // Username
-                      TextFormField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.person_outline,
-                            color: AppColors.iconGrey,
-                          ),
-                          labelText: "Username",
-                          filled: true,
-                          fillColor: AppColors.inputBackground,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: spacingMedium),
-
-                      // Password
-                      TextFormField(
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.lock_outline,
-                            color: AppColors.iconGrey,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: AppColors.iconGrey,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                          labelText: "Password",
-                          filled: true,
-                          fillColor: AppColors.inputBackground,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: spacingLarge),
-
-                      // Login button
-                      SizedBox(
-                        width: double.infinity,
-                        height: buttonHeight,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const BottomNavigationScreen(),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            textStyle: AppTextStyles.buttonText,
-                          ),
-                          child: const Text("Login"),
-                        ),
-                      ),
-
-                      SizedBox(height: spacingMedium),
-
-                      // Sign Up Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an Account? ",
-                            style: AppTextStyles.poppinsRegular15.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: fontSizeSubtitle,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SignUpScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "Sign Up",
-                              style: AppTextStyles.poppinsBold28.copyWith(
-                                color: AppColors.primary,
-                                fontSize: fontSizeSignUp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: Text(
+                    "Login",
+                    style: AppTextStyles.buttonText,
                   ),
                 ),
               ),
-            );
+
+              const SizedBox(height: 24),
+
+              // Sign up link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don’t have an account? ",
+                    style: AppTextStyles.poppinsRegular15.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SignUpScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "Sign Up",
+                      style: AppTextStyles.poppinsSemiBold18.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _inputField({
+    required String label,
+    required IconData icon,
+    TextInputType inputType = TextInputType.text,
+  }) {
+    return TextFormField(
+      keyboardType: inputType,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: AppColors.iconGrey),
+        labelText: label,
+        filled: true,
+        fillColor: AppColors.inputBackground,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _passwordField() {
+    return TextFormField(
+      obscureText: !_isPasswordVisible,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.lock_outline),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isPasswordVisible
+                ? Icons.visibility
+                : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
           },
+        ),
+        labelText: "Password",
+        filled: true,
+        fillColor: AppColors.inputBackground,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
       ),
     );
