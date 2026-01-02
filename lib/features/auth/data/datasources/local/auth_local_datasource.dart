@@ -7,56 +7,68 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final authLocalDatasourceProvider = Provider<AuthLocalDatasource>((ref) {
   final hiveService = ref.watch(hiveServiceProvider);
   return AuthLocalDatasource(hiveService: hiveService);
-
 });
 
 class AuthLocalDatasource implements IAuthDataSource {
   final HiveService _hiveService;
   AuthLocalDatasource({required HiveService hiveService})
     : _hiveService = hiveService;
+
   @override
-  Future<AuthHiveModel?> getCurrentUser() {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
+  Future<AuthHiveModel?> getCurrentUser() async {
+    try {
+      final user = await _hiveService.getCurrentUser();
+      return user;
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
-  Future<AuthHiveModel?> loginUser(String email, String password) async{
-    try{
+  Future<AuthHiveModel?> loginUser(String email, String password) async {
+    try {
       final user = await _hiveService.loginUser(email, password);
-      return Future.value(user);
-    }catch(e){
-      return Future.value(null);
+      if (user != null) {
+        // Save as current user after successful login
+        await _hiveService.saveCurrentUser(user);
+      }
+      return user;
+    } catch (e) {
+      return null;
     }
   }
 
   @override
-  Future<bool> logout() async{
-    try{
-      await _hiveService.logoutUser(); 
-      return Future.value(true);
-    }catch(e){
-      return Future.value(false);
+  Future<bool> logout() async {
+    try {
+      await _hiveService.logoutUser();
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
   @override
-  Future<bool> register(AuthHiveModel model) async{
-    try{
+  Future<bool> register(AuthHiveModel model) async {
+    try {
+      // Register the user
       await _hiveService.registerUser(model);
-      return Future.value(true);
-    }catch(e){
-      return Future.value(false);
+      // Save as current user after successful registration
+      await _hiveService.saveCurrentUser(model);
+      return true;
+    } catch (e) {
+      print('Registration error: $e'); // Add logging to debug
+      return false;
     }
   }
-  
+
   @override
-  Future<bool> isEmailRegistered(String email) async{
-    try{
+  Future<bool> isEmailRegistered(String email) async {
+    try {
       final isRegistered = await _hiveService.isEmailRegistered(email);
-      return Future.value(isRegistered);
-    }catch(e){
-      return Future.value(false);
+      return isRegistered;
+    } catch (e) {
+      return false;
     }
+  }
 }
-} 

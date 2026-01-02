@@ -29,6 +29,8 @@ class HiveService {
   // Open all boxes
   Future<void> _openBoxes() async {
     await Hive.openBox<AuthHiveModel>(HiveTableConstant.authTable);
+    // Open a simple box for storing current user ID
+    await Hive.openBox('app_data');
   }
 
   // Close all boxes
@@ -39,6 +41,8 @@ class HiveService {
   // ==================== Auth CRUD Operations ====================
   Box<AuthHiveModel> get _authBox =>
       Hive.box<AuthHiveModel>(HiveTableConstant.authTable);
+  
+  Box get _appDataBox => Hive.box('app_data');
 
   Future<AuthHiveModel> registerUser(AuthHiveModel model) async {
     await _authBox.put(model.authId, model);
@@ -57,12 +61,23 @@ class HiveService {
 
   //logout
   Future<void> logoutUser() async {
-    
-}
+    // Remove the current user ID reference
+    await _appDataBox.delete('current_user_id');
+  }
 
-  // Get Current User
-  Future<AuthHiveModel?> getCurrentUser(String authId) async {
-    return _authBox.get(authId);
+  // Save Current User ID 
+  Future<void> saveCurrentUser(AuthHiveModel user) async {
+    // Store only the user ID as reference
+    await _appDataBox.put('current_user_id', user.authId);
+  }
+
+  // Get Current User by retrieving from the stored ID
+  Future<AuthHiveModel?> getCurrentUser() async {
+    final currentUserId = _appDataBox.get('current_user_id');
+    if (currentUserId == null) return null;
+    
+    // Get the actual user object from authBox using the ID
+    return _authBox.get(currentUserId);
   }
 
   //is email registered
@@ -70,7 +85,4 @@ class HiveService {
     final users = _authBox.values.where((auth) => auth.email == email);
     return users.isNotEmpty;  
   }
-
- 
 }
- 
