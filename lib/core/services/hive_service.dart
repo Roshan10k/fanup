@@ -1,9 +1,14 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:fanup/core/constants/hive_table_constant.dart';
 import 'package:fanup/features/auth/data/models/auth_hive_model.dart';
 import 'package:path_provider/path_provider.dart';
 
-class HiveServices {
+final hiveServiceProvider = Provider<HiveService>((ref) {
+  return HiveService();
+});
+
+class HiveService {
   // Initialize Hive
   Future<void> init() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -35,9 +40,9 @@ class HiveServices {
   Box<AuthHiveModel> get _authBox =>
       Hive.box<AuthHiveModel>(HiveTableConstant.authTable);
 
-  Future<AuthHiveModel> registerUser(AuthHiveModel auth) async {
-    await _authBox.put(auth.authId, auth);
-    return auth;
+  Future<AuthHiveModel> registerUser(AuthHiveModel model) async {
+    await _authBox.put(model.authId, model);
+    return model;
   }
 
   //Login 
@@ -51,8 +56,8 @@ class HiveServices {
   }
 
   //logout
-  Future<void> logoutUser(String authId) async {
-    await _authBox.delete(authId);
+  Future<void> logoutUser() async {
+    
 }
 
   // Get Current User
@@ -60,5 +65,12 @@ class HiveServices {
     return _authBox.get(authId);
   }
 
+  //is email registered
+  Future<bool> isEmailRegistered(String email) async {
+    final users = _authBox.values.where((auth) => auth.email == email);
+    return users.isNotEmpty;  
+  }
+
  
 }
+ 
