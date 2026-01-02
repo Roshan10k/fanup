@@ -3,6 +3,12 @@ import 'package:fanup/features/auth/domain/usecases/register_usecase.dart';
 import 'package:fanup/features/auth/presentation/state/auth_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+//provider
+final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
+  () => AuthViewModel(),
+);    
+
+
 class AuthViewModel extends Notifier<AuthState> {
   late final RegisterUsecase _registerUsecase;
   late final LoginUsecase _loginUsecase;
