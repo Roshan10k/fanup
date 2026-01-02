@@ -1,4 +1,4 @@
-import 'package:fanup/themes/theme.dart';
+import 'package:fanup/app/themes/theme.dart';
 import 'package:flutter/material.dart';
 
 class BalanceCardWidget extends StatelessWidget {

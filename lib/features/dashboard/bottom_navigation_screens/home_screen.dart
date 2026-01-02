@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fanup/themes/theme.dart';
+import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/widgets/balance_card_widget.dart';
 import 'package:fanup/widgets/match_card_widget.dart';
 

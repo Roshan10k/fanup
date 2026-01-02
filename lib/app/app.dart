@@ -1,5 +1,5 @@
-import 'package:fanup/screens/splash_screen.dart';
-import 'package:fanup/themes/theme.dart';
+import 'package:fanup/features/splash/splash_screen.dart';
+import 'package:fanup/app/themes/theme.dart';
 
 import 'package:flutter/material.dart';
 

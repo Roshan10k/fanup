@@ -1,6 +1,6 @@
-import 'package:fanup/themes/theme.dart';
+import 'package:fanup/app/themes/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:fanup/screens/login_screen.dart';
+import 'package:fanup/features/auth/presentation/pages/login_page.dart';
 import 'onboarding_data.dart';
 import 'onboarding_slide.dart';
 
@@ -18,7 +18,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (step == onboardingSlides.length - 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginPage()),
       );
     } else {
       setState(() => step++);
@@ -73,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              MaterialPageRoute(builder: (_) => const LoginPage()),
                             );
                           },
                           child: Text(

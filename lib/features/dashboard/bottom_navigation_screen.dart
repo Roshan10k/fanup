@@ -1,9 +1,9 @@
+import 'package:fanup/features/dashboard/bottom_navigation_screens/home_screen.dart';
+import 'package:fanup/features/dashboard/bottom_navigation_screens/leaderboard_screen.dart';
+import 'package:fanup/features/dashboard/bottom_navigation_screens/profile_screen.dart';
+import 'package:fanup/features/dashboard/bottom_navigation_screens/wallet_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:fanup/themes/theme.dart';
-import 'package:fanup/screens/bottom_navigation_screens/home_screen.dart';
-import 'package:fanup/screens/bottom_navigation_screens/leaderboard_screen.dart';
-import 'package:fanup/screens/bottom_navigation_screens/wallet_screen.dart';
-import 'package:fanup/screens/bottom_navigation_screens/profile_screen.dart';
+import 'package:fanup/app/themes/theme.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({super.key});
@@ -60,10 +60,46 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildNavItem(Icons.home, "Home", 0, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
-                    _buildNavItem(Icons.leaderboard, "Leaderboard", 1, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
-                    _buildNavItem(Icons.wallet, "Wallet", 2, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
-                    _buildNavItem(Icons.person, "Profile", 3, iconSize, fontSize, indicatorWidth, indicatorHeight, spacing),
+                    _buildNavItem(
+                      Icons.home,
+                      "Home",
+                      0,
+                      iconSize,
+                      fontSize,
+                      indicatorWidth,
+                      indicatorHeight,
+                      spacing,
+                    ),
+                    _buildNavItem(
+                      Icons.leaderboard,
+                      "Leaderboard",
+                      1,
+                      iconSize,
+                      fontSize,
+                      indicatorWidth,
+                      indicatorHeight,
+                      spacing,
+                    ),
+                    _buildNavItem(
+                      Icons.wallet,
+                      "Wallet",
+                      2,
+                      iconSize,
+                      fontSize,
+                      indicatorWidth,
+                      indicatorHeight,
+                      spacing,
+                    ),
+                    _buildNavItem(
+                      Icons.person,
+                      "Profile",
+                      3,
+                      iconSize,
+                      fontSize,
+                      indicatorWidth,
+                      indicatorHeight,
+                      spacing,
+                    ),
                   ],
                 ),
               ),
@@ -75,15 +111,15 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   }
 
   Widget _buildNavItem(
-      IconData icon,
-      String label,
-      int index,
-      double iconSize,
-      double fontSize,
-      double indicatorWidth,
-      double indicatorHeight,
-      double spacing,
-      ) {
+    IconData icon,
+    String label,
+    int index,
+    double iconSize,
+    double fontSize,
+    double indicatorWidth,
+    double indicatorHeight,
+    double spacing,
+  ) {
     final bool isSelected = _selectedIndex == index;
 
     return GestureDetector(
