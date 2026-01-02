@@ -1,4 +1,8 @@
 class HiveTableConstant {
-  static const int userTypeId = 0;  // Auth/User Hive model
+
+  static const String dbName = "fanup_db";
+
+  static const int authTypeId = 0;
+  static const String authTable="auth_table";  // Auth/User Hive model
   
 }
