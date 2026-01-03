@@ -1,7 +1,9 @@
+import 'package:fanup/features/dashboard/presentation/widgets/balance_card_widget.dart';
+import 'package:fanup/features/dashboard/presentation/widgets/match_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fanup/app/themes/theme.dart';
-import 'package:fanup/widgets/balance_card_widget.dart';
-import 'package:fanup/widgets/match_card_widget.dart';
+
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

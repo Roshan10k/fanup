@@ -1,5 +1,5 @@
 import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
-import 'package:fanup/features/dashboard/bottom_navigation_screen.dart';
+import 'package:fanup/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

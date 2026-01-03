@@ -1,7 +1,7 @@
-import 'package:fanup/features/dashboard/bottom_navigation_screens/home_screen.dart';
-import 'package:fanup/features/dashboard/bottom_navigation_screens/leaderboard_screen.dart';
-import 'package:fanup/features/dashboard/bottom_navigation_screens/profile_screen.dart';
-import 'package:fanup/features/dashboard/bottom_navigation_screens/wallet_screen.dart';
+import 'package:fanup/features/dashboard/presentation/pages/home_screen.dart';
+import 'package:fanup/features/dashboard/presentation/pages/leaderboard_screen.dart';
+import 'package:fanup/features/dashboard/presentation/pages/profile_screen.dart';
+import 'package:fanup/features/dashboard/presentation/pages/wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fanup/app/themes/theme.dart';
 
