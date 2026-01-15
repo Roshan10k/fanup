@@ -1,3 +1,4 @@
+
 import 'package:fanup/features/auth/data/models/auth_hive_model.dart';
 
 abstract interface class IAuthDataSource {
@@ -8,4 +9,10 @@ abstract interface class IAuthDataSource {
 
   Future<bool> isEmailRegistered(String email);
   
+}
+
+abstract interface class IRemoteAuthDataSource {
+  Future<AuthHiveModel> registerRemote(AuthHiveModel model);
+  Future<AuthHiveModel?> loginUserRemote(String email, String password);
+  Future<AuthHiveModel?> getUserById(String authId);
 }

@@ -1,18 +1,28 @@
 import 'package:fanup/core/services/hive/hive_service.dart';
+import 'package:fanup/core/services/storage/user_session_service.dart';
 import 'package:fanup/features/auth/data/datasources/auth_datasource.dart';
 import 'package:fanup/features/auth/data/models/auth_hive_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Provider implementation of IAuthDataSource
 final authLocalDatasourceProvider = Provider<AuthLocalDatasource>((ref) {
-  final hiveService = ref.watch(hiveServiceProvider);
-  return AuthLocalDatasource(hiveService: hiveService);
+  final hiveService = ref.read(hiveServiceProvider);
+  final userSessionService = ref.read(userSessionServiceProvider);
+  return AuthLocalDatasource(
+    hiveService: hiveService,
+    userSessionService: userSessionService,
+  );
 });
 
 class AuthLocalDatasource implements IAuthDataSource {
   final HiveService _hiveService;
-  AuthLocalDatasource({required HiveService hiveService})
-    : _hiveService = hiveService;
+  final UserSessionService _userSessionService;
+  AuthLocalDatasource({
+    required HiveService hiveService,
+    required UserSessionService userSessionService,
+  }) : _hiveService = hiveService,
+       _userSessionService = userSessionService;
 
   @override
   Future<AuthHiveModel?> getCurrentUser() async {
@@ -29,8 +39,12 @@ class AuthLocalDatasource implements IAuthDataSource {
     try {
       final user = await _hiveService.loginUser(email, password);
       if (user != null) {
-        // Save as current user after successful login
-        await _hiveService.saveCurrentUser(user);
+        // Save as current user after successful login in shared preferences
+        await _userSessionService.saveUserSession(
+          authId: user.authId ?? "",
+          email: user.email,
+          fullName: user.fullName,
+        );
       }
       return user;
     } catch (e) {
@@ -42,8 +56,10 @@ class AuthLocalDatasource implements IAuthDataSource {
   Future<bool> logout() async {
     try {
       await _hiveService.logoutUser();
+      await _userSessionService.clearUserSession(); // clearing session after logging out
       return true;
     } catch (e) {
+      debugPrint('Logout error: $e');
       return false;
     }
   }
@@ -51,16 +67,28 @@ class AuthLocalDatasource implements IAuthDataSource {
   @override
   Future<bool> register(AuthHiveModel model) async {
     try {
-      // Register the user
+      // Validate before registering
+      if (model.authId == null || model.authId!.isEmpty) {
+        throw Exception('Invalid user data');
+      }
+      
       await _hiveService.registerUser(model);
-      // Save as current user after successful registration
       await _hiveService.saveCurrentUser(model);
+      
+      // Save session for consistency with login
+      await _userSessionService.saveUserSession(
+        authId: model.authId!,
+        email: model.email,
+        fullName: model.fullName,
+      );
+      
       return true;
     } catch (e) {
-      print('Registration error: $e'); // Add logging to debug
+      debugPrint('Registration error: $e');
       return false;
     }
   }
+
 
   @override
   Future<bool> isEmailRegistered(String email) async {
