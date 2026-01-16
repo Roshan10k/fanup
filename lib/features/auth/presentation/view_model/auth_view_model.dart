@@ -6,8 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //provider
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
   () => AuthViewModel(),
-);    
-
+);
 
 class AuthViewModel extends Notifier<AuthState> {
   late final RegisterUsecase _registerUsecase;
@@ -42,8 +41,8 @@ class AuthViewModel extends Notifier<AuthState> {
           errorMessage: failure.message,
         );
       },
-      (isRegistered){
-        if(isRegistered){
+      (isRegistered) {
+        if (isRegistered) {
           state = state.copyWith(status: AuthStatus.registered);
         } else {
           state = state.copyWith(
@@ -51,12 +50,11 @@ class AuthViewModel extends Notifier<AuthState> {
             errorMessage: "Registration failed",
           );
         }
-      }
-      
+      },
     );
   }
 
-  // Login
+  //Login
   Future<void> loginUser(String email, String password) async {
     state = state.copyWith(status: AuthStatus.loading);
     final params = LoginUsecaseParams(email: email, password: password);
@@ -70,15 +68,11 @@ class AuthViewModel extends Notifier<AuthState> {
           errorMessage: failure.message,
         );
       },
-      (isLoggedIn) {
-        if (isLoggedIn) {
-          state = state.copyWith(status: AuthStatus.authenticated);
-        } else {
-          state = state.copyWith(
-            status: AuthStatus.unauthenticated,
-            errorMessage: "Login failed",
-          );
-        }
+      (authEntity) {
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          authEntity: authEntity,
+        );
       },
     );
   }

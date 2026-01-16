@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:fanup/core/error/failures.dart';
 import 'package:fanup/app/app_usecase.dart';
 import 'package:fanup/features/auth/data/repositories/auth_repository.dart';
+import 'package:fanup/features/auth/domain/entities/auth_entity.dart';
 
 import 'package:fanup/features/auth/domain/repositories/auth.repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,14 +20,14 @@ final loginUsecaseProvider = Provider<LoginUsecase>((ref) {
   return LoginUsecase(authRepository: authRepository);
 });
 
-class LoginUsecase implements UsecaseWithParams<bool, LoginUsecaseParams> {
+class LoginUsecase implements UsecaseWithParams<AuthEntity, LoginUsecaseParams> {
   final IAuthRepository _authRepository;
 
   LoginUsecase({required IAuthRepository authRepository})
-    : _authRepository = authRepository;
+      : _authRepository = authRepository;
 
   @override
-  Future<Either<Failure, bool>> call(LoginUsecaseParams params) {
+  Future<Either<Failure, AuthEntity>> call(LoginUsecaseParams params) async {
     return _authRepository.loginUser(params.email, params.password);
   }
 }
