@@ -31,17 +31,16 @@ class AuthRepository implements IAuthRepository {
     required IAuthDataSource authDataSource,
     required IRemoteAuthDataSource authRemoteDatasource,
     required NetworkInfo networkInfo,
-  }) : _authDataSource = authDataSource,
-       _authRemoteDataSource = authRemoteDatasource,
-       _networkInfo = networkInfo;
+  })  : _authDataSource = authDataSource,
+        _authRemoteDataSource = authRemoteDatasource,
+        _networkInfo = networkInfo;
 
   @override
   Future<Either<Failure, AuthEntity>> getCurrentUser() async {
     try {
       final user = await _authDataSource.getCurrentUser();
       if (user != null) {
-        final entity = user.toEntity();
-        return Right(entity);
+        return Right(user.toEntity());
       }
       return const Left(LocalDatabaseFailure(message: "No current user found"));
     } catch (e) {
@@ -55,29 +54,26 @@ class AuthRepository implements IAuthRepository {
     String password,
   ) async {
     if (await _networkInfo.isConnected) {
-      // Remote login
       try {
-        final apiModel = await _authRemoteDataSource.loginUserRemote(
-          email,
-          password,
-        );
-        if (apiModel != null) {
-          final hiveModel = AuthHiveModel(
-            userId: apiModel.authId,
-            fullName: apiModel.fullName,
-            email: apiModel.email,
-            password: password,
+        final apiModel =
+            await _authRemoteDataSource.loginUserRemote(email, password);
+
+        if (apiModel == null) {
+          return const Left(
+            ApiFailure(message: "Invalid email or password"),
           );
-
-          // Save to local storage
-          await _authDataSource.register(hiveModel);
-          final entity = apiModel.toEntity();
-
-          return Right(entity);
         }
-        return const Left(
-          ApiFailure(message: "Invalid email or password. Please try again."),
+
+        final hiveModel = AuthHiveModel(
+          userId: apiModel.authId ?? '',
+          fullName: apiModel.fullName ?? '',
+          email: apiModel.email ?? '',
+          password: password,
         );
+
+        await _authDataSource.register(hiveModel);
+
+        return Right(apiModel.toEntity());
       } on DioException catch (e) {
         return Left(
           ApiFailure(
@@ -88,40 +84,23 @@ class AuthRepository implements IAuthRepository {
       } catch (e) {
         return Left(ApiFailure(message: e.toString()));
       }
-    } else {
-      if (email.isEmpty || password.isEmpty) {
-        return const Left(
-          LocalDatabaseFailure(message: "Email and password are required"),
-        );
-      }
-
-      try {
-        final user = await _authDataSource.loginUser(email, password);
-        if (user != null) {
-          final entity = user.toEntity();
-          return Right(entity);
-        }
-
-        return const Left(
-          LocalDatabaseFailure(
-            message: "Invalid email or password. Please try again.",
-          ),
-        );
-      } catch (e) {
-        return Left(LocalDatabaseFailure(message: e.toString()));
-      }
     }
-  }
 
-  @override
-  Future<Either<Failure, bool>> logoutUser() async {
-    try {
-      final result = await _authDataSource.logout();
-      if (result) {
-        return const Right(true);
-      }
+    // Offline login
+    if (email.isEmpty || password.isEmpty) {
       return const Left(
-        LocalDatabaseFailure(message: "Failed to logout. Please try again."),
+        LocalDatabaseFailure(message: "Email and password are required"),
+      );
+    }
+
+    try {
+      final user = await _authDataSource.loginUser(email, password);
+      if (user != null) {
+        return Right(user.toEntity());
+      }
+
+      return const Left(
+        LocalDatabaseFailure(message: "Invalid email or password"),
       );
     } catch (e) {
       return Left(LocalDatabaseFailure(message: e.toString()));
@@ -138,11 +117,20 @@ class AuthRepository implements IAuthRepository {
       );
     }
 
-    // Remote registration (with internet)
     if (await _networkInfo.isConnected) {
       try {
         final apiModel = AuthApiModel.fromEntity(entity);
-        await _authRemoteDataSource.registerRemote(apiModel);
+        final registeredUser =
+            await _authRemoteDataSource.registerRemote(apiModel);
+
+        final hiveModel = AuthHiveModel(
+          userId: registeredUser.authId ?? '',
+          fullName: registeredUser.fullName ?? '',
+          email: registeredUser.email ?? '',
+          password: entity.password,
+        );
+
+        await _authDataSource.register(hiveModel);
         return const Right(true);
       } on DioException catch (e) {
         return Left(
@@ -155,29 +143,42 @@ class AuthRepository implements IAuthRepository {
         return Left(ApiFailure(message: e.toString()));
       }
     }
-    // Local registration (without internet)
-    else {
-      try {
-        final isRegistered = await _authDataSource.isEmailRegistered(
-          entity.email,
-        );
-        if (isRegistered == true) {
-          return const Left(
-            LocalDatabaseFailure(message: "Email is already registered"),
-          );
-        }
 
-        final authModel = AuthHiveModel(
-          fullName: entity.fullName,
-          email: entity.email,
-          password: entity.password,
-        );
+    // Offline registration
+    try {
+      final isRegistered =
+          await _authDataSource.isEmailRegistered(entity.email);
 
-        await _authDataSource.register(authModel);
-        return const Right(true);
-      } catch (e) {
-        return Left(LocalDatabaseFailure(message: e.toString()));
+      if (isRegistered == true) {
+        return const Left(
+          LocalDatabaseFailure(message: "Email is already registered"),
+        );
       }
+
+      final hiveModel = AuthHiveModel(
+        fullName: entity.fullName,
+        email: entity.email,
+        password: entity.password,
+      );
+
+      await _authDataSource.register(hiveModel);
+      return const Right(true);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> logoutUser() async {
+    try {
+      final result = await _authDataSource.logout();
+      return result
+          ? const Right(true)
+          : const Left(
+              LocalDatabaseFailure(message: "Failed to logout"),
+            );
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
     }
   }
 }

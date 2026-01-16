@@ -17,3 +17,4 @@ abstract interface class IRemoteAuthDataSource {
   Future<AuthApiModel?> loginUserRemote(String email, String password);
   Future<AuthApiModel?> getUserById(String authId);
 }
+
