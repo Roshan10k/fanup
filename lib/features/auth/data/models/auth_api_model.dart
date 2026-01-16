@@ -12,7 +12,7 @@ class AuthApiModel {
     required this.fullName,
     required this.email,
     required this.password,
-    this.token
+    this.token,
   });
 
   //Convert API Model to JSON
@@ -27,16 +27,16 @@ class AuthApiModel {
 
   // Convert JSON to API Model
   factory AuthApiModel.fromJson(Map<String, dynamic> json) {
-    // Extract the user object
-    final userData = json['user'];
-    final token = json['token']; //extracting token from user object
+    // Handle both login and registration responses
+    final userData = json['user'] ?? json['data'] ?? json;
+    final token = json['token'];
 
     return AuthApiModel(
       authId: userData['_id'] as String?,
       fullName: userData['fullName'] as String,
       email: userData['email'] as String,
-      password: '', // Do not use password from backend
-      token: token as String?, 
+      password: '',
+      token: token as String,
     );
   }
 

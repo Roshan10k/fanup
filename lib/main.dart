@@ -13,7 +13,7 @@ void main () async{
 
   //shared preferences initialization
   final sharedPrefs = await SharedPreferences.getInstance();
-  // await sharedPrefs.clear(); // Clear existing data for fresh start 
+  await sharedPrefs.clear(); // Clear existing data for fresh start 
   runApp(ProviderScope(overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
     child: const App()));
 }
