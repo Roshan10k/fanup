@@ -96,7 +96,79 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
   static TextStyle buttonText = poppinsSemiBold18.copyWith(color: Colors.white);
+
+  
+
+  // ========== SCREEN HEADERS ==========
+  static TextStyle headerTitle = poppinsBold24.copyWith(
+    fontSize: 22,
+    color: AppColors.textDark,
+  );
+  
+  static TextStyle headerSubtitle = poppinsRegular16.copyWith(
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  );
+
+  // ========== SECTION TITLES ==========
+  static TextStyle sectionTitle = poppinsSemiBold18.copyWith(
+    color: AppColors.textDark,
+  );
+
+  // ========== CARD CONTENT ==========
+  static TextStyle cardTitle = poppinsSemiBold15.copyWith(
+    color: AppColors.textDark,
+  );
+  
+  static TextStyle cardSubtitle = poppinsRegular15.copyWith(
+    fontSize: 13,
+    color: AppColors.textSecondary,
+  );
+  
+  static TextStyle cardValue = poppinsSemiBold18.copyWith(
+    fontSize: 16,
+    color: AppColors.textDark,
+  );
+
+  // ========== MENU ITEMS ==========
+  static TextStyle menuItemTitle = poppinsMedium18.copyWith(
+    fontSize: 16,
+    color: AppColors.textDark,
+  );
+  
+  static TextStyle menuItemSubtitle = poppinsRegular15.copyWith(
+    fontSize: 12,
+    color: AppColors.textSecondary,
+  );
+
+  // ========== LABELS & CAPTIONS ==========
+  static TextStyle labelText = poppinsRegular15.copyWith(
+    fontSize: 12,
+    color: AppColors.textSecondary,
+  );
+  
+  static TextStyle captionText = poppinsRegular15.copyWith(
+    fontSize: 11,
+    color: AppColors.textLight,
+  );
+
+  // ========== AMOUNTS & NUMBERS ==========
+  static TextStyle amountLarge = poppinsBold28.copyWith(
+    fontSize: 32,
+    color: AppColors.textDark,
+  );
+  
+  static TextStyle amountMedium = poppinsBold24.copyWith(
+    fontSize: 20,
+    color: AppColors.textDark,
+  );
+  
+  static TextStyle amountSmall = poppinsSemiBold15.copyWith(
+    fontSize: 16,
+    color: AppColors.textDark,
+  );
 }
+
 
 ThemeData getApplicationTheme() {
   return ThemeData(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fanup/app/themes/theme.dart';
 
 class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
@@ -6,119 +7,111 @@ class LeaderboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final bool isTablet = constraints.maxWidth >= 600;
-
-            // Responsive sizes
-            final double horizontalPadding = isTablet ? 32 : 20;
-            final double verticalPadding = isTablet ? 24 : 16;
-            final double spacingSmall = isTablet ? 16 : 12;
-            final double spacingMedium = isTablet ? 24 : 16;
-            final double iconSize = isTablet ? 48 : 36;
-            final double circleRadius = isTablet ? 36 : 26;
-            final double podiumPadding = isTablet ? 20 : 12;
-            final double headerFontSize = isTablet ? 26 : 22;
-            final double subtitleFontSize = isTablet ? 18 : 14;
-
-            return Column(
-              children: [
-                _header(horizontalPadding, verticalPadding, headerFontSize, subtitleFontSize),
-                SizedBox(height: spacingMedium),
-                _topThree(iconSize, circleRadius, podiumPadding, spacingMedium),
-                SizedBox(height: spacingMedium),
-                Expanded(child: _leaderList(spacingSmall, podiumPadding, subtitleFontSize)),
-              ],
-            );
-          },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
+              _buildTopThree(),
+              const SizedBox(height: 24),
+              _buildLeaderList(),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _header(double horizontalPadding, double verticalPadding, double headerFontSize, double subtitleFontSize) {
+  Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Leaderboard",
-              style: TextStyle(fontSize: headerFontSize, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 4),
-            Text(
-              "Top Performers",
-              style: TextStyle(color: Colors.grey, fontSize: subtitleFontSize),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _topThree(double iconSize, double circleRadius, double podiumPadding, double spacingMedium) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: podiumPadding),
-      padding: EdgeInsets.symmetric(vertical: spacingMedium),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFD54F), Color(0xFFFFA726)],
-        ),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _podiumItem(icon: Icons.person, name: "Nishad M.", pts: "200 Pts", score: "50.0", circleRadius: circleRadius),
-          _winnerItem(iconSize, podiumPadding),
-          _podiumItem(icon: Icons.military_tech, name: "Sworup P.", pts: "199 Pts", score: "30.0", circleRadius: circleRadius),
+          Text("Leaderboard", style: AppTextStyles.headerTitle),
+          const SizedBox(height: 4),
+          Text("Top Performers", style: AppTextStyles.headerSubtitle),
         ],
       ),
     );
   }
 
-  Widget _winnerItem(double iconSize, double padding) {
+  Widget _buildTopThree() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFD54F), Color(0xFFFFA726)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFFA726).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildPodiumItem(
+            icon: Icons.person,
+            name: "Nishad M.",
+            pts: "200 Pts",
+            score: "50.0",
+            position: 2,
+          ),
+          _buildWinnerItem(),
+          _buildPodiumItem(
+            icon: Icons.military_tech,
+            name: "Sworup P.",
+            pts: "199 Pts",
+            score: "30.0",
+            position: 3,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWinnerItem() {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(iconSize / 2),
+          padding: const EdgeInsets.all(18),
           decoration: const BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.emoji_events, size: iconSize, color: Colors.orange),
+          child: const Icon(Icons.emoji_events, size: 42, color: Colors.orange),
         ),
-        SizedBox(height: padding / 2),
+        const SizedBox(height: 12),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: padding, vertical: padding / 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
-            children: const [
-              Text(
-                "Roshan K.",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text("300 Pts", style: TextStyle(color: Colors.grey)),
-              SizedBox(height: 4),
+            children: [
+              Text("Roshan K.", style: AppTextStyles.cardTitle),
+              const SizedBox(height: 4),
+              Text("300 Pts", style: AppTextStyles.cardSubtitle),
+              const SizedBox(height: 4),
               Text(
                 "100.0",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
+                style: AppTextStyles.amountSmall.copyWith(
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -128,38 +121,43 @@ class LeaderboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _podiumItem({
+  Widget _buildPodiumItem({
     required IconData icon,
     required String name,
     required String pts,
     required String score,
-    required double circleRadius,
+    required int position,
   }) {
     return Column(
       children: [
         CircleAvatar(
-          radius: circleRadius,
+          radius: 28,
           backgroundColor: Colors.white.withOpacity(0.3),
-          child: Icon(icon, color: Colors.white),
+          child: Icon(icon, color: Colors.white, size: 28),
         ),
-        SizedBox(height: circleRadius / 2),
+        const SizedBox(height: 12),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: circleRadius / 1.5, vertical: circleRadius / 2.5),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.4),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
-              SizedBox(height: 4),
-              Text(pts),
-              SizedBox(height: 4),
+              Text(
+                name,
+                style: AppTextStyles.cardSubtitle.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(pts, style: AppTextStyles.labelText),
+              const SizedBox(height: 4),
               Text(
                 score,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
+                style: AppTextStyles.cardValue.copyWith(
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -169,54 +167,59 @@ class LeaderboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _leaderList(double spacing, double padding, double fontSize) {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: padding),
-      itemCount: 4,
-      itemBuilder: (context, index) {
-        final rank = index + 4;
-        return Container(
-          margin: EdgeInsets.only(bottom: spacing),
-          padding: EdgeInsets.all(padding),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Text(
-                "$rank.",
-                style: TextStyle(
-                  fontSize: fontSize,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                ),
+  Widget _buildLeaderList() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: List.generate(
+          5,
+          (index) {
+            final rank = index + 4;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              SizedBox(width: spacing),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Player Name",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+              child: Row(
+                children: [
+                  Text(
+                    "$rank.",
+                    style: AppTextStyles.cardSubtitle.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 4),
-                    const Text("pts", style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Player Name", style: AppTextStyles.cardTitle),
+                        const SizedBox(height: 4),
+                        Text("150 Pts", style: AppTextStyles.labelText),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "20.0",
+                    style: AppTextStyles.amountSmall.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
               ),
-              const Text(
-                "20.0",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 }
