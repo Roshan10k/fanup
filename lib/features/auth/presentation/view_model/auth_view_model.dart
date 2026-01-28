@@ -1,4 +1,6 @@
+import 'package:fanup/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/login_usecase.dart';
+import 'package:fanup/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/register_usecase.dart';
 import 'package:fanup/features/auth/presentation/state/auth_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,11 +13,16 @@ final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
 class AuthViewModel extends Notifier<AuthState> {
   late final RegisterUsecase _registerUsecase;
   late final LoginUsecase _loginUsecase;
+  late final GetCurrentUserUsecase _getCurrentUserUsecase;
+  late final LogoutUsecase _logoutUsecase;
+
 
   @override
   AuthState build() {
     _registerUsecase = ref.read(registerUsecaseProvider);
     _loginUsecase = ref.read(loginUsecaseProvider);
+    _getCurrentUserUsecase = ref.read(getCurrentUserUsecaseProvider);
+    _logoutUsecase = ref.read(logoutUsecaseProvider);
     return const AuthState();
   }
 
@@ -73,6 +80,54 @@ class AuthViewModel extends Notifier<AuthState> {
           status: AuthStatus.authenticated,
           authEntity: authEntity,
         );
+      },
+    );
+  }
+
+  // Logout
+  Future<void> logoutUser() async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    final result = await _logoutUsecase();
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: failure.message,
+      ),
+      (success) => state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        authEntity: null,
+      ),
+    );
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
+  Future<void> getCurrentUser() async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    final result = await _getCurrentUserUsecase();
+
+    result.fold(
+      (failure) => state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: failure.message,
+      ),
+      (authEntity) {
+        if (authEntity != null) {
+          state = state.copyWith(
+            status: AuthStatus.authenticated,
+            authEntity: authEntity,
+          );
+        } else {
+          state = state.copyWith(
+            status: AuthStatus.unauthenticated,
+            authEntity: null,
+          );
+        }
       },
     );
   }

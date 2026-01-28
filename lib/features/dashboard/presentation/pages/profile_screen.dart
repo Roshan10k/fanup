@@ -1,14 +1,18 @@
+import 'package:fanup/app/routes/app_routes.dart';
+import 'package:fanup/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -250,7 +254,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await ref.read(authViewModelProvider.notifier).logoutUser();
+                    if (context.mounted) {
+                AppRoutes.pushAndRemoveUntil(context, const LoginPage());
+              }
+                  },
                   child: Text(
                     "Logout",
                     style: AppTextStyles.cardTitle.copyWith(

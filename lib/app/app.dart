@@ -1,6 +1,7 @@
 import 'package:fanup/features/splash/splash_screen.dart';
 import 'package:fanup/app/themes/theme.dart';
 
+
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
@@ -12,6 +13,7 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: getApplicationTheme(), 
       home: SplashScreen(),
+      
     );
   }
 }
