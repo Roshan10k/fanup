@@ -21,11 +21,15 @@ class AuthHiveModel extends HiveObject {
   @HiveField(3)
   final String password;
 
+  @HiveField(4)
+  final String? profileImageUrl;
+
   AuthHiveModel({
     String? userId,
     required this.fullName,
     required this.email,
     required this.password,
+    this.profileImageUrl,
   }) : authId = userId ?? Uuid().v4();
 
   // Convert Hive Model to User Entity
@@ -34,6 +38,7 @@ class AuthHiveModel extends HiveObject {
       fullName: fullName,
       email: email,
       password: password,
+      profileImageUrl: profileImageUrl,
     );
   }
 
@@ -43,6 +48,7 @@ class AuthHiveModel extends HiveObject {
       fullName: entity.fullName,
       email: entity.email,
       password: entity.password,
+      profileImageUrl: entity.profileImageUrl,
     );
   }
 
