@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:fanup/app/routes/app_routes.dart';
+import 'package:fanup/core/api/api_endpoints.dart';
 import 'package:fanup/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -13,6 +16,114 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  File? _selectedImage;
+  bool _isUploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reload user data from local storage when screen comes into focus
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authViewModelProvider.notifier).getCurrentUser();
+    });
+  }
+
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _getImageFromCamera();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _getImageFromGallery();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _getImageFromCamera() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+      
+      if (mounted) {
+        await _uploadImage();
+      }
+    }
+  }
+
+  Future<void> _getImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+      
+      if (mounted) {
+        await _uploadImage();
+      }
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_selectedImage == null) return;
+
+    setState(() => _isUploading = true);
+
+    await ref.read(authViewModelProvider.notifier).uploadProfilePhoto(
+      _selectedImage!.path,
+    );
+
+    setState(() => _isUploading = false);
+
+    // Check if upload succeeded
+    final authState = ref.read(authViewModelProvider);
+    if (authState.errorMessage != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Upload failed: ${authState.errorMessage}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else if (authState.authEntity?.profileImageUrl != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile photo updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      // Clear local image since it's now on server
+      setState(() => _selectedImage = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +169,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildProfileCard() {
+    final authState = ref.watch(authViewModelProvider);
+    final profileImageUrl = authState.authEntity?.profileImageUrl;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
@@ -74,22 +188,71 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundColor: const Color(0xFFFFA726),
-            child: Text(
-              "RK",
-              style: AppTextStyles.amountLarge.copyWith(
-                fontSize: 36,
-                color: Colors.white,
+          Stack(
+            children: [
+              // Profile Image or Avatar
+              if (_selectedImage != null || profileImageUrl != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(60),
+                  child: _selectedImage != null
+                      ? Image.file(
+                          _selectedImage!,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          profileImageUrl!,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Image load error: $error');
+                            print('Attempted URL: $profileImageUrl');
+                            return _buildPlaceholderAvatar();
+                          },
+                        ),
+                )
+              else
+                _buildPlaceholderAvatar(),
+              
+              // Edit Button
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: _isUploading ? null : _pickImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFA726),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: _isUploading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
           const SizedBox(height: 16),
-          Text("Roshan Khadka", style: AppTextStyles.sectionTitle),
+          Text(authState.authEntity?.fullName ?? "User", style: AppTextStyles.sectionTitle),
           const SizedBox(height: 4),
           Text(
-            "Member since Jan 2025",
+            authState.authEntity?.email ?? "user@example.com",
             style: AppTextStyles.labelText,
           ),
         ],
@@ -97,7 +260,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  Widget _buildPlaceholderAvatar() {
+    final fullName = ref.read(authViewModelProvider).authEntity?.fullName ?? "User";
+    final initials = fullName.split(' ').map((e) => e[0]).join().toUpperCase();
+    
+    return CircleAvatar(
+      radius: 60,
+      backgroundColor: const Color(0xFFFFA726),
+      child: Text(
+        initials.length > 2 ? initials.substring(0, 2) : initials,
+        style: AppTextStyles.amountLarge.copyWith(
+          fontSize: 36,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
   Widget _buildContactCard() {
+    final authState = ref.watch(authViewModelProvider);
+    final email = authState.authEntity?.email ?? "user@example.com";
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
@@ -120,7 +303,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             style: AppTextStyles.cardTitle,
           ),
           const SizedBox(height: 16),
-          _buildInfoRow(Icons.email_outlined, "roshan@gmail.com"),
+          _buildInfoRow(Icons.email_outlined, email),
           const SizedBox(height: 12),
           _buildInfoRow(Icons.phone_outlined, "+977 1235456789"),
         ],
