@@ -2,6 +2,7 @@ import 'package:fanup/features/auth/domain/usecases/get_current_user_usecase.dar
 import 'package:fanup/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/register_usecase.dart';
+import 'package:fanup/features/auth/domain/usecases/upload_profile_photo_usecase.dart';
 import 'package:fanup/features/auth/presentation/state/auth_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +16,7 @@ class AuthViewModel extends Notifier<AuthState> {
   late final LoginUsecase _loginUsecase;
   late final GetCurrentUserUsecase _getCurrentUserUsecase;
   late final LogoutUsecase _logoutUsecase;
+  late final UploadProfilePhotoUsecase _uploadProfilePhotoUsecase;
 
 
   @override
@@ -23,6 +25,7 @@ class AuthViewModel extends Notifier<AuthState> {
     _loginUsecase = ref.read(loginUsecaseProvider);
     _getCurrentUserUsecase = ref.read(getCurrentUserUsecaseProvider);
     _logoutUsecase = ref.read(logoutUsecaseProvider);
+    _uploadProfilePhotoUsecase = ref.read(uploadProfilePhotoUsecaseProvider);
     return const AuthState();
   }
 
@@ -99,6 +102,28 @@ class AuthViewModel extends Notifier<AuthState> {
         status: AuthStatus.unauthenticated,
         authEntity: null,
       ),
+    );
+  }
+
+  // Upload Profile Photo
+  Future<void> uploadProfilePhoto(String filePath) async {
+    state = state.copyWith(status: AuthStatus.loading);
+    
+    final result = await _uploadProfilePhotoUsecase(filePath);
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: failure.message,
+        );
+      },
+      (filename) {
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          authEntity: state.authEntity?.copyWith(profileImageUrl: filename),
+        );
+      },
     );
   }
 

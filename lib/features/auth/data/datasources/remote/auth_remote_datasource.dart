@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fanup/core/api/api_client.dart';
 import 'package:fanup/core/api/api_endpoints.dart';
 import 'package:fanup/core/services/storage/token_service.dart';
@@ -71,5 +72,38 @@ class AuthRemoteDatasource implements IRemoteAuthDataSource {
   @override
   Future<AuthApiModel?> getUserById(String authId) {
     throw UnimplementedError();
+  }
+
+  Future<String> uploadProfilePhoto(String filePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'photo': await MultipartFile.fromFile(filePath),
+      });
+
+      // Don't set Content-Type header for multipart, let dio handle it
+      final options = Options(
+        contentType: 'multipart/form-data',
+      );
+
+      final response = await _apiClient.uploadFile(
+        ApiEndpoints.uploadProfilePhoto,
+        formData: formData,
+        options: options,
+      );
+
+      if (response.data['success'] == true) {
+        // Get the profilePicture filename from the response
+        final profilePictureFilename = response.data['data']['profilePicture'] ?? '';
+        if (profilePictureFilename.isEmpty) {
+          throw Exception('No profile picture filename in response');
+        }
+        // Return just the filename, the repository will build the full URL
+        return profilePictureFilename;
+      }
+
+      throw Exception('Failed to upload photo');
+    } catch (e) {
+      throw Exception('Photo upload failed: $e');
+    }
   }
 }

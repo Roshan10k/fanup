@@ -99,4 +99,35 @@ class AuthLocalDatasource implements IAuthDataSource {
       return false;
     }
   }
+
+  @override
+  Future<bool> updateProfilePicture(String profileImageUrl) async {
+    try {
+      // Get current user
+      final currentUser = await _hiveService.getCurrentUser();
+      if (currentUser == null) {
+        return false;
+      }
+
+      // Create updated user model with new profile picture
+      final updatedUser = AuthHiveModel(
+        userId: currentUser.authId,
+        fullName: currentUser.fullName,
+        email: currentUser.email,
+        password: currentUser.password,
+        profileImageUrl: profileImageUrl,
+      );
+
+      // Save updated user to current user box
+      await _hiveService.saveCurrentUser(updatedUser);
+      
+      // Also update in the users box (for login purposes)
+      await _hiveService.registerUser(updatedUser);
+      
+      return true;
+    } catch (e) {
+      debugPrint('Update profile picture error: $e');
+      return false;
+    }
+  }
 }

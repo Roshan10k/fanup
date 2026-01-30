@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:fanup/core/api/api_endpoints.dart';
 import 'package:fanup/core/error/failures.dart';
 import 'package:fanup/core/services/connectivity/network_info.dart';
 import 'package:fanup/features/auth/data/datasources/auth_datasource.dart';
@@ -69,6 +70,7 @@ class AuthRepository implements IAuthRepository {
           fullName: apiModel.fullName ?? '',
           email: apiModel.email ?? '',
           password: password,
+          profileImageUrl: apiModel.profileImageUrl,
         );
 
         await _authDataSource.register(hiveModel);
@@ -180,5 +182,25 @@ class AuthRepository implements IAuthRepository {
     } catch (e) {
       return Left(LocalDatabaseFailure(message: e.toString()));
     }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadProfilePhoto(String filePath) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final filename = await _authRemoteDataSource.uploadProfilePhoto(filePath);
+        
+        // Build the full URL using the filename
+        final fullUrl = ApiEndpoints.profilePicture(filename);
+        
+        // Update local storage with the new profile picture URL
+        await _authDataSource.updateProfilePicture(fullUrl);
+        
+        return Right(fullUrl);
+      } catch (e) {
+        return Left(ApiFailure(message: e.toString()));
+      }
+    }
+    return const Left(NetworkFailure(message: "No internet connection"));
   }
 }
