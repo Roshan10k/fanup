@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:fanup/core/error/failures.dart';
 import 'package:fanup/features/auth/data/repositories/auth_repository.dart';
@@ -15,7 +17,7 @@ class UploadProfilePhotoUsecase {
 
   UploadProfilePhotoUsecase(this._authRepository);
 
-  Future<Either<Failure, String>> call(String filePath) async {
-    return await _authRepository.uploadProfilePhoto(filePath);
+  Future<Either<Failure, String>> call(File photo) async {
+    return await _authRepository.uploadProfilePhoto(photo);
   }
 }

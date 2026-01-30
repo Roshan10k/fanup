@@ -1,12 +1,16 @@
 import 'dart:io';
+
 import 'package:fanup/app/routes/app_routes.dart';
-import 'package:fanup/core/api/api_endpoints.dart';
+import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/snackbar_utils.dart';
 import 'package:fanup/features/auth/presentation/pages/login_page.dart';
+import 'package:fanup/features/auth/presentation/state/auth_state.dart';
+import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
+import 'package:fanup/features/dashboard/presentation/widgets/media_picker_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fanup/app/themes/theme.dart';
-import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -16,116 +20,172 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  File? _selectedImage;
+  final List<File> _selectedMedia = [];
+  final ImagePicker _imagePicker = ImagePicker();
+
   bool _isUploading = false;
+  String? _selectedMediaType;
+
+  File? get _selectedImage =>
+      _selectedMedia.isNotEmpty ? _selectedMedia.first : null;
 
   @override
   void initState() {
     super.initState();
-    // Reload user data from local storage when screen comes into focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authViewModelProvider.notifier).getCurrentUser();
     });
   }
 
-  Future<void> _pickImage() async {
-    showModalBottomSheet(
+  /* -------------------- Permission Handling -------------------- */
+
+  Future<bool> _requestPermission(Permission permission) async {
+    final status = await permission.status;
+
+    if (status.isGranted) return true;
+
+    if (status.isDenied) {
+      final result = await permission.request();
+      return result.isGranted;
+    }
+
+    if (status.isPermanentlyDenied) {
+      _showPermissionDeniedDialog();
+      return false;
+    }
+
+    return false;
+  }
+
+  void _showPermissionDeniedDialog() {
+    showDialog(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _getImageFromCamera();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.image),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _getImageFromGallery();
-              },
-            ),
-          ],
+      builder: (context) => AlertDialog(
+        title: const Text("Permission Required"),
+        content: const Text(
+          "This feature requires permission to access your camera or gallery. "
+          "Please enable it in your device settings.",
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings();
+            },
+            child: const Text("Open Settings"),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _getImageFromCamera() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
-    
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-      
-      if (mounted) {
-        await _uploadImage();
-      }
-    }
-  }
+  /* -------------------- Media Pickers -------------------- */
 
-  Future<void> _getImageFromGallery() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-      
-      if (mounted) {
-        await _uploadImage();
-      }
-    }
-  }
+  Future<void> _pickFromCamera() async {
+    final hasPermission = await _requestPermission(Permission.camera);
+    if (!hasPermission) return;
 
-  Future<void> _uploadImage() async {
-    if (_selectedImage == null) return;
-
-    setState(() => _isUploading = true);
-
-    await ref.read(authViewModelProvider.notifier).uploadProfilePhoto(
-      _selectedImage!.path,
+    final XFile? photo = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
     );
 
-    setState(() => _isUploading = false);
-
-    // Check if upload succeeded
-    final authState = ref.read(authViewModelProvider);
-    if (authState.errorMessage != null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Upload failed: ${authState.errorMessage}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } else if (authState.authEntity?.profileImageUrl != null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile photo updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-      // Clear local image since it's now on server
-      setState(() => _selectedImage = null);
+    if (photo != null) {
+      await _uploadPhoto(File(photo.path));
     }
   }
+
+  Future<void> _pickFromGallery() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        await _uploadPhoto(File(image.path));
+      }
+    } catch (e) {
+      debugPrint('Gallery Error: $e');
+      if (mounted) {
+        SnackbarUtils.showError(
+          context,
+          'Unable to access gallery. Please try using the camera instead.',
+        );
+      }
+    }
+  }
+
+  Future<void> _uploadPhoto(File photo) async {
+    setState(() {
+      _isUploading = true;
+      _selectedMedia
+        ..clear()
+        ..add(photo);
+      _selectedMediaType = 'photo';
+    });
+
+    try {
+      await ref.read(authViewModelProvider.notifier).uploadProfilePhoto(photo);
+    } catch (e) {
+      debugPrint('Upload error in UI: $e');
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+          _selectedMedia.clear();
+        });
+        SnackbarUtils.showError(context, 'Failed to upload photo');
+      }
+    }
+  }
+
+  void _showMediaPicker() {
+    MediaPickerBottomSheet.show(
+      context,
+      onCameraTap: _pickFromCamera,
+      onGalleryTap: _pickFromGallery,
+    );
+  }
+
+  /* -------------------- UI -------------------- */
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authViewModelProvider, (previous, next) {
+      // Upload success
+      if (previous?.status == AuthStatus.loading &&
+          next.status == AuthStatus.authenticated) {
+        if (_isUploading && mounted) {
+          setState(() {
+            _isUploading = false;
+            _selectedMedia.clear();
+          });
+          SnackbarUtils.showSuccess(
+            context,
+            'Profile photo updated successfully!',
+          );
+        }
+      }
+
+      // Upload error
+      if (previous?.status == AuthStatus.loading &&
+          next.status == AuthStatus.error) {
+        if (_isUploading && mounted) {
+          setState(() {
+            _isUploading = false;
+            _selectedMedia.clear();
+          });
+          SnackbarUtils.showError(
+            context,
+            next.errorMessage ?? 'Failed to upload profile photo',
+          );
+        }
+      }
+    });
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -170,8 +230,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Widget _buildProfileCard() {
     final authState = ref.watch(authViewModelProvider);
-    final profileImageUrl = authState.authEntity?.profileImageUrl;
-    
+
+    // Full profile image URL from backend (filename stored in profilePicture)
+    final profilePictureFileName = authState.authEntity?.profilePicture;
+
+    final profilePictureUrl = profilePictureFileName != null
+        ? "http://10.0.2.2:3001/uploads/profile-pictures/$profilePictureFileName"
+        : null;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
@@ -190,38 +256,56 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           Stack(
             children: [
-              // Profile Image or Avatar
-              if (_selectedImage != null || profileImageUrl != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(60),
-                  child: _selectedImage != null
-                      ? Image.file(
-                          _selectedImage!,
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          profileImageUrl!,
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            print('Image load error: $error');
-                            print('Attempted URL: $profileImageUrl');
-                            return _buildPlaceholderAvatar();
-                          },
-                        ),
-                )
-              else
-                _buildPlaceholderAvatar(),
-              
-              // Edit Button
+              ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: _selectedImage != null
+                    ? Image.file(
+                        _selectedImage!,
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      )
+                    : (profilePictureUrl != null
+                          ? Image.network(
+                              profilePictureUrl,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return SizedBox(
+                                      width: 120,
+                                      height: 120,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              errorBuilder: (_, __, ___) {
+                                debugPrint(
+                                  'Failed to load image from: $profilePictureUrl',
+                                );
+                                return _buildPlaceholderAvatar();
+                              },
+                            )
+                          : _buildPlaceholderAvatar()),
+              ),
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: GestureDetector(
-                  onTap: _isUploading ? null : _pickImage,
+                  onTap: _isUploading ? null : _showMediaPicker,
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -235,7 +319,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Icon(
@@ -249,7 +335,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Text(authState.authEntity?.fullName ?? "User", style: AppTextStyles.sectionTitle),
+          Text(
+            authState.authEntity?.fullName ?? "User",
+            style: AppTextStyles.sectionTitle,
+          ),
           const SizedBox(height: 4),
           Text(
             authState.authEntity?.email ?? "user@example.com",
@@ -261,9 +350,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildPlaceholderAvatar() {
-    final fullName = ref.read(authViewModelProvider).authEntity?.fullName ?? "User";
-    final initials = fullName.split(' ').map((e) => e[0]).join().toUpperCase();
-    
+    final fullName =
+        ref.read(authViewModelProvider).authEntity?.fullName ?? "User";
+
+    final initials = fullName
+        .split(' ')
+        .where((e) => e.isNotEmpty)
+        .map((e) => e[0])
+        .join()
+        .toUpperCase();
+
     return CircleAvatar(
       radius: 60,
       backgroundColor: const Color(0xFFFFA726),
@@ -279,7 +375,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Widget _buildContactCard() {
     final authState = ref.watch(authViewModelProvider);
-    final email = authState.authEntity?.email ?? "user@example.com";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -298,14 +393,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Contact Information",
-            style: AppTextStyles.cardTitle,
-          ),
+          Text("Contact Information", style: AppTextStyles.cardTitle),
           const SizedBox(height: 16),
-          _buildInfoRow(Icons.email_outlined, email),
+          _buildInfoRow(
+            Icons.email_outlined,
+            authState.authEntity?.email ?? "user@example.com",
+          ),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.phone_outlined, "+977 1235456789"),
+          _buildInfoRow(Icons.phone_outlined, "+977 1234567890"),
         ],
       ),
     );
@@ -320,12 +415,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             color: AppColors.background,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.textSecondary, size: 20),
+          child: Icon(icon, size: 20, color: AppColors.textSecondary),
         ),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(text, style: AppTextStyles.cardSubtitle),
-        ),
+        Expanded(child: Text(text, style: AppTextStyles.cardSubtitle)),
       ],
     );
   }
@@ -375,7 +468,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
@@ -389,9 +481,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Icon(icon, size: 24, color: AppColors.textSecondary),
             ),
             const SizedBox(width: 16),
-            Expanded(
-              child: Text(title, style: AppTextStyles.menuItemTitle),
-            ),
+            Expanded(child: Text(title, style: AppTextStyles.menuItemTitle)),
             Icon(Icons.chevron_right, color: AppColors.textLight, size: 24),
           ],
         ),
@@ -402,11 +492,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.only(left: 70),
-      child: Divider(
-        height: 1,
-        thickness: 1,
-        color: AppColors.dividerGrey,
-      ),
+      child: Divider(height: 1, thickness: 1, color: AppColors.dividerGrey),
     );
   }
 
@@ -417,38 +503,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text("Logout", style: AppTextStyles.sectionTitle),
-              content: Text(
-                "Are you sure you want to logout?",
-                style: AppTextStyles.cardSubtitle,
-              ),
+            builder: (_) => AlertDialog(
+              title: const Text("Logout"),
+              content: const Text("Are you sure you want to logout?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    "Cancel",
-                    style: AppTextStyles.cardTitle.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                  child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
                     await ref.read(authViewModelProvider.notifier).logoutUser();
                     if (context.mounted) {
-                AppRoutes.pushAndRemoveUntil(context, const LoginPage());
-              }
+                      AppRoutes.pushAndRemoveUntil(context, const LoginPage());
+                    }
                   },
-                  child: Text(
+                  child: const Text(
                     "Logout",
-                    style: AppTextStyles.cardTitle.copyWith(
-                      color: Colors.red,
-                    ),
+                    style: TextStyle(color: Colors.red),
                   ),
                 ),
               ],
@@ -464,15 +537,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.logout, color: Colors.red),
-            const SizedBox(width: 8),
+          children: const [
+            Icon(Icons.logout, color: Colors.red),
+            SizedBox(width: 8),
             Text(
               "Logout",
-              style: AppTextStyles.menuItemTitle.copyWith(
-                color: Colors.red,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
             ),
           ],
         ),

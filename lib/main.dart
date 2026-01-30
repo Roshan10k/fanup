@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main () async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Hive
   final hiveService = HiveService();
@@ -13,7 +13,11 @@ void main () async{
 
   //shared preferences initialization
   final sharedPrefs = await SharedPreferences.getInstance();
-  // await sharedPrefs.clear(); // Clear existing data for fresh start 
-  runApp(ProviderScope(overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
-    child: const App()));
+
+  runApp(
+    ProviderScope(
+      overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
+      child: const App(),
+    ),
+  );
 }

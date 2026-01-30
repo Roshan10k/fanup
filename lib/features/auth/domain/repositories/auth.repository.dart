@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:fanup/core/error/failures.dart';
 
@@ -8,5 +10,5 @@ abstract interface class IAuthRepository {
   Future<Either<Failure, AuthEntity>> loginUser(String email, String password);
   Future<Either<Failure, bool>> logoutUser();
   Future<Either<Failure, AuthEntity>> getCurrentUser();
-  Future<Either<Failure, String>> uploadProfilePhoto(String filePath);
+  Future<Either<Failure, String>> uploadProfilePhoto(File photo);
 }

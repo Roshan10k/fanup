@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:fanup/core/api/api_endpoints.dart';
@@ -10,6 +12,7 @@ import 'package:fanup/features/auth/data/models/auth_api_model.dart';
 import 'package:fanup/features/auth/data/models/auth_hive_model.dart';
 import 'package:fanup/features/auth/domain/entities/auth_entity.dart';
 import 'package:fanup/features/auth/domain/repositories/auth.repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authRepositoryProvider = Provider<IAuthRepository>((ref) {
@@ -65,15 +68,18 @@ class AuthRepository implements IAuthRepository {
           );
         }
 
+       
         final hiveModel = AuthHiveModel(
-          userId: apiModel.authId ?? '',
+          authId: apiModel.authId ?? '',
           fullName: apiModel.fullName ?? '',
           email: apiModel.email ?? '',
           password: password,
-          profileImageUrl: apiModel.profileImageUrl,
+          profilePicture: apiModel.profilePicture, // Profile image is saved here
         );
 
         await _authDataSource.register(hiveModel);
+
+        debugPrint('Login successful, profile picture: ${apiModel.profilePicture}');
 
         return Right(apiModel.toEntity());
       } on DioException catch (e) {
@@ -125,11 +131,13 @@ class AuthRepository implements IAuthRepository {
         final registeredUser =
             await _authRemoteDataSource.registerRemote(apiModel);
 
+        
         final hiveModel = AuthHiveModel(
-          userId: registeredUser.authId ?? '',
+          authId: registeredUser.authId ?? '',
           fullName: registeredUser.fullName ?? '',
           email: registeredUser.email ?? '',
           password: entity.password,
+          profilePicture: registeredUser.profilePicture,
         );
 
         await _authDataSource.register(hiveModel);
@@ -161,6 +169,7 @@ class AuthRepository implements IAuthRepository {
         fullName: entity.fullName,
         email: entity.email,
         password: entity.password,
+        profilePicture: entity.profilePicture,
       );
 
       await _authDataSource.register(hiveModel);
@@ -185,22 +194,43 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> uploadProfilePhoto(String filePath) async {
-    if (await _networkInfo.isConnected) {
-      try {
-        final filename = await _authRemoteDataSource.uploadProfilePhoto(filePath);
-        
-        // Build the full URL using the filename
-        final fullUrl = ApiEndpoints.profilePicture(filename);
-        
-        // Update local storage with the new profile picture URL
-        await _authDataSource.updateProfilePicture(fullUrl);
-        
-        return Right(fullUrl);
-      } catch (e) {
-        return Left(ApiFailure(message: e.toString()));
-      }
+  Future<Either<Failure, String>> uploadProfilePhoto(File file) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure(message: "No internet connection"));
     }
-    return const Left(NetworkFailure(message: "No internet connection"));
+
+    try {
+      debugPrint('Starting profile photo upload...');
+      
+      // Upload to backend and get filename
+      final filename = await _authRemoteDataSource.uploadProfilePhoto(file);
+      
+      debugPrint('Upload successful, filename: $filename');
+   
+      final updateSuccess = await _authDataSource.updateProfilePicture(filename);
+      
+      if (!updateSuccess) {
+        debugPrint('Failed to update local storage');
+        return const Left(
+          LocalDatabaseFailure(message: "Failed to update local profile picture"),
+        );
+      }
+      
+      debugPrint('Local storage updated successfully with filename: $filename');
+      
+      // Return the filename (not the full URL)
+      return Right(filename);
+    } on DioException catch (e) {
+      debugPrint('Upload DioException: ${e.message}');
+      return Left(
+        ApiFailure(
+          message: e.response?.data['message'] ?? 'Upload failed: ${e.message}',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Upload error: $e');
+      return Left(ApiFailure(message: e.toString()));
+    }
   }
 }

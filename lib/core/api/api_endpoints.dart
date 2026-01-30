@@ -37,12 +37,27 @@ class ApiEndpoints {
   static const String register = '/auth/register';
 
 
-// Profile photo endpoints
-  static const String uploadProfilePhoto = '/auth/upload-photo';
-  static const String updateProfilePhoto = '/auth/update-photo';
+
+ // ================= Profile Endpoints =================
+  static const String whoami = 'auth/whoami';
+  static const String updateProfile = 'auth/update-profile';
+
+  /// POST - Upload profile photo
+  static const String uploadProfilePhoto = '/auth/upload-profile-photo';
   
-  // Get photo URL
+  /// Helper method to build profile picture URL from filename
+  
+  /// Example: profilePicture('abc123.jpg') returns 'http://10.0.2.2:3001/uploads/profile-pictures/abc123.jpg'
   static String profilePicture(String filename) {
-    return '$mediaServerUrl/public/uploads/profile_pictures/$filename';
+    // If filename is already a full URL, return it as-is
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+      return filename;
+    }
+    
+    // Remove any leading slashes from filename
+    final cleanFilename = filename.startsWith('/') ? filename.substring(1) : filename;
+    
+    // Build the full URL with the CORRECT path
+    return '$mediaServerUrl/uploads/profile-pictures/$cleanFilename';
   }
 }

@@ -5,14 +5,14 @@ class AuthEntity extends Equatable {
   final String fullName;
   final String email;
   final String password;
-  final String? profileImageUrl;
+  final String? profilePicture; 
 
   const AuthEntity({
     this.id,
     required this.fullName,
     required this.email,
     required this.password,
-    this.profileImageUrl,
+    this.profilePicture,
   });
 
   AuthEntity copyWith({
@@ -20,17 +20,17 @@ class AuthEntity extends Equatable {
     String? fullName,
     String? email,
     String? password,
-    String? profileImageUrl,
+    String? profilePicture,
   }) {
     return AuthEntity(
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
       email: email ?? this.email,
       password: password ?? this.password,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      profilePicture: profilePicture ?? this.profilePicture,
     );
   }
 
   @override
-  List<Object?> get props => [id, fullName, email, password, profileImageUrl];
+  List<Object?> get props => [id, fullName, email, password, profilePicture];
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fanup/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/logout_usecase.dart';
@@ -106,10 +108,10 @@ class AuthViewModel extends Notifier<AuthState> {
   }
 
   // Upload Profile Photo
-  Future<void> uploadProfilePhoto(String filePath) async {
+  Future<void> uploadProfilePhoto(File photo) async {
     state = state.copyWith(status: AuthStatus.loading);
     
-    final result = await _uploadProfilePhotoUsecase(filePath);
+    final result = await _uploadProfilePhotoUsecase(photo);
 
     result.fold(
       (failure) {
@@ -121,7 +123,7 @@ class AuthViewModel extends Notifier<AuthState> {
       (filename) {
         state = state.copyWith(
           status: AuthStatus.authenticated,
-          authEntity: state.authEntity?.copyWith(profileImageUrl: filename),
+          authEntity: state.authEntity?.copyWith(profilePicture: filename),
         );
       },
     );

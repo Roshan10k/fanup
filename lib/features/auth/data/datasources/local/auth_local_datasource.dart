@@ -18,11 +18,12 @@ final authLocalDatasourceProvider = Provider<AuthLocalDatasource>((ref) {
 class AuthLocalDatasource implements IAuthDataSource {
   final HiveService _hiveService;
   final UserSessionService _userSessionService;
+  
   AuthLocalDatasource({
     required HiveService hiveService,
     required UserSessionService userSessionService,
-  }) : _hiveService = hiveService,
-       _userSessionService = userSessionService;
+  })  : _hiveService = hiveService,
+        _userSessionService = userSessionService;
 
   @override
   Future<AuthHiveModel?> getCurrentUser() async {
@@ -30,6 +31,7 @@ class AuthLocalDatasource implements IAuthDataSource {
       final user = await _hiveService.getCurrentUser();
       return user;
     } catch (e) {
+      debugPrint('Get current user error: $e');
       return null;
     }
   }
@@ -48,6 +50,7 @@ class AuthLocalDatasource implements IAuthDataSource {
       }
       return user;
     } catch (e) {
+      debugPrint('Login user error: $e');
       return null;
     }
   }
@@ -56,7 +59,7 @@ class AuthLocalDatasource implements IAuthDataSource {
   Future<bool> logout() async {
     try {
       await _hiveService.logoutUser();
-      await _userSessionService.clearUserSession(); // clearing session after logging out
+      await _userSessionService.clearUserSession();
       return true;
     } catch (e) {
       debugPrint('Logout error: $e');
@@ -69,19 +72,20 @@ class AuthLocalDatasource implements IAuthDataSource {
     try {
       // Validate before registering
       if (model.authId == null || model.authId!.isEmpty) {
+        debugPrint('Registration error: Invalid user data - authId is null or empty');
         throw Exception('Invalid user data');
       }
-      
+
       await _hiveService.registerUser(model);
       await _hiveService.saveCurrentUser(model);
-      
+
       // Save session for consistency with login
       await _userSessionService.saveUserSession(
         authId: model.authId!,
         email: model.email,
         fullName: model.fullName,
       );
-      
+
       return true;
     } catch (e) {
       debugPrint('Registration error: $e');
@@ -89,41 +93,43 @@ class AuthLocalDatasource implements IAuthDataSource {
     }
   }
 
-
   @override
   Future<bool> isEmailRegistered(String email) async {
     try {
       final isRegistered = await _hiveService.isEmailRegistered(email);
       return isRegistered;
     } catch (e) {
+      debugPrint('Check email registered error: $e');
       return false;
     }
   }
 
   @override
-  Future<bool> updateProfilePicture(String profileImageUrl) async {
+  Future<bool> updateProfilePicture(String profilePicture) async {
     try {
       // Get current user
       final currentUser = await _hiveService.getCurrentUser();
       if (currentUser == null) {
+        debugPrint('Update profile picture error: No current user');
         return false;
       }
 
-      // Create updated user model with new profile picture
+    
       final updatedUser = AuthHiveModel(
-        userId: currentUser.authId,
+        authId: currentUser.authId,
         fullName: currentUser.fullName,
         email: currentUser.email,
         password: currentUser.password,
-        profileImageUrl: profileImageUrl,
+        profilePicture: profilePicture,
       );
 
       // Save updated user to current user box
       await _hiveService.saveCurrentUser(updatedUser);
-      
+
       // Also update in the users box (for login purposes)
       await _hiveService.registerUser(updatedUser);
-      
+
+      debugPrint('Profile picture updated successfully: $profilePicture');
       return true;
     } catch (e) {
       debugPrint('Update profile picture error: $e');
