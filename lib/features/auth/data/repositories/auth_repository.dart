@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:fanup/core/api/api_endpoints.dart';
+
 import 'package:fanup/core/error/failures.dart';
 import 'package:fanup/core/services/connectivity/network_info.dart';
 import 'package:fanup/features/auth/data/datasources/auth_datasource.dart';
@@ -35,9 +35,9 @@ class AuthRepository implements IAuthRepository {
     required IAuthDataSource authDataSource,
     required IRemoteAuthDataSource authRemoteDatasource,
     required NetworkInfo networkInfo,
-  })  : _authDataSource = authDataSource,
-        _authRemoteDataSource = authRemoteDatasource,
-        _networkInfo = networkInfo;
+  }) : _authDataSource = authDataSource,
+       _authRemoteDataSource = authRemoteDatasource,
+       _networkInfo = networkInfo;
 
   @override
   Future<Either<Failure, AuthEntity>> getCurrentUser() async {
@@ -59,27 +59,29 @@ class AuthRepository implements IAuthRepository {
   ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final apiModel =
-            await _authRemoteDataSource.loginUserRemote(email, password);
+        final apiModel = await _authRemoteDataSource.loginUserRemote(
+          email,
+          password,
+        );
 
         if (apiModel == null) {
-          return const Left(
-            ApiFailure(message: "Invalid email or password"),
-          );
+          return const Left(ApiFailure(message: "Invalid email or password"));
         }
 
-       
         final hiveModel = AuthHiveModel(
           authId: apiModel.authId ?? '',
           fullName: apiModel.fullName ?? '',
           email: apiModel.email ?? '',
           password: password,
-          profilePicture: apiModel.profilePicture, // Profile image is saved here
+          profilePicture:
+              apiModel.profilePicture, // Profile image is saved here
         );
 
         await _authDataSource.register(hiveModel);
 
-        debugPrint('Login successful, profile picture: ${apiModel.profilePicture}');
+        debugPrint(
+          'Login successful, profile picture: ${apiModel.profilePicture}',
+        );
 
         return Right(apiModel.toEntity());
       } on DioException catch (e) {
@@ -128,10 +130,10 @@ class AuthRepository implements IAuthRepository {
     if (await _networkInfo.isConnected) {
       try {
         final apiModel = AuthApiModel.fromEntity(entity);
-        final registeredUser =
-            await _authRemoteDataSource.registerRemote(apiModel);
+        final registeredUser = await _authRemoteDataSource.registerRemote(
+          apiModel,
+        );
 
-        
         final hiveModel = AuthHiveModel(
           authId: registeredUser.authId ?? '',
           fullName: registeredUser.fullName ?? '',
@@ -156,8 +158,9 @@ class AuthRepository implements IAuthRepository {
 
     // Offline registration
     try {
-      final isRegistered =
-          await _authDataSource.isEmailRegistered(entity.email);
+      final isRegistered = await _authDataSource.isEmailRegistered(
+        entity.email,
+      );
 
       if (isRegistered == true) {
         return const Left(
@@ -185,9 +188,7 @@ class AuthRepository implements IAuthRepository {
       final result = await _authDataSource.logout();
       return result
           ? const Right(true)
-          : const Left(
-              LocalDatabaseFailure(message: "Failed to logout"),
-            );
+          : const Left(LocalDatabaseFailure(message: "Failed to logout"));
     } catch (e) {
       return Left(LocalDatabaseFailure(message: e.toString()));
     }
@@ -201,23 +202,27 @@ class AuthRepository implements IAuthRepository {
 
     try {
       debugPrint('Starting profile photo upload...');
-      
+
       // Upload to backend and get filename
       final filename = await _authRemoteDataSource.uploadProfilePhoto(file);
-      
+
       debugPrint('Upload successful, filename: $filename');
-   
-      final updateSuccess = await _authDataSource.updateProfilePicture(filename);
-      
+
+      final updateSuccess = await _authDataSource.updateProfilePicture(
+        filename,
+      );
+
       if (!updateSuccess) {
         debugPrint('Failed to update local storage');
         return const Left(
-          LocalDatabaseFailure(message: "Failed to update local profile picture"),
+          LocalDatabaseFailure(
+            message: "Failed to update local profile picture",
+          ),
         );
       }
-      
+
       debugPrint('Local storage updated successfully with filename: $filename');
-      
+
       // Return the filename (not the full URL)
       return Right(filename);
     } on DioException catch (e) {
