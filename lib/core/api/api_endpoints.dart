@@ -39,6 +39,9 @@ class ApiEndpoints {
   // Home dashboard (Sprint 1)
   static const String completedMatches = '/matches/completed';
   static const String myContestEntries = '/leaderboard/my-entries';
+  static const String players = '/players';
+  static String submitContestEntry(String matchId) =>
+      '/leaderboard/contests/$matchId/entry';
 
   static String profilePicture(String filename) {
     if (filename.startsWith('http://') || filename.startsWith('https://')) {
