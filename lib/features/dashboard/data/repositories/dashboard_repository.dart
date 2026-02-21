@@ -6,9 +6,15 @@ import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.d
 import 'package:fanup/features/dashboard/data/datasources/local/dashboard_local_datasource.dart';
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_feed_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_match_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/wallet_daily_bonus_result_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/wallet_summary_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/wallet_transaction_entity.dart';
 import 'package:fanup/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -113,5 +119,120 @@ class DashboardRepository implements IDashboardRepository {
         .toList(growable: false);
 
     return HomeFeedEntity(matches: homeMatches);
+  }
+
+  @override
+  Future<Either<Failure, WalletSummaryEntity>> getWalletSummary() async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      final summary = await _dashboardRemoteDataSource.getWalletSummary();
+      return Right(_mapWalletSummary(summary));
+    } on DioException catch (e) {
+      return Left(
+        ApiFailure(
+          message:
+              e.response?.data['message']?.toString() ??
+              e.message ??
+              'Failed to load wallet summary',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<WalletTransactionEntity>>> getWalletTransactions({
+    int page = 1,
+    int size = 20,
+  }) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      final transactions = await _dashboardRemoteDataSource
+          .getWalletTransactions(page: page, size: size);
+      return Right(
+        transactions.map(_mapWalletTransaction).toList(growable: false),
+      );
+    } on DioException catch (e) {
+      return Left(
+        ApiFailure(
+          message:
+              e.response?.data['message']?.toString() ??
+              e.message ??
+              'Failed to load wallet transactions',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, WalletDailyBonusResultEntity>>
+  claimDailyBonus() async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      final result = await _dashboardRemoteDataSource.claimDailyBonus();
+      return Right(_mapWalletDailyBonusResult(result));
+    } on DioException catch (e) {
+      return Left(
+        ApiFailure(
+          message:
+              e.response?.data['message']?.toString() ??
+              e.message ??
+              'Failed to claim daily bonus',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  WalletSummaryEntity _mapWalletSummary(WalletSummaryApiModel model) {
+    return WalletSummaryEntity(
+      balance: model.balance,
+      totalCredit: model.totalCredit,
+      totalDebit: model.totalDebit,
+      transactionCount: model.transactionCount,
+      lastTransactionAt: model.lastTransactionAt,
+    );
+  }
+
+  WalletTransactionEntity _mapWalletTransaction(
+    WalletTransactionApiModel model,
+  ) {
+    return WalletTransactionEntity(
+      id: model.id,
+      title: model.title,
+      amount: model.amount,
+      type: model.type == 'debit'
+          ? WalletTransactionType.debit
+          : WalletTransactionType.credit,
+      source: model.source,
+      createdAt: model.createdAt,
+    );
+  }
+
+  WalletDailyBonusResultEntity _mapWalletDailyBonusResult(
+    WalletDailyBonusResultApiModel model,
+  ) {
+    return WalletDailyBonusResultEntity(
+      created: model.created,
+      amount: model.amount,
+      message: model.message,
+      summary: _mapWalletSummary(model.summary),
+    );
   }
 }
