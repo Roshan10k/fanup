@@ -1,66 +1,53 @@
-import 'package:flutter/material.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/features/dashboard/domain/entities/wallet_summary_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/wallet_transaction_entity.dart';
+import 'package:fanup/features/dashboard/presentation/state/wallet_state.dart';
+import 'package:fanup/features/dashboard/presentation/view_model/wallet_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class WalletScreen extends StatefulWidget {
+class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
 
   @override
-  State<WalletScreen> createState() => _WalletScreenState();
+  ConsumerState<WalletScreen> createState() => _WalletScreenState();
 }
 
-class _WalletScreenState extends State<WalletScreen> {
-  final List<Transaction> _transactions = [
-    Transaction(
-      title: 'Contest Prize - IND vs AUS',
-      amount: 2500,
-      type: TransactionType.credit,
-      date: DateTime(2025, 11, 19, 14, 30),
-      icon: Icons.arrow_downward,
-      iconColor: const Color(0xFF4CAF50),
-    ),
-    Transaction(
-      title: 'Daily Login Bonus',
-      amount: 1000,
-      type: TransactionType.credit,
-      date: DateTime(2025, 11, 18, 10, 15),
-      icon: Icons.card_giftcard,
-      iconColor: const Color(0xFF2196F3),
-    ),
-    Transaction(
-      title: 'Joined Mega Contest',
-      amount: 49,
-      type: TransactionType.debit,
-      date: DateTime(2025, 11, 17, 16, 45),
-      icon: Icons.arrow_upward,
-      iconColor: const Color(0xFFF44336),
-    ),
-    Transaction(
-      title: 'Contest Prize - PAK vs SA',
-      amount: 1500,
-      type: TransactionType.credit,
-      date: DateTime(2025, 11, 16, 18, 20),
-      icon: Icons.arrow_downward,
-      iconColor: const Color(0xFF4CAF50),
-    ),
-  ];
+class _WalletScreenState extends ConsumerState<WalletScreen> {
+  final NumberFormat _creditFormat = NumberFormat.decimalPattern('en_US');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(walletViewModelProvider.notifier).loadWallet();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final walletState = ref.watch(walletViewModelProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 24),
-              _buildBalanceCard(),
-              const SizedBox(height: 32),
-              _buildRecentTransactions(),
-              const SizedBox(height: 24),
-            ],
+        child: RefreshIndicator(
+          onRefresh: () =>
+              ref.read(walletViewModelProvider.notifier).loadWallet(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 24),
+                _buildBalanceCard(walletState),
+                const SizedBox(height: 32),
+                _buildRecentTransactions(walletState),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -86,7 +73,10 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _buildBalanceCard() {
+  Widget _buildBalanceCard(WalletState state) {
+    final WalletSummaryEntity? summary = state.summary;
+    final balance = summary?.balance ?? 0;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(28),
@@ -97,7 +87,7 @@ class _WalletScreenState extends State<WalletScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFA726).withOpacity(0.3),
+            color: const Color(0xFFFFA726).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -110,21 +100,19 @@ class _WalletScreenState extends State<WalletScreen> {
             children: [
               Text(
                 "Total Credits",
-                style: AppTextStyles.cardTitle.copyWith(
-                  color: Colors.black87,
-                ),
+                style: AppTextStyles.cardTitle.copyWith(color: Colors.black87),
               ),
               const SizedBox(width: 8),
               Icon(
                 Icons.monetization_on,
                 size: 20,
-                color: Colors.black87.withOpacity(0.7),
+                color: Colors.black87.withValues(alpha: 0.7),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            "10,450",
+            _creditFormat.format(balance),
             style: AppTextStyles.amountLarge.copyWith(
               fontSize: 40,
               color: Colors.black,
@@ -134,19 +122,54 @@ class _WalletScreenState extends State<WalletScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildBalanceDetail("Contest Wins", "2450"),
-              _buildBalanceDetail("Daily Bonus", "850"),
-              _buildBalanceDetail("Achievements", "600"),
+              _buildBalanceDetail(
+                "Credits In",
+                _creditFormat.format(summary?.totalCredit ?? 0),
+              ),
+              _buildBalanceDetail(
+                "Credits Out",
+                _creditFormat.format(summary?.totalDebit ?? 0),
+              ),
+              _buildBalanceDetail(
+                "Transactions",
+                '${summary?.transactionCount ?? 0}',
+              ),
             ],
           ),
+          if (state.errorMessage != null) ...[
+            const SizedBox(height: 14),
+            Text(
+              state.errorMessage!,
+              style: AppTextStyles.labelText.copyWith(
+                color: Colors.red.shade800,
+              ),
+            ),
+          ],
+          if (state.infoMessage != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              state.infoMessage!,
+              style: AppTextStyles.labelText.copyWith(
+                color: Colors.green.shade800,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _showEarnCreditsBottomSheet,
-              icon: const Icon(Icons.stars, size: 20),
+              onPressed: state.isClaimingBonus
+                  ? null
+                  : _showEarnCreditsBottomSheet,
+              icon: state.isClaimingBonus
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.stars, size: 20),
               label: Text(
-                "Earn More Credits",
+                state.isClaimingBonus ? "Processing..." : "Earn More Credits",
                 style: AppTextStyles.cardTitle.copyWith(
                   color: const Color(0xFFFFA726),
                 ),
@@ -173,22 +196,18 @@ class _WalletScreenState extends State<WalletScreen> {
       children: [
         Text(
           label,
-          style: AppTextStyles.labelText.copyWith(
-            color: Colors.black54,
-          ),
+          style: AppTextStyles.labelText.copyWith(color: Colors.black54),
         ),
         const SizedBox(height: 4),
         Text(
           amount,
-          style: AppTextStyles.amountSmall.copyWith(
-            color: Colors.black87,
-          ),
+          style: AppTextStyles.amountSmall.copyWith(color: Colors.black87),
         ),
       ],
     );
   }
 
-  Widget _buildRecentTransactions() {
+  Widget _buildRecentTransactions(WalletState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -199,9 +218,10 @@ class _WalletScreenState extends State<WalletScreen> {
             children: [
               Text("Recent Transactions", style: AppTextStyles.sectionTitle),
               TextButton(
-                onPressed: () {},
+                onPressed: () =>
+                    ref.read(walletViewModelProvider.notifier).loadWallet(),
                 child: Text(
-                  "View All",
+                  "Refresh",
                   style: AppTextStyles.cardTitle.copyWith(
                     color: AppColors.primary,
                   ),
@@ -213,18 +233,48 @@ class _WalletScreenState extends State<WalletScreen> {
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: _transactions.map((transaction) {
-              return _buildTransactionItem(transaction);
-            }).toList(),
+          child: Builder(
+            builder: (_) {
+              if (state.status == WalletStatus.loading &&
+                  state.transactions.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (state.transactions.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    'No transactions yet.',
+                    style: AppTextStyles.labelText,
+                  ),
+                );
+              }
+
+              return Column(
+                children: state.transactions
+                    .map(_buildTransactionItem)
+                    .toList(growable: false),
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTransactionItem(Transaction transaction) {
-    final String formattedDate = DateFormat('yyyy-MM-dd • HH:mm').format(transaction.date);
+  Widget _buildTransactionItem(WalletTransactionEntity transaction) {
+    final String formattedDate = DateFormat(
+      'yyyy-MM-dd • HH:mm',
+    ).format(transaction.createdAt.toLocal());
+    final iconAndColor = _iconForTransaction(transaction);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -234,7 +284,7 @@ class _WalletScreenState extends State<WalletScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -245,14 +295,10 @@ class _WalletScreenState extends State<WalletScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: transaction.iconColor.withOpacity(0.1),
+              color: iconAndColor.color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              transaction.icon,
-              color: transaction.iconColor,
-              size: 24,
-            ),
+            child: Icon(iconAndColor.icon, color: iconAndColor.color, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -263,7 +309,11 @@ class _WalletScreenState extends State<WalletScreen> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.access_time, size: 14, color: AppColors.textSecondary),
+                    Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(formattedDate, style: AppTextStyles.labelText),
                   ],
@@ -272,15 +322,36 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ),
           Text(
-            "${transaction.type == TransactionType.credit ? '+' : '-'}${transaction.amount}",
+            "${transaction.type == WalletTransactionType.credit ? '+' : '-'}${_creditFormat.format(transaction.amount)}",
             style: AppTextStyles.amountSmall.copyWith(
-              color: transaction.type == TransactionType.credit
+              color: transaction.type == WalletTransactionType.credit
                   ? const Color(0xFF4CAF50)
                   : const Color(0xFFF44336),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  _WalletIconAndColor _iconForTransaction(WalletTransactionEntity transaction) {
+    if (transaction.source.contains('bonus')) {
+      return const _WalletIconAndColor(
+        icon: Icons.card_giftcard,
+        color: Color(0xFF2196F3),
+      );
+    }
+
+    if (transaction.type == WalletTransactionType.credit) {
+      return const _WalletIconAndColor(
+        icon: Icons.arrow_downward,
+        color: Color(0xFF4CAF50),
+      );
+    }
+
+    return const _WalletIconAndColor(
+      icon: Icons.arrow_upward,
+      color: Color(0xFFF44336),
     );
   }
 
@@ -313,33 +384,36 @@ class _WalletScreenState extends State<WalletScreen> {
             _buildEarnCreditTile(
               icon: Icons.calendar_today,
               title: "Daily Login Bonus",
-              subtitle: "Login every day to earn credits",
+              subtitle: "Claim once every day",
               credits: "+100",
               color: const Color(0xFF4CAF50),
               onTap: () {
                 Navigator.pop(context);
-                _showSimpleDialog("Daily Bonus", "You've earned 100 credits!");
+                _claimDailyBonus();
               },
             ),
             const SizedBox(height: 12),
             _buildEarnCreditTile(
               icon: Icons.person_add,
               title: "Invite Friends",
-              subtitle: "Earn credits for each friend who joins",
+              subtitle: "Referral rewards coming soon",
               credits: "+500",
               color: const Color(0xFF2196F3),
               onTap: () {
                 Navigator.pop(context);
-                _showSimpleDialog("Referral Code", "Your code: FANUP2025");
+                _showSimpleDialog(
+                  "Invite Friends",
+                  "Referral rewards are coming soon.",
+                );
               },
             ),
             const SizedBox(height: 12),
             _buildEarnCreditTile(
               icon: Icons.workspace_premium,
-              title: "Complete Achievements",
-              subtitle: "Unlock achievements to earn credits",
-              credits: "+200",
-              color: const Color(0xFF9C27B0),
+              title: "Contest Wins",
+              subtitle: "Rewards from contests are auto-credited",
+              credits: "Variable",
+              color: const Color(0xFFF59E0B),
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 20),
@@ -363,16 +437,16 @@ class _WalletScreenState extends State<WalletScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
+          color: color.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -408,6 +482,22 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  Future<void> _claimDailyBonus() async {
+    await ref.read(walletViewModelProvider.notifier).claimDailyBonus();
+    if (!mounted) {
+      return;
+    }
+
+    final state = ref.read(walletViewModelProvider);
+    if (state.errorMessage != null) {
+      _showSimpleDialog('Daily Bonus', state.errorMessage!);
+      return;
+    }
+
+    final message = state.infoMessage ?? 'Daily bonus processed';
+    _showSimpleDialog('Daily Bonus', message);
+  }
+
   void _showSimpleDialog(String title, String message) {
     showDialog(
       context: context,
@@ -429,22 +519,9 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 }
 
-enum TransactionType { credit, debit }
-
-class Transaction {
-  final String title;
-  final int amount;
-  final TransactionType type;
-  final DateTime date;
+class _WalletIconAndColor {
   final IconData icon;
-  final Color iconColor;
+  final Color color;
 
-  Transaction({
-    required this.title,
-    required this.amount,
-    required this.type,
-    required this.date,
-    required this.icon,
-    required this.iconColor,
-  });
+  const _WalletIconAndColor({required this.icon, required this.color});
 }
