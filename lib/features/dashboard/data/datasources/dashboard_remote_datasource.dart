@@ -4,6 +4,9 @@ import 'package:fanup/core/api/api_endpoints.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.dart';
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final dashboardRemoteDataSourceProvider = Provider<IDashboardRemoteDataSource>((
@@ -70,5 +73,94 @@ class DashboardRemoteDataSource implements IDashboardRemoteDataSource {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<WalletSummaryApiModel> getWalletSummary() async {
+    final response = await _apiClient.get(ApiEndpoints.walletSummary);
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to load wallet summary',
+      );
+    }
+
+    final data = Map<String, dynamic>.from(
+      (response.data['data'] as Map?) ?? const <String, dynamic>{},
+    );
+
+    return WalletSummaryApiModel.fromJson(data);
+  }
+
+  @override
+  Future<List<WalletTransactionApiModel>> getWalletTransactions({
+    int page = 1,
+    int size = 20,
+  }) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.walletTransactions,
+      queryParameters: {'page': page, 'size': size},
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to load wallet transactions',
+      );
+    }
+
+    final rows = (response.data['data'] as List?) ?? <dynamic>[];
+    return rows
+        .map(
+          (item) => WalletTransactionApiModel.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  @override
+  Future<WalletDailyBonusResultApiModel> claimDailyBonus() async {
+    final response = await _apiClient.post(
+      ApiEndpoints.walletDailyBonus,
+      data: const <String, dynamic>{},
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to claim daily bonus',
+      );
+    }
+
+    final data = Map<String, dynamic>.from(
+      (response.data['data'] as Map?) ?? const <String, dynamic>{},
+    );
+    final summaryMap = Map<String, dynamic>.from(
+      (data['summary'] as Map?) ?? const <String, dynamic>{},
+    );
+
+    return WalletDailyBonusResultApiModel(
+      created: data['created'] == true,
+      amount: _asInt(data['amount']),
+      message: response.data['message']?.toString() ?? 'Daily bonus processed',
+      summary: WalletSummaryApiModel.fromJson(summaryMap),
+    );
+  }
+
+  int _asInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 }

@@ -1,5 +1,8 @@
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
 
 abstract interface class IDashboardRemoteDataSource {
   Future<List<CompletedMatchApiModel>> getCompletedMatches({
@@ -8,6 +11,15 @@ abstract interface class IDashboardRemoteDataSource {
   });
 
   Future<List<ContestEntryApiModel>> getMyContestEntries();
+
+  Future<WalletSummaryApiModel> getWalletSummary();
+
+  Future<List<WalletTransactionApiModel>> getWalletTransactions({
+    int page = 1,
+    int size = 20,
+  });
+
+  Future<WalletDailyBonusResultApiModel> claimDailyBonus();
 }
 
 class DashboardCachedHomeData {

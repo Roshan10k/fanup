@@ -43,6 +43,11 @@ class ApiEndpoints {
   static String submitContestEntry(String matchId) =>
       '/leaderboard/contests/$matchId/entry';
 
+  // Wallet
+  static const String walletSummary = '/wallet/summary';
+  static const String walletTransactions = '/wallet/transactions';
+  static const String walletDailyBonus = '/wallet/daily-bonus';
+
   static String profilePicture(String filename) {
     if (filename.startsWith('http://') || filename.startsWith('https://')) {
       return filename;
