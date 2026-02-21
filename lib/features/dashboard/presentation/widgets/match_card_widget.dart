@@ -6,6 +6,7 @@ class MatchCard extends StatelessWidget {
   final String dateTime;
   final String teamA;
   final String teamB;
+  final String buttonLabel;
   final VoidCallback onCreateTeam;
 
   const MatchCard({
@@ -14,6 +15,7 @@ class MatchCard extends StatelessWidget {
     required this.dateTime,
     required this.teamA,
     required this.teamB,
+    this.buttonLabel = 'Create Team',
     required this.onCreateTeam,
   });
 
@@ -45,14 +47,10 @@ class MatchCard extends StatelessWidget {
     );
   }
 
-  /// Header: League Badge + Date + Live Indicator
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _leagueBadge(),
-        _dateLiveIndicator(),
-      ],
+      children: [_leagueBadge(), _dateLiveIndicator()],
     );
   }
 
@@ -63,39 +61,30 @@ class MatchCard extends StatelessWidget {
         color: Colors.grey.shade300,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        league,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
+      child: Text(league, style: const TextStyle(fontWeight: FontWeight.bold)),
     );
   }
 
   Widget _dateLiveIndicator() {
-    return Row(
-      children: [
-        Text(dateTime, style: TextStyle(color: Colors.grey.shade600)),
-        const SizedBox(width: 60),
-        const Icon(Icons.circle, color: Colors.red, size: 10),
-        const SizedBox(width: 4),
-        const Text(
-          "Live",
-          style: TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.w600,
-          ),
+    return Expanded(
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Text(
+          dateTime,
+          style: TextStyle(color: Colors.grey.shade600),
+          textAlign: TextAlign.right,
         ),
-      ],
+      ),
     );
   }
 
-  /// Teams Row
   Widget _buildTeamsRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _teamColumn(teamA),
         const Text(
-          "VS",
+          'VS',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
         ),
         _teamColumn(teamB),
@@ -103,7 +92,6 @@ class MatchCard extends StatelessWidget {
     );
   }
 
-  /// Individual Team Widget
   Widget _teamColumn(String teamName) {
     return Column(
       children: [
@@ -121,7 +109,6 @@ class MatchCard extends StatelessWidget {
     );
   }
 
-  /// Create Team Button
   Widget _buildCreateTeamButton() {
     return SizedBox(
       width: double.infinity,
@@ -134,9 +121,9 @@ class MatchCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: const Text(
-          "Create Team",
-          style: TextStyle(
+        child: Text(
+          buttonLabel,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 17,
             color: Colors.white,
