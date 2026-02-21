@@ -1,12 +1,31 @@
 import 'package:fanup/features/auth/domain/entities/auth_entity.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'auth_api_model.g.dart';
+
+@JsonSerializable(createToJson: false)
 class AuthApiModel {
+  @JsonKey(
+    name: '_id',
+    readValue: _readUserValue,
+    fromJson: _toNullableString,
+  )
   final String? authId;
+
+  @JsonKey(readValue: _readUserValue, fromJson: _toNullableString)
   final String? fullName;
+
+  @JsonKey(readValue: _readUserValue, fromJson: _toNullableString)
   final String? email;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String password;
+
+  @JsonKey(readValue: _readTokenValue, fromJson: _toNullableString)
   final String? token;
-  final String? profilePicture; 
+
+  @JsonKey(readValue: _readUserValue, fromJson: _toNullableString)
+  final String? profilePicture;
 
   AuthApiModel({
     this.authId,
@@ -17,18 +36,8 @@ class AuthApiModel {
     this.profilePicture,
   });
 
-  factory AuthApiModel.fromJson(Map<String, dynamic> json) {
-    final userData = json['data'] ?? json['user'] ?? {};
-
-    return AuthApiModel(
-      authId: userData['_id']?.toString(),
-      fullName: userData['fullName']?.toString(),
-      email: userData['email']?.toString(),
-      password: '',
-      token: json['token']?.toString(),
-      profilePicture: userData['profilePicture']?.toString(), 
-    );
-  }
+  factory AuthApiModel.fromJson(Map<String, dynamic> json) =>
+      _$AuthApiModelFromJson(json);
 
   Map<String, dynamic> toJson() {
     return {
@@ -56,5 +65,28 @@ class AuthApiModel {
       password: entity.password,
       profilePicture: entity.profilePicture,
     );
+  }
+
+  static Object? _readUserValue(Map map, String key) {
+    final userData = map['data'] ?? map['user'];
+    if (userData is Map) {
+      return userData[key];
+    }
+    return null;
+  }
+
+  static Object? _readTokenValue(Map map, String key) {
+    return map[key];
+  }
+
+  static String? _toNullableString(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    return value.toString();
+  }
+
+  static String _toRequiredString(dynamic value) {
+    return value?.toString() ?? '';
   }
 }

@@ -29,8 +29,7 @@ class HiveService {
   // Open all boxes
   Future<void> _openBoxes() async {
     await Hive.openBox<AuthHiveModel>(HiveTableConstant.authTable);
-    // Open a simple box for storing current user ID
-    await Hive.openBox('app_data');
+    await Hive.openBox(HiveTableConstant.appDataTable);
   }
 
   // Close all boxes
@@ -41,18 +40,19 @@ class HiveService {
   // ==================== Auth CRUD Operations ====================
   Box<AuthHiveModel> get _authBox =>
       Hive.box<AuthHiveModel>(HiveTableConstant.authTable);
-  
-  Box get _appDataBox => Hive.box('app_data');
+
+  Box get _appDataBox => Hive.box(HiveTableConstant.appDataTable);
 
   Future<AuthHiveModel> registerUser(AuthHiveModel model) async {
     await _authBox.put(model.authId, model);
     return model;
   }
 
-  //Login 
+  //Login
   Future<AuthHiveModel?> loginUser(String email, String password) async {
-    final auths = _authBox.values.where((auth) =>
-        auth.email == email && auth.password == password);
+    final auths = _authBox.values.where(
+      (auth) => auth.email == email && auth.password == password,
+    );
     if (auths.isNotEmpty) {
       return auths.first;
     }
@@ -65,7 +65,7 @@ class HiveService {
     await _appDataBox.delete('current_user_id');
   }
 
-  // Save Current User ID 
+  // Save Current User ID
   Future<void> saveCurrentUser(AuthHiveModel user) async {
     // Store only the user ID as reference
     await _appDataBox.put('current_user_id', user.authId);
@@ -75,7 +75,7 @@ class HiveService {
   Future<AuthHiveModel?> getCurrentUser() async {
     final currentUserId = _appDataBox.get('current_user_id');
     if (currentUserId == null) return null;
-    
+
     // Get the actual user object from authBox using the ID
     return _authBox.get(currentUserId);
   }
@@ -83,6 +83,22 @@ class HiveService {
   //is email registered
   Future<bool> isEmailRegistered(String email) async {
     final users = _authBox.values.where((auth) => auth.email == email);
-    return users.isNotEmpty;  
+    return users.isNotEmpty;
+  }
+
+  Future<void> putAppData(String key, dynamic value) async {
+    await _appDataBox.put(key, value);
+  }
+
+  T? getAppData<T>(String key) {
+    final value = _appDataBox.get(key);
+    if (value is T) {
+      return value;
+    }
+    return null;
+  }
+
+  Future<void> deleteAppData(String key) async {
+    await _appDataBox.delete(key);
   }
 }

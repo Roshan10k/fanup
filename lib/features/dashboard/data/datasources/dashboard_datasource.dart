@@ -9,3 +9,24 @@ abstract interface class IDashboardRemoteDataSource {
 
   Future<List<ContestEntryApiModel>> getMyContestEntries();
 }
+
+class DashboardCachedHomeData {
+  final List<CompletedMatchApiModel> matches;
+  final List<ContestEntryApiModel> entries;
+  final DateTime cachedAt;
+
+  const DashboardCachedHomeData({
+    required this.matches,
+    required this.entries,
+    required this.cachedAt,
+  });
+}
+
+abstract interface class IDashboardLocalDataSource {
+  Future<void> cacheHomeData({
+    required List<CompletedMatchApiModel> matches,
+    required List<ContestEntryApiModel> entries,
+  });
+
+  Future<DashboardCachedHomeData?> getCachedHomeData();
+}

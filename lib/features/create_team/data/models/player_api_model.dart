@@ -1,11 +1,26 @@
 import 'package:fanup/features/create_team/domain/entities/player_entity.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'player_api_model.g.dart';
+
+@JsonSerializable()
 class PlayerApiModel {
+  @JsonKey(name: '_id', fromJson: _toRequiredString, defaultValue: '')
   final String id;
+
+  @JsonKey(fromJson: _fullNameFromJson, defaultValue: 'Player')
   final String fullName;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String teamShortName;
+
+  @JsonKey(fromJson: _roleFromJson, defaultValue: 'bowler')
   final String role;
+
+  @JsonKey(fromJson: _toDouble, defaultValue: 0.0)
   final double credit;
+
+  @JsonKey(fromJson: _toBool, defaultValue: false)
   final bool isPlaying;
 
   const PlayerApiModel({
@@ -17,18 +32,10 @@ class PlayerApiModel {
     required this.isPlaying,
   });
 
-  factory PlayerApiModel.fromJson(Map<String, dynamic> json) {
-    return PlayerApiModel(
-      id: (json['_id'] ?? '').toString(),
-      fullName: (json['fullName'] ?? 'Player').toString(),
-      teamShortName: (json['teamShortName'] ?? '').toString(),
-      role: (json['role'] ?? 'bowler').toString(),
-      credit: (json['credit'] is num)
-          ? (json['credit'] as num).toDouble()
-          : double.tryParse((json['credit'] ?? '0').toString()) ?? 0,
-      isPlaying: json['isPlaying'] == true,
-    );
-  }
+  factory PlayerApiModel.fromJson(Map<String, dynamic> json) =>
+      _$PlayerApiModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PlayerApiModelToJson(this);
 
   PlayerEntity toEntity() {
     return PlayerEntity(
@@ -39,5 +46,26 @@ class PlayerApiModel {
       credit: credit,
       isPlaying: isPlaying,
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+    return double.tryParse((value ?? '0').toString()) ?? 0;
+  }
+
+  static bool _toBool(dynamic value) => value == true;
+
+  static String _toRequiredString(dynamic value) {
+    return value?.toString() ?? '';
+  }
+
+  static String _fullNameFromJson(dynamic value) {
+    return value?.toString() ?? 'Player';
+  }
+
+  static String _roleFromJson(dynamic value) {
+    return value?.toString() ?? 'bowler';
   }
 }

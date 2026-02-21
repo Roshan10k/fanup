@@ -1,11 +1,26 @@
 import 'package:fanup/features/create_team/domain/entities/contest_entry_entity.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'contest_entry_api_model.g.dart';
+
+@JsonSerializable()
 class ContestEntryApiModel {
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String matchId;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String teamId;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String teamName;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String captainId;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String viceCaptainId;
+
+  @JsonKey(fromJson: _playerIdsFromJson, defaultValue: <String>[])
   final List<String> playerIds;
 
   const ContestEntryApiModel({
@@ -17,17 +32,10 @@ class ContestEntryApiModel {
     required this.playerIds,
   });
 
-  factory ContestEntryApiModel.fromJson(Map<String, dynamic> json) {
-    final ids = (json['playerIds'] as List?) ?? const [];
-    return ContestEntryApiModel(
-      matchId: (json['matchId'] ?? '').toString(),
-      teamId: (json['teamId'] ?? '').toString(),
-      teamName: (json['teamName'] ?? '').toString(),
-      captainId: (json['captainId'] ?? '').toString(),
-      viceCaptainId: (json['viceCaptainId'] ?? '').toString(),
-      playerIds: ids.map((e) => e.toString()).toList(),
-    );
-  }
+  factory ContestEntryApiModel.fromJson(Map<String, dynamic> json) =>
+      _$ContestEntryApiModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ContestEntryApiModelToJson(this);
 
   ExistingContestEntryEntity toExistingEntryEntity() {
     return ExistingContestEntryEntity(
@@ -37,5 +45,14 @@ class ContestEntryApiModel {
       viceCaptainId: viceCaptainId,
       playerIds: playerIds,
     );
+  }
+
+  static List<String> _playerIdsFromJson(dynamic value) {
+    final ids = (value as List?) ?? const [];
+    return ids.map((e) => e.toString()).toList();
+  }
+
+  static String _toRequiredString(dynamic value) {
+    return value?.toString() ?? '';
   }
 }
