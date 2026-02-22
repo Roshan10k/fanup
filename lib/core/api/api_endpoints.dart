@@ -36,12 +36,15 @@ class ApiEndpoints {
   static const String updateProfile = '/users/profile';
   static const String profileStats = '/users/profile/stats';
 
-  // Home dashboard (Sprint 1)
+  // Home dashboard 
   static const String completedMatches = '/matches/completed';
   static const String myContestEntries = '/leaderboard/my-entries';
   static const String players = '/players';
   static String submitContestEntry(String matchId) =>
       '/leaderboard/contests/$matchId/entry';
+  static const String leaderboardContests = '/leaderboard/contests';
+  static String leaderboardContestByMatch(String matchId) =>
+      '/leaderboard/contests/$matchId';
 
   // Wallet
   static const String walletSummary = '/wallet/summary';
