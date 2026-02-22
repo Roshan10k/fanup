@@ -6,12 +6,16 @@ import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.d
 import 'package:fanup/features/dashboard/data/datasources/local/dashboard_local_datasource.dart';
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/leaderboard_contest_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/leaderboard_payload_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_feed_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_match_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/leaderboard_contest_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/leaderboard_payload_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_daily_bonus_result_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_summary_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_transaction_entity.dart';
@@ -233,6 +237,104 @@ class DashboardRepository implements IDashboardRepository {
       amount: model.amount,
       message: model.message,
       summary: _mapWalletSummary(model.summary),
+    );
+  }
+
+  @override
+  Future<Either<Failure, List<LeaderboardContestEntity>>>
+  getLeaderboardContests({required String status}) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      final contests = await _dashboardRemoteDataSource.getLeaderboardContests(
+        status: status,
+      );
+      return Right(
+        contests.map(_mapLeaderboardContest).toList(growable: false),
+      );
+    } on DioException catch (e) {
+      return Left(
+        ApiFailure(
+          message:
+              e.response?.data['message']?.toString() ??
+              e.message ??
+              'Failed to load leaderboard contests',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, LeaderboardPayloadEntity>> getMatchLeaderboard({
+    required String matchId,
+  }) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      final payload = await _dashboardRemoteDataSource.getMatchLeaderboard(
+        matchId: matchId,
+      );
+      return Right(_mapLeaderboardPayload(payload));
+    } on DioException catch (e) {
+      return Left(
+        ApiFailure(
+          message:
+              e.response?.data['message']?.toString() ??
+              e.message ??
+              'Failed to load leaderboard',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  LeaderboardContestEntity _mapLeaderboardContest(
+    LeaderboardContestApiModel model,
+  ) {
+    return LeaderboardContestEntity(
+      id: model.id,
+      matchLabel: model.matchLabel,
+      startsAt: model.startsAt,
+      status: model.status,
+      entryFee: model.entryFee,
+      participantsCount: model.participantsCount,
+      prizePool: model.prizePool,
+    );
+  }
+
+  LeaderboardPayloadEntity _mapLeaderboardPayload(
+    LeaderboardPayloadApiModel model,
+  ) {
+    LeaderboardLeaderEntity mapLeader(LeaderboardLeaderApiModel leader) {
+      return LeaderboardLeaderEntity(
+        userId: leader.userId,
+        rank: leader.rank,
+        name: leader.name,
+        teams: leader.teams,
+        pts: leader.pts,
+        winRate: leader.winRate,
+        prize: leader.prize,
+      );
+    }
+
+    return LeaderboardPayloadEntity(
+      match: LeaderboardMatchMetaEntity(
+        id: model.match.id,
+        matchLabel: model.match.matchLabel,
+        startsAt: model.match.startsAt,
+        status: model.match.status,
+      ),
+      leaders: model.leaders.map(mapLeader).toList(growable: false),
+      myEntry: model.myEntry == null ? null : mapLeader(model.myEntry!),
     );
   }
 }
