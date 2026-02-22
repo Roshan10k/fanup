@@ -4,6 +4,8 @@ import 'package:fanup/core/api/api_endpoints.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.dart';
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/leaderboard_contest_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/leaderboard_payload_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
@@ -162,5 +164,58 @@ class DashboardRemoteDataSource implements IDashboardRemoteDataSource {
     if (value is int) return value;
     if (value is num) return value.toInt();
     return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  @override
+  Future<List<LeaderboardContestApiModel>> getLeaderboardContests({
+    required String status,
+  }) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.leaderboardContests,
+      queryParameters: {'status': status},
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to load leaderboard contests',
+      );
+    }
+
+    final rows = (response.data['data'] as List?) ?? const <dynamic>[];
+    return rows
+        .map(
+          (item) => LeaderboardContestApiModel.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  @override
+  Future<LeaderboardPayloadApiModel> getMatchLeaderboard({
+    required String matchId,
+  }) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.leaderboardContestByMatch(matchId),
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to load match leaderboard',
+      );
+    }
+
+    final data = Map<String, dynamic>.from(
+      (response.data['data'] as Map?) ?? const <String, dynamic>{},
+    );
+    return LeaderboardPayloadApiModel.fromJson(data);
   }
 }
