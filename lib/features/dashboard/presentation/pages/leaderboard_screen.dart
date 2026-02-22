@@ -1,24 +1,66 @@
-import 'package:flutter/material.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/features/dashboard/domain/entities/leaderboard_contest_entity.dart';
+import 'package:fanup/features/dashboard/domain/entities/leaderboard_payload_entity.dart';
+import 'package:fanup/features/dashboard/presentation/state/leaderboard_state.dart';
+import 'package:fanup/features/dashboard/presentation/view_model/leaderboard_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class LeaderboardScreen extends StatelessWidget {
+class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
 
   @override
+  ConsumerState<LeaderboardScreen> createState() => _LeaderboardScreenState();
+}
+
+class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
+  final NumberFormat _credits = NumberFormat.decimalPattern('en_US');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(leaderboardViewModelProvider.notifier).initialize();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(leaderboardViewModelProvider);
+    final selectedContest = state.contests
+        .where((c) => c.id == state.selectedMatchId)
+        .cast<LeaderboardContestEntity?>()
+        .firstOrNull;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 24),
-              _buildTopThree(),
-              const SizedBox(height: 24),
-              _buildLeaderList(),
-              const SizedBox(height: 24),
-            ],
+        child: RefreshIndicator(
+          onRefresh: () => ref
+              .read(leaderboardViewModelProvider.notifier)
+              .loadContests(status: state.selectedStatus),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 16),
+                _buildControls(state),
+                const SizedBox(height: 16),
+                if (state.errorMessage != null)
+                  _buildError(state.errorMessage!),
+                if (selectedContest != null)
+                  _buildContestSummary(selectedContest),
+                const SizedBox(height: 16),
+                _buildTopThree(state),
+                const SizedBox(height: 16),
+                _buildMyEntryCard(state),
+                const SizedBox(height: 12),
+                _buildLeaderList(state),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -38,188 +80,311 @@ class LeaderboardScreen extends StatelessWidget {
         children: [
           Text("Leaderboard", style: AppTextStyles.headerTitle),
           const SizedBox(height: 4),
-          Text("Top Performers", style: AppTextStyles.headerSubtitle),
+          Text("Match contest rankings", style: AppTextStyles.headerSubtitle),
         ],
       ),
     );
   }
 
-  Widget _buildTopThree() {
+  Widget _buildControls(LeaderboardState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _statusButton(
+                  title: 'Live',
+                  active: state.selectedStatus == 'live',
+                  onTap: () => ref
+                      .read(leaderboardViewModelProvider.notifier)
+                      .loadContests(status: 'live'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _statusButton(
+                  title: 'Completed',
+                  active: state.selectedStatus == 'completed',
+                  onTap: () => ref
+                      .read(leaderboardViewModelProvider.notifier)
+                      .loadContests(status: 'completed'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: state.selectedMatchId.isEmpty
+                    ? null
+                    : state.selectedMatchId,
+                hint: const Text('Select match'),
+                isExpanded: true,
+                items: state.contests
+                    .map(
+                      (item) => DropdownMenuItem<String>(
+                        value: item.id,
+                        child: Text(item.matchLabel),
+                      ),
+                    )
+                    .toList(growable: false),
+                onChanged: state.contests.isEmpty
+                    ? null
+                    : (value) {
+                        if (value == null) return;
+                        ref
+                            .read(leaderboardViewModelProvider.notifier)
+                            .loadMatchLeaderboard(matchId: value);
+                      },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusButton({
+    required String title,
+    required bool active,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Text(
+            title,
+            style: AppTextStyles.cardTitle.copyWith(
+              color: active ? Colors.white : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(String message) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        message,
+        style: AppTextStyles.labelText.copyWith(color: Colors.red.shade700),
+      ),
+    );
+  }
+
+  Widget _buildContestSummary(LeaderboardContestEntity contest) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(contest.matchLabel, style: AppTextStyles.sectionTitle),
+          const SizedBox(height: 4),
+          Text(
+            DateFormat('yyyy-MM-dd HH:mm').format(contest.startsAt.toLocal()),
+            style: AppTextStyles.labelText,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _summaryValue('Fee', _credits.format(contest.entryFee)),
+              _summaryValue('Players', '${contest.participantsCount}'),
+              _summaryValue('Prize', _credits.format(contest.prizePool)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryValue(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyles.labelText),
+        const SizedBox(height: 2),
+        Text(value, style: AppTextStyles.cardTitle),
+      ],
+    );
+  }
+
+  Widget _buildTopThree(LeaderboardState state) {
+    final leaders = state.payload?.leaders ?? const <LeaderboardLeaderEntity>[];
+    if (state.status == LeaderboardStatus.loading && leaders.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (leaders.isEmpty) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text('No leaderboard data yet.', style: AppTextStyles.labelText),
+      );
+    }
+
+    final topThree = leaders.take(3).toList(growable: false);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFFFFD54F), Color(0xFFFFA726)],
         ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFA726).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: topThree
+            .map(
+              (leader) => Column(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Colors.white,
+                    child: Text(
+                      '${leader.rank}',
+                      style: AppTextStyles.cardTitle,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: 90,
+                    child: Text(
+                      leader.name,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.cardSubtitle,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${leader.pts.toStringAsFixed(1)} Pts',
+                    style: AppTextStyles.labelText,
+                  ),
+                ],
+              ),
+            )
+            .toList(growable: false),
+      ),
+    );
+  }
+
+  Widget _buildMyEntryCard(LeaderboardState state) {
+    final myEntry = state.payload?.myEntry;
+    if (myEntry == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildPodiumItem(
-            icon: Icons.person,
-            name: "Nishad M.",
-            pts: "200 Pts",
-            score: "50.0",
-            position: 2,
-          ),
-          _buildWinnerItem(),
-          _buildPodiumItem(
-            icon: Icons.military_tech,
-            name: "Sworup P.",
-            pts: "199 Pts",
-            score: "30.0",
-            position: 3,
+          Text('My Rank: #${myEntry.rank}', style: AppTextStyles.cardTitle),
+          Text(
+            '${myEntry.pts.toStringAsFixed(1)} Pts',
+            style: AppTextStyles.amountSmall.copyWith(color: AppColors.primary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildWinnerItem() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.emoji_events, size: 42, color: Colors.orange),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Text("Roshan K.", style: AppTextStyles.cardTitle),
-              const SizedBox(height: 4),
-              Text("300 Pts", style: AppTextStyles.cardSubtitle),
-              const SizedBox(height: 4),
-              Text(
-                "100.0",
-                style: AppTextStyles.amountSmall.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildLeaderList(LeaderboardState state) {
+    final leaders = state.payload?.leaders ?? const <LeaderboardLeaderEntity>[];
 
-  Widget _buildPodiumItem({
-    required IconData icon,
-    required String name,
-    required String pts,
-    required String score,
-    required int position,
-  }) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: Colors.white.withOpacity(0.3),
-          child: Icon(icon, color: Colors.white, size: 28),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Text(
-                name,
-                style: AppTextStyles.cardSubtitle.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(pts, style: AppTextStyles.labelText),
-              const SizedBox(height: 4),
-              Text(
-                score,
-                style: AppTextStyles.cardValue.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLeaderList() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: List.generate(
-          5,
-          (index) {
-            final rank = index + 4;
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    "$rank.",
-                    style: AppTextStyles.cardSubtitle.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Player Name", style: AppTextStyles.cardTitle),
-                        const SizedBox(height: 4),
-                        Text("150 Pts", style: AppTextStyles.labelText),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    "20.0",
-                    style: AppTextStyles.amountSmall.copyWith(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+        children: leaders
+            .skip(3)
+            .map((leader) => _leaderRow(leader))
+            .toList(growable: false),
       ),
     );
   }
+
+  Widget _leaderRow(LeaderboardLeaderEntity leader) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Text('${leader.rank}.', style: AppTextStyles.cardTitle),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(leader.name, style: AppTextStyles.cardTitle),
+                const SizedBox(height: 2),
+                Text(
+                  '${leader.pts.toStringAsFixed(1)} Pts',
+                  style: AppTextStyles.labelText,
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${leader.winRate.toStringAsFixed(1)}%',
+            style: AppTextStyles.amountSmall.copyWith(color: AppColors.primary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+extension<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }
