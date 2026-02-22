@@ -1,5 +1,7 @@
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/leaderboard_contest_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/leaderboard_payload_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
@@ -20,6 +22,14 @@ abstract interface class IDashboardRemoteDataSource {
   });
 
   Future<WalletDailyBonusResultApiModel> claimDailyBonus();
+
+  Future<List<LeaderboardContestApiModel>> getLeaderboardContests({
+    required String status,
+  });
+
+  Future<LeaderboardPayloadApiModel> getMatchLeaderboard({
+    required String matchId,
+  });
 }
 
 class DashboardCachedHomeData {
