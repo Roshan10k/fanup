@@ -10,6 +10,7 @@ abstract interface class IAuthDataSource {
   Future<bool> logout();
   Future<bool> isEmailRegistered(String email);
   Future<bool> updateProfilePicture(String profileImageUrl);
+  Future<bool> updateLocalUser({String? fullName, String? phone, String? profilePicture});
 }
 
 abstract interface class IRemoteAuthDataSource {

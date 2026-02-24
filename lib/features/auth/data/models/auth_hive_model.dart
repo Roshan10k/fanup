@@ -22,6 +22,9 @@ class AuthHiveModel extends HiveObject {
   @HiveField(4)
   final String? profilePicture;
 
+  @HiveField(5)
+  final String? phone;
+
   // FIXED: Changed parameter name from 'userId' to 'authId' for consistency
   AuthHiveModel({
     String? authId,
@@ -29,6 +32,7 @@ class AuthHiveModel extends HiveObject {
     required this.email,
     required this.password,
     this.profilePicture,
+    this.phone,
   }) : authId = authId ?? const Uuid().v4();
 
   // Convert Hive Model to User Entity
@@ -39,6 +43,7 @@ class AuthHiveModel extends HiveObject {
       email: email,
       password: password,
       profilePicture: profilePicture,
+      phone: phone,
     );
   }
 
@@ -50,6 +55,7 @@ class AuthHiveModel extends HiveObject {
       email: entity.email,
       password: entity.password,
       profilePicture: entity.profilePicture,
+      phone: entity.phone,
     );
   }
 
@@ -65,6 +71,7 @@ class AuthHiveModel extends HiveObject {
     String? email,
     String? password,
     String? profilePicture,
+    String? phone,
   }) {
     return AuthHiveModel(
       authId: authId ?? this.authId,
@@ -72,6 +79,7 @@ class AuthHiveModel extends HiveObject {
       email: email ?? this.email,
       password: password ?? this.password,
       profilePicture: profilePicture ?? this.profilePicture,
+      phone: phone ?? this.phone,
     );
   }
 }

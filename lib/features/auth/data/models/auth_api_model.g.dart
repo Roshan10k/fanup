@@ -20,4 +20,10 @@ AuthApiModel _$AuthApiModelFromJson(Map<String, dynamic> json) => AuthApiModel(
           AuthApiModel._readTokenValue(json, 'token')),
       profilePicture: AuthApiModel._toNullableString(
           AuthApiModel._readUserValue(json, 'profilePicture')),
+      phone: AuthApiModel._toNullableString(
+          AuthApiModel._readUserValue(json, 'phone')),
+      balance: AuthApiModel._readUserValue(json, 'balance') == null
+          ? 0.0
+          : AuthApiModel._toDouble(
+              AuthApiModel._readUserValue(json, 'balance')),
     );

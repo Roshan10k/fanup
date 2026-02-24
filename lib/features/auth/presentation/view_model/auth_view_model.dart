@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:fanup/features/auth/domain/repositories/auth.repository.dart';
+import 'package:fanup/features/auth/data/repositories/auth_repository.dart';
 import 'package:fanup/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/logout_usecase.dart';
@@ -19,6 +21,7 @@ class AuthViewModel extends Notifier<AuthState> {
   late final GetCurrentUserUsecase _getCurrentUserUsecase;
   late final LogoutUsecase _logoutUsecase;
   late final UploadProfilePhotoUsecase _uploadProfilePhotoUsecase;
+  late final IAuthRepository _authRepository;
 
 
   @override
@@ -28,6 +31,7 @@ class AuthViewModel extends Notifier<AuthState> {
     _getCurrentUserUsecase = ref.read(getCurrentUserUsecaseProvider);
     _logoutUsecase = ref.read(logoutUsecaseProvider);
     _uploadProfilePhotoUsecase = ref.read(uploadProfilePhotoUsecaseProvider);
+    _authRepository = ref.read(authRepositoryProvider);
     return const AuthState();
   }
 
@@ -155,6 +159,33 @@ class AuthViewModel extends Notifier<AuthState> {
             authEntity: null,
           );
         }
+      },
+    );
+  }
+
+  /// Updates local user data and refreshes the state
+  Future<bool> updateLocalProfile({
+    String? fullName,
+    String? phone,
+  }) async {
+    final result = await _authRepository.updateLocalUser(
+      fullName: fullName,
+      phone: phone,
+    );
+
+    return result.fold(
+      (failure) => false,
+      (success) {
+        // Update local state immediately
+        if (state.authEntity != null) {
+          state = state.copyWith(
+            authEntity: state.authEntity!.copyWith(
+              fullName: fullName ?? state.authEntity!.fullName,
+              phone: phone ?? state.authEntity!.phone,
+            ),
+          );
+        }
+        return true;
       },
     );
   }

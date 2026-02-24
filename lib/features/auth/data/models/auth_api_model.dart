@@ -27,6 +27,12 @@ class AuthApiModel {
   @JsonKey(readValue: _readUserValue, fromJson: _toNullableString)
   final String? profilePicture;
 
+  @JsonKey(readValue: _readUserValue, fromJson: _toNullableString)
+  final String? phone;
+
+  @JsonKey(readValue: _readUserValue, fromJson: _toDouble)
+  final double balance;
+
   AuthApiModel({
     this.authId,
     this.fullName,
@@ -34,6 +40,8 @@ class AuthApiModel {
     required this.password,
     this.token,
     this.profilePicture,
+    this.phone,
+    this.balance = 0.0,
   });
 
   factory AuthApiModel.fromJson(Map<String, dynamic> json) =>
@@ -55,6 +63,8 @@ class AuthApiModel {
       email: email ?? '',
       password: password,
       profilePicture: profilePicture,
+      phone: phone,
+      balance: balance,
     );
   }
 
@@ -64,6 +74,8 @@ class AuthApiModel {
       email: entity.email,
       password: entity.password,
       profilePicture: entity.profilePicture,
+      phone: entity.phone,
+      balance: entity.balance,
     );
   }
 
@@ -88,5 +100,21 @@ class AuthApiModel {
 
   static String _toRequiredString(dynamic value) {
     return value?.toString() ?? '';
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value == null) {
+      return 0.0;
+    }
+    if (value is double) {
+      return value;
+    }
+    if (value is int) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
   }
 }

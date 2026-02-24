@@ -42,9 +42,34 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<Either<Failure, AuthEntity>> getCurrentUser() async {
     try {
-      final user = await _authDataSource.getCurrentUser();
-      if (user != null) {
-        return Right(user.toEntity());
+      // First check if we have a local user
+      final localUser = await _authDataSource.getCurrentUser();
+      
+      // If connected, fetch fresh data from server to sync changes made from other platforms (e.g., web)
+      if (await _networkInfo.isConnected && localUser != null && localUser.authId != null) {
+        try {
+          final remoteUser = await _authRemoteDataSource.getUserById(localUser.authId!);
+          
+          if (remoteUser != null) {
+            // Update local storage with fresh server data
+            await _authDataSource.updateLocalUser(
+              fullName: remoteUser.fullName,
+              phone: remoteUser.phone,
+              profilePicture: remoteUser.profilePicture,
+            );
+            
+            debugPrint('Synced user profile from server');
+            return Right(remoteUser.toEntity());
+          }
+        } catch (e) {
+          debugPrint('Failed to sync from server, using local data: $e');
+          // Fall through to return local user if server sync fails
+        }
+      }
+      
+      // Return local user if available
+      if (localUser != null) {
+        return Right(localUser.toEntity());
       }
       return const Left(LocalDatabaseFailure(message: "No current user found"));
     } catch (e) {
@@ -73,8 +98,8 @@ class AuthRepository implements IAuthRepository {
           fullName: apiModel.fullName ?? '',
           email: apiModel.email ?? '',
           password: password,
-          profilePicture:
-              apiModel.profilePicture, // Profile image is saved here
+          profilePicture: apiModel.profilePicture,
+          phone: apiModel.phone,
         );
 
         await _authDataSource.register(hiveModel);
@@ -140,6 +165,7 @@ class AuthRepository implements IAuthRepository {
           email: registeredUser.email ?? '',
           password: entity.password,
           profilePicture: registeredUser.profilePicture,
+          phone: registeredUser.phone,
         );
 
         await _authDataSource.register(hiveModel);
@@ -173,6 +199,7 @@ class AuthRepository implements IAuthRepository {
         email: entity.email,
         password: entity.password,
         profilePicture: entity.profilePicture,
+        phone: entity.phone,
       );
 
       await _authDataSource.register(hiveModel);
@@ -236,6 +263,27 @@ class AuthRepository implements IAuthRepository {
     } catch (e) {
       debugPrint('Upload error: $e');
       return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> updateLocalUser({
+    String? fullName,
+    String? phone,
+    String? profilePicture,
+  }) async {
+    try {
+      final success = await _authDataSource.updateLocalUser(
+        fullName: fullName,
+        phone: phone,
+        profilePicture: profilePicture,
+      );
+      if (success) {
+        return const Right(true);
+      }
+      return const Left(LocalDatabaseFailure(message: 'Failed to update local user'));
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
     }
   }
 }

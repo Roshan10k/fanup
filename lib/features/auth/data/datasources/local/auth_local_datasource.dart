@@ -121,6 +121,7 @@ class AuthLocalDatasource implements IAuthDataSource {
         email: currentUser.email,
         password: currentUser.password,
         profilePicture: profilePicture,
+        phone: currentUser.phone,
       );
 
       // Save updated user to current user box
@@ -133,6 +134,35 @@ class AuthLocalDatasource implements IAuthDataSource {
       return true;
     } catch (e) {
       debugPrint('Update profile picture error: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> updateLocalUser({String? fullName, String? phone, String? profilePicture}) async {
+    try {
+      final currentUser = await _hiveService.getCurrentUser();
+      if (currentUser == null) {
+        debugPrint('Update local user error: No current user');
+        return false;
+      }
+
+      final updatedUser = AuthHiveModel(
+        authId: currentUser.authId,
+        fullName: fullName ?? currentUser.fullName,
+        email: currentUser.email,
+        password: currentUser.password,
+        profilePicture: profilePicture ?? currentUser.profilePicture,
+        phone: phone ?? currentUser.phone,
+      );
+
+      await _hiveService.saveCurrentUser(updatedUser);
+      await _hiveService.registerUser(updatedUser);
+
+      debugPrint('Local user updated successfully');
+      return true;
+    } catch (e) {
+      debugPrint('Update local user error: $e');
       return false;
     }
   }
