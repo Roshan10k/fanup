@@ -1,14 +1,16 @@
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/app/routes/app_routes.dart';
+import 'package:fanup/features/dashboard/presentation/pages/wallet_screen.dart';
 import 'package:flutter/material.dart';
 
 class BalanceCardWidget extends StatelessWidget {
   final double credit;
-  final VoidCallback onAddCredit;
+  final VoidCallback? onAddCredit;
 
   const BalanceCardWidget({
     super.key,
     required this.credit,
-    required this.onAddCredit,
+    this.onAddCredit,
   });
 
   @override
@@ -45,20 +47,23 @@ class BalanceCardWidget extends StatelessWidget {
             ],
           ),
 
-          // Add Credit Button
-          TextButton(
-            onPressed: onAddCredit,
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+          // Open Wallet Button
+          TextButton.icon(
+            onPressed: () {
+              AppRoutes.push(context, const WalletScreen());
+            },
+            icon: const Icon(Icons.wallet, color: Color(0xFFFF5E62)),
+            label: Text(
+              "Open Wallet",
+              style: AppTextStyles.poppinsRegular15.copyWith(
+                color: AppColors.textDark,
               ),
             ),
-            child: Text(
-              "Add Credit",
-              style: AppTextStyles.poppinsRegular15.copyWith(
-                color: AppColors.primary,
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ),

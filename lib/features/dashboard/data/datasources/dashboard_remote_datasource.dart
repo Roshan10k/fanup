@@ -4,6 +4,7 @@ import 'package:fanup/core/api/api_endpoints.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.dart';
 import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/home_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/leaderboard_contest_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/leaderboard_payload_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
@@ -22,6 +23,36 @@ class DashboardRemoteDataSource implements IDashboardRemoteDataSource {
 
   DashboardRemoteDataSource({required ApiClient apiClient})
     : _apiClient = apiClient;
+
+  @override
+  Future<List<HomeMatchApiModel>> getUpcomingMatches({
+    int page = 1,
+    int size = 12,
+  }) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.matches,
+      queryParameters: {'page': page, 'size': size, 'status': 'upcoming'},
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to load upcoming matches',
+      );
+    }
+
+    final rows = (response.data['data'] as List?) ?? <dynamic>[];
+    return rows
+        .map(
+          (item) => HomeMatchApiModel.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
+        .toList();
+  }
 
   @override
   Future<List<CompletedMatchApiModel>> getCompletedMatches({

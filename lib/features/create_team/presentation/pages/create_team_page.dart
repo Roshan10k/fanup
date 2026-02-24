@@ -13,6 +13,11 @@ class CreateTeamPageArgs {
   final String teamA;
   final String teamB;
   final DateTime startTime;
+  final String? existingTeamId;
+  final String? existingTeamName;
+  final List<String>? existingPlayerIds;
+  final String? existingCaptainId;
+  final String? existingViceCaptainId;
 
   const CreateTeamPageArgs({
     required this.matchId,
@@ -20,7 +25,14 @@ class CreateTeamPageArgs {
     required this.teamA,
     required this.teamB,
     required this.startTime,
+    this.existingTeamId,
+    this.existingTeamName,
+    this.existingPlayerIds,
+    this.existingCaptainId,
+    this.existingViceCaptainId,
   });
+
+  bool get isEditing => existingTeamId != null && existingTeamId!.isNotEmpty;
 }
 
 class CreateTeamPage extends ConsumerStatefulWidget {

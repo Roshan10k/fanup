@@ -39,7 +39,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         child: RefreshIndicator(
           onRefresh: () => ref
               .read(leaderboardViewModelProvider.notifier)
-              .loadContests(status: state.selectedStatus),
+              .loadContests(status: 'upcoming'),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
@@ -92,89 +92,71 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: _statusButton(
-                  title: 'Live',
-                  active: state.selectedStatus == 'live',
-                  onTap: () => ref
-                      .read(leaderboardViewModelProvider.notifier)
-                      .loadContests(status: 'live'),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Text(
+                  'COMPLETED CONTESTS',
+                  style: AppTextStyles.labelText.copyWith(
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
-                child: _statusButton(
-                  title: 'Completed',
-                  active: state.selectedStatus == 'completed',
-                  onTap: () => ref
-                      .read(leaderboardViewModelProvider.notifier)
-                      .loadContests(status: 'completed'),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: state.selectedMatchId.isEmpty
+                          ? null
+                          : state.selectedMatchId,
+                      hint: const Text('Select match'),
+                      isExpanded: true,
+                      items: state.contests
+                          .map(
+                            (item) => DropdownMenuItem<String>(
+                              value: item.id,
+                              child: Text(
+                                item.matchLabel,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: state.contests.isEmpty
+                          ? null
+                          : (value) {
+                              if (value == null) return;
+                              ref
+                                  .read(leaderboardViewModelProvider.notifier)
+                                  .loadMatchLeaderboard(matchId: value);
+                            },
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: state.selectedMatchId.isEmpty
-                    ? null
-                    : state.selectedMatchId,
-                hint: const Text('Select match'),
-                isExpanded: true,
-                items: state.contests
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item.id,
-                        child: Text(item.matchLabel),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: state.contests.isEmpty
-                    ? null
-                    : (value) {
-                        if (value == null) return;
-                        ref
-                            .read(leaderboardViewModelProvider.notifier)
-                            .loadMatchLeaderboard(matchId: value);
-                      },
-              ),
-            ),
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget _statusButton({
-    required String title,
-    required bool active,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: active ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: AppTextStyles.cardTitle.copyWith(
-              color: active ? Colors.white : AppColors.textSecondary,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -262,49 +244,73 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 
     final topThree = leaders.take(3).toList(growable: false);
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFD54F), Color(0xFFFFA726)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
         children: topThree
-            .map(
-              (leader) => Column(
-                children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white,
-                    child: Text(
-                      '${leader.rank}',
-                      style: AppTextStyles.cardTitle,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: 90,
-                    child: Text(
-                      leader.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.cardSubtitle,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${leader.pts.toStringAsFixed(1)} Pts',
-                    style: AppTextStyles.labelText,
-                  ),
-                ],
-              ),
-            )
+            .map((leader) => _podiumCard(leader))
             .toList(growable: false),
+      ),
+    );
+  }
+
+  Widget _podiumCard(LeaderboardLeaderEntity leader) {
+    Color bgColor;
+    Color borderColor;
+
+    switch (leader.rank) {
+      case 1:
+        bgColor = const Color(0xFFFEF9C3); // yellow-50
+        borderColor = const Color(0xFFFDE047); // yellow-300
+        break;
+      case 2:
+        bgColor = const Color(0xFFF9FAFB); // gray-50
+        borderColor = const Color(0xFFE5E7EB); // gray-200
+        break;
+      case 3:
+        bgColor = const Color(0xFFFFF7ED); // orange-50
+        borderColor = const Color(0xFFFED7AA); // orange-200
+        break;
+      default:
+        bgColor = Colors.white;
+        borderColor = const Color(0xFFE5E7EB);
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Rank #${leader.rank}',
+            style: AppTextStyles.labelText.copyWith(color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            leader.name,
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${leader.pts.toStringAsFixed(1)} points',
+            style: AppTextStyles.labelText,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Prize: ${_credits.format(leader.prize)} credits',
+            style: AppTextStyles.cardSubtitle.copyWith(
+              color: Colors.green.shade700,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -312,7 +318,19 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   Widget _buildMyEntryCard(LeaderboardState state) {
     final myEntry = state.payload?.myEntry;
     if (myEntry == null) {
-      return const SizedBox.shrink();
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Text(
+          'You do not have a standing yet for this contest.',
+          style: AppTextStyles.labelText,
+        ),
+      );
     }
 
     return Container(
@@ -323,13 +341,44 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         color: const Color(0xFFFFF7ED),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('My Rank: #${myEntry.rank}', style: AppTextStyles.cardTitle),
-          Text(
-            '${myEntry.pts.toStringAsFixed(1)} Pts',
-            style: AppTextStyles.amountSmall.copyWith(color: AppColors.primary),
+          Text('Your Standing', style: AppTextStyles.cardTitle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '#${myEntry.rank}',
+                    style: AppTextStyles.amountLarge.copyWith(
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${myEntry.pts.toStringAsFixed(1)} pts · ${myEntry.winRate.toStringAsFixed(0)}% win rate',
+                    style: AppTextStyles.labelText,
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('Prize', style: AppTextStyles.labelText),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${_credits.format(myEntry.prize)} credits',
+                    style: AppTextStyles.cardTitle.copyWith(
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -360,8 +409,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       ),
       child: Row(
         children: [
-          Text('${leader.rank}.', style: AppTextStyles.cardTitle),
-          const SizedBox(width: 14),
+          SizedBox(
+            width: 32,
+            child: Text('${leader.rank}.', style: AppTextStyles.cardTitle),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,15 +421,29 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 Text(leader.name, style: AppTextStyles.cardTitle),
                 const SizedBox(height: 2),
                 Text(
-                  '${leader.pts.toStringAsFixed(1)} Pts',
+                  '${leader.teams} team${leader.teams != 1 ? 's' : ''} · ${leader.pts.toStringAsFixed(1)} pts',
                   style: AppTextStyles.labelText,
                 ),
               ],
             ),
           ),
-          Text(
-            '${leader.winRate.toStringAsFixed(1)}%',
-            style: AppTextStyles.amountSmall.copyWith(color: AppColors.primary),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${leader.winRate.toStringAsFixed(0)}%',
+                style: AppTextStyles.cardSubtitle.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                _credits.format(leader.prize),
+                style: AppTextStyles.labelText.copyWith(
+                  color: Colors.green.shade700,
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -31,6 +31,7 @@ class HomeViewModel extends Notifier<HomeState> {
         state = state.copyWith(
           status: HomeStatus.loaded,
           matches: homeFeed.matches,
+          entries: homeFeed.entries,
           errorMessage: null,
         );
       },

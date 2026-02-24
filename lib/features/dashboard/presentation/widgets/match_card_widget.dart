@@ -93,6 +93,7 @@ class MatchCard extends StatelessWidget {
   }
 
   Widget _teamColumn(String teamName) {
+    final initials = _getInitials(teamName);
     return Column(
       children: [
         Container(
@@ -102,11 +103,30 @@ class MatchCard extends StatelessWidget {
             color: Colors.grey,
             shape: BoxShape.circle,
           ),
+          child: Center(
+            child: Text(
+              initials,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 6),
         Text(teamName, style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
+  }
+
+  String _getInitials(String text) {
+    if (text.isEmpty) return '';
+    final words = text.split(' ');
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    }
+    return text.substring(0, 1).toUpperCase();
   }
 
   Widget _buildCreateTeamButton() {

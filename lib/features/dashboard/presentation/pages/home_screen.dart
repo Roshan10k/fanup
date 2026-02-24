@@ -1,11 +1,14 @@
 import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/features/create_team/presentation/pages/create_team_page.dart';
+import 'package:fanup/features/dashboard/domain/entities/contest_entry_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_match_entity.dart';
 import 'package:fanup/features/dashboard/presentation/state/home_state.dart';
 import 'package:fanup/features/dashboard/presentation/view_model/home_view_model.dart';
+import 'package:fanup/features/dashboard/presentation/view_model/wallet_view_model.dart';
 import 'package:fanup/features/dashboard/presentation/widgets/balance_card_widget.dart';
 import 'package:fanup/features/dashboard/presentation/widgets/match_card_widget.dart';
+import 'package:fanup/features/dashboard/presentation/widgets/team_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,13 +27,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load home data (matches)
       ref.read(homeViewModelProvider.notifier).loadHomeData();
+      // Load wallet data (includes balance)
+      ref.read(walletViewModelProvider.notifier).loadWallet();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeViewModelProvider);
+    final walletState = ref.watch(walletViewModelProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -44,9 +51,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             final subtitleFontSize = isTablet ? 18.0 : 16.0;
             final sectionTitleFontSize = isTablet ? 22.0 : 18.0;
 
+            // Get user balance from wallet state
+            final userBalance = (walletState.summary?.balance ?? 0).toDouble();
+
             return RefreshIndicator(
-              onRefresh: () =>
-                  ref.read(homeViewModelProvider.notifier).loadHomeData(),
+              onRefresh: () async {
+                await ref.read(homeViewModelProvider.notifier).loadHomeData();
+                await ref.read(walletViewModelProvider.notifier).loadWallet();
+              },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.all(isTablet ? 24 : 16),
@@ -100,7 +112,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ],
                     ),
                     SizedBox(height: verticalSpacing),
-                    BalanceCardWidget(credit: 100.0, onAddCredit: () {}),
+                    BalanceCardWidget(credit: userBalance),
                     SizedBox(height: verticalSpacing),
                     Padding(
                       padding: EdgeInsets.symmetric(
@@ -172,17 +184,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    final matches = _activeTab == 'my_teams'
-        ? state.matches.where((m) => m.hasExistingEntry).toList()
-        : state.matches;
+    // For "My Teams" tab, show entries with points
+    if (_activeTab == 'my_teams') {
+      final entries = state.entries;
+
+      if (entries.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
+          child: Text(
+            'No teams created yet.',
+            style: AppTextStyles.poppinsRegular16.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: entries
+            .map(
+              (entry) => TeamCardWidget(
+                league: entry.match?.league ?? 'League',
+                dateTime: entry.match?.startTime != null
+                    ? _formatMatchDate(entry.match!.startTime!)
+                    : '',
+                teamA: entry.match?.teamAShortName ?? 'T1',
+                teamB: entry.match?.teamBShortName ?? 'T2',
+                teamName: entry.teamName,
+                points: entry.points,
+                onViewTeam: () => _openViewTeam(entry),
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    // For "Upcoming" tab, show match cards
+    final matches = state.matches;
 
     if (matches.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
         child: Text(
-          _activeTab == 'my_teams'
-              ? 'No teams created yet.'
-              : 'No upcoming matches found.',
+          'No upcoming matches found.',
           style: AppTextStyles.poppinsRegular16.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -283,6 +327,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
 
     if (isSubmitted == true && mounted) {
+      ref.read(homeViewModelProvider.notifier).loadHomeData();
+    }
+  }
+
+  Future<void> _openViewTeam(ContestEntryEntity entry) async {
+    final isUpdated = await AppRoutes.push<bool>(
+      context,
+      CreateTeamPage(
+        args: CreateTeamPageArgs(
+          matchId: entry.matchId,
+          league: entry.match?.league ?? 'League',
+          teamA: entry.match?.teamAShortName ?? 'T1',
+          teamB: entry.match?.teamBShortName ?? 'T2',
+          startTime: entry.match?.startTime ?? DateTime.now(),
+          existingTeamId: entry.teamId,
+          existingTeamName: entry.teamName,
+          existingPlayerIds: entry.playerIds,
+          existingCaptainId: entry.captainId,
+          existingViceCaptainId: entry.viceCaptainId,
+        ),
+      ),
+    );
+
+    if (isUpdated == true && mounted) {
       ref.read(homeViewModelProvider.notifier).loadHomeData();
     }
   }

@@ -14,7 +14,7 @@ class LeaderboardState extends Equatable {
 
   const LeaderboardState({
     this.status = LeaderboardStatus.initial,
-    this.selectedStatus = 'live',
+    this.selectedStatus = 'upcoming',
     this.contests = const [],
     this.selectedMatchId = '',
     this.payload,

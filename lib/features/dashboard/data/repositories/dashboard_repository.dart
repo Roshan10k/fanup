@@ -4,16 +4,16 @@ import 'package:fanup/core/error/failures.dart';
 import 'package:fanup/core/services/connectivity/network_info.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.dart';
 import 'package:fanup/features/dashboard/data/datasources/local/dashboard_local_datasource.dart';
-import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/home_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/leaderboard_contest_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/leaderboard_payload_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_daily_bonus_result_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
+import 'package:fanup/features/dashboard/domain/entities/contest_entry_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_feed_entity.dart';
-import 'package:fanup/features/dashboard/domain/entities/home_match_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/leaderboard_contest_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/leaderboard_payload_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_daily_bonus_result_entity.dart';
@@ -31,9 +31,7 @@ final dashboardRepositoryProvider = Provider<IDashboardRepository>((ref) {
 });
 
 class DashboardRepository implements IDashboardRepository {
-  static const _homeFeedCacheTtl = Duration(minutes: 5);
   final IDashboardRemoteDataSource _dashboardRemoteDataSource;
-  final IDashboardLocalDataSource _dashboardLocalDataSource;
   final NetworkInfo _networkInfo;
 
   DashboardRepository({
@@ -41,7 +39,6 @@ class DashboardRepository implements IDashboardRepository {
     required IDashboardLocalDataSource dashboardLocalDataSource,
     required NetworkInfo networkInfo,
   }) : _dashboardRemoteDataSource = dashboardRemoteDataSource,
-       _dashboardLocalDataSource = dashboardLocalDataSource,
        _networkInfo = networkInfo;
 
   @override
@@ -49,33 +46,22 @@ class DashboardRepository implements IDashboardRepository {
     final isConnected = await _networkInfo.isConnected;
 
     if (!isConnected) {
-      final cached = await _dashboardLocalDataSource.getCachedHomeData();
-      if (_isFreshCache(cached)) {
-        return Right(_buildHomeFeed(cached!.matches, cached.entries));
-      }
       return const Left(
-        NetworkFailure(message: 'No internet connection and no fresh cache'),
+        NetworkFailure(message: 'No internet connection'),
       );
     }
 
     try {
       final results = await Future.wait([
-        _dashboardRemoteDataSource.getCompletedMatches(page: 1, size: 12),
+        _dashboardRemoteDataSource.getUpcomingMatches(page: 1, size: 12),
         _dashboardRemoteDataSource.getMyContestEntries(),
       ]);
 
-      final matches = results[0] as List<CompletedMatchApiModel>;
+      final matches = results[0] as List<HomeMatchApiModel>;
       final entries = results[1] as List<ContestEntryApiModel>;
-      await _dashboardLocalDataSource.cacheHomeData(
-        matches: matches,
-        entries: entries,
-      );
+      // TODO: Implement cache for HomeMatchApiModel
       return Right(_buildHomeFeed(matches, entries));
     } on DioException catch (e) {
-      final cached = await _dashboardLocalDataSource.getCachedHomeData();
-      if (_isFreshCache(cached)) {
-        return Right(_buildHomeFeed(cached!.matches, cached.entries));
-      }
       return Left(
         ApiFailure(
           message:
@@ -86,43 +72,53 @@ class DashboardRepository implements IDashboardRepository {
         ),
       );
     } catch (e) {
-      final cached = await _dashboardLocalDataSource.getCachedHomeData();
-      if (_isFreshCache(cached)) {
-        return Right(_buildHomeFeed(cached!.matches, cached.entries));
-      }
       return Left(ApiFailure(message: e.toString()));
     }
   }
 
-  bool _isFreshCache(DashboardCachedHomeData? cached) {
-    if (cached == null) {
-      return false;
-    }
-    final age = DateTime.now().difference(cached.cachedAt);
-    return age <= _homeFeedCacheTtl;
-  }
-
   HomeFeedEntity _buildHomeFeed(
-    List<CompletedMatchApiModel> matches,
+    List<HomeMatchApiModel> matches,
     List<ContestEntryApiModel> entries,
   ) {
     final entryMatchIds = entries.map((entry) => entry.matchId).toSet();
 
     final homeMatches = matches
         .map(
-          (match) => HomeMatchEntity(
-            id: match.id,
-            league: match.league,
-            startTime: match.startTime,
-            status: match.status,
-            teamAShortName: match.teamAShortName,
-            teamBShortName: match.teamBShortName,
+          (match) => match.toEntity(
             hasExistingEntry: entryMatchIds.contains(match.id),
           ),
         )
         .toList(growable: false);
 
-    return HomeFeedEntity(matches: homeMatches);
+    final mappedEntries = entries
+        .map(_mapContestEntry)
+        .toList(growable: false);
+
+    return HomeFeedEntity(matches: homeMatches, entries: mappedEntries);
+  }
+
+  ContestEntryEntity _mapContestEntry(ContestEntryApiModel model) {
+    return ContestEntryEntity(
+      matchId: model.matchId,
+      entryId: model.entryId,
+      teamId: model.teamId,
+      teamName: model.teamName,
+      captainId: model.captainId,
+      viceCaptainId: model.viceCaptainId,
+      playerIds: model.playerIds,
+      points: model.points,
+      updatedAt: model.updatedAt,
+      match: model.match != null
+          ? ContestEntryMatchEntity(
+              id: model.match!.id,
+              league: model.match!.league,
+              startTime: model.match!.startTime,
+              status: model.match!.status,
+              teamAShortName: model.match!.teamA?.shortName ?? '',
+              teamBShortName: model.match!.teamB?.shortName ?? '',
+            )
+          : null,
+    );
   }
 
   @override

@@ -37,6 +37,7 @@ class ApiEndpoints {
   static const String profileStats = '/users/profile/stats';
 
   // Home dashboard 
+  static const String matches = '/matches';
   static const String completedMatches = '/matches/completed';
   static const String myContestEntries = '/leaderboard/my-entries';
   static const String players = '/players';
