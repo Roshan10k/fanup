@@ -76,8 +76,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final secondary = onSurface.withAlpha(179);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -95,7 +99,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
               Text(
                 'Welcome back!',
-                style: AppTextStyles.poppinsBold28,
+                style: AppTextStyles.poppinsBold28.copyWith(color: onSurface),
                 textAlign: TextAlign.center,
               ),
 
@@ -103,9 +107,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
               Text(
                 'Log in to your FanUp account',
-                style: AppTextStyles.poppinsRegular16.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: AppTextStyles.poppinsRegular16.copyWith(color: secondary),
                 textAlign: TextAlign.center,
               ),
 
@@ -157,7 +159,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   key: const Key('login_button'),
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -179,10 +181,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Don’t have an account? ",
-                    style: AppTextStyles.poppinsRegular15.copyWith(
-                      color: AppColors.textSecondary,
+                  Flexible(
+                    child: Text(
+                      "Don't have an account? ",
+                      style: AppTextStyles.poppinsRegular15.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ),
                   GestureDetector(
@@ -191,7 +195,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     child: Text(
                       'Sign Up',
                       style: AppTextStyles.poppinsSemiBold18.copyWith(
-                        color: AppColors.primary,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                   ),
@@ -211,12 +215,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     required IconData icon,
     Widget? suffix,
   }) {
+    final theme = Theme.of(context);
+    final fill = theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface;
+    final iconColor = theme.colorScheme.onSurface.withAlpha(179);
+
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.iconGrey),
+      prefixIcon: Icon(icon, color: iconColor),
       suffixIcon: suffix,
       filled: true,
-      fillColor: AppColors.inputBackground,
+      fillColor: fill,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,

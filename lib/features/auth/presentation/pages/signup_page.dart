@@ -33,6 +33,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final secondary = onSurface.withAlpha(179);
+
     final authState = ref.watch(authViewModelProvider);
 
     // Listen to auth state changes
@@ -52,7 +56,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -66,7 +70,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
               Text(
                 "Let’s Get Started!",
-                style: AppTextStyles.poppinsBold28,
+                style: AppTextStyles.poppinsBold28.copyWith(color: onSurface),
                 textAlign: TextAlign.center,
               ),
 
@@ -74,9 +78,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
               Text(
                 "Create an account on FanUp",
-                style: AppTextStyles.poppinsRegular16.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: AppTextStyles.poppinsRegular16.copyWith(color: secondary),
                 textAlign: TextAlign.center,
               ),
 
@@ -127,7 +129,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 children: [
                   Checkbox(
                     value: _agreeToTerms,
-                    activeColor: AppColors.primary,
+                    activeColor: theme.colorScheme.primary,
                     onChanged: (value) {
                       setState(() {
                         _agreeToTerms = value ?? false;
@@ -138,14 +140,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     child: RichText(
                       text: TextSpan(
                         style: AppTextStyles.poppinsRegular16.copyWith(
-                          color: AppColors.textSecondary,
+                          color: secondary,
                         ),
                         children: [
                           const TextSpan(text: "I agree to the "),
                           TextSpan(
                             text: "Terms of Service",
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: theme.colorScheme.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -153,7 +155,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           TextSpan(
                             text: "Privacy Policy",
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: theme.colorScheme.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -175,7 +177,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ? null
                       : _onSignUpPressed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -195,15 +197,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   Text(
                     "Already have an account? ",
                     style: AppTextStyles.poppinsRegular15.copyWith(
-                      color: AppColors.textSecondary,
+                      color: secondary,
                     ),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Text(
                       "Login",
-                      style: AppTextStyles.poppinsBold24.copyWith(
-                        color: AppColors.primary,
+                      style: AppTextStyles.poppinsSemiBold18.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -245,14 +248,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     required TextEditingController controller,
     TextInputType inputType = TextInputType.text,
   }) {
+    final theme = Theme.of(context);
+    final fill = theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface;
+    final iconColor = theme.colorScheme.onSurface.withAlpha(179);
+
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: AppColors.iconGrey),
+        prefixIcon: Icon(icon, color: iconColor),
         labelText: label,
         filled: true,
-        fillColor: AppColors.inputBackground,
+        fillColor: fill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -267,18 +274,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     required VoidCallback onPressed,
     required TextEditingController controller,
   }) {
+    final theme = Theme.of(context);
+    final fill = theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface;
+    final iconColor = theme.colorScheme.onSurface.withAlpha(179);
+
     return TextFormField(
       controller: controller,
       obscureText: !isVisible,
       decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.lock_outline),
+        prefixIcon: Icon(Icons.lock_outline, color: iconColor),
         suffixIcon: IconButton(
-          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
+          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off, color: iconColor),
           onPressed: onPressed,
         ),
         labelText: label,
         filled: true,
-        fillColor: AppColors.inputBackground,
+        fillColor: fill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
