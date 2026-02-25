@@ -1,4 +1,5 @@
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/responsive_utils.dart';
 import 'package:flutter/material.dart';
 
 class MatchCard extends StatelessWidget {
@@ -21,84 +22,128 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = constraints.maxWidth >= 500;
+        final padding = isTablet ? 20.0 : 14.0;
+        final verticalMargin = isTablet ? 12.0 : 8.0;
+        final fontScale = context.fontScale;
+
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: verticalMargin, horizontal: 8),
+          padding: EdgeInsets.all(padding),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).shadowColor.withAlpha(31),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 18),
-          _buildTeamsRow(),
-          const SizedBox(height: 20),
-          _buildCreateTeamButton(),
-        ],
-      ),
+          child: Column(
+            children: [
+              _buildHeader(context, fontScale),
+              SizedBox(height: isTablet ? 20 : 14),
+              _buildTeamsRow(context, isTablet, fontScale),
+              SizedBox(height: isTablet ? 22 : 16),
+              _buildCreateTeamButton(fontScale),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, double fontScale) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [_leagueBadge(), _dateLiveIndicator()],
-    );
-  }
-
-  Widget _leagueBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(league, style: const TextStyle(fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _dateLiveIndicator() {
-    return Expanded(
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Text(
-          dateTime,
-          style: TextStyle(color: Colors.grey.shade600),
-          textAlign: TextAlign.right,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTeamsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _teamColumn(teamA),
-        const Text(
-          'VS',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+        Flexible(
+          flex: 2,
+          child: _leagueBadge(context, fontScale),
         ),
-        _teamColumn(teamB),
+        const SizedBox(width: 8),
+        Flexible(
+          flex: 3,
+          child: _dateLiveIndicator(context, fontScale),
+        ),
       ],
     );
   }
 
-  Widget _teamColumn(String teamName) {
+  Widget _leagueBadge(BuildContext context, double fontScale) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        league,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onSurface,
+          fontSize: 13 * fontScale,
+        ),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      ),
+    );
+  }
+
+  Widget _dateLiveIndicator(BuildContext context, double fontScale) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Text(
+        dateTime,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+          fontSize: 12 * fontScale,
+        ),
+        textAlign: TextAlign.right,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      ),
+    );
+  }
+
+  Widget _buildTeamsRow(BuildContext context, bool isTablet, double fontScale) {
+    final avatarSize = isTablet ? 55.0 : 42.0;
+    final initialsSize = isTablet ? 20.0 : 16.0;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _teamColumn(context, teamA, avatarSize, initialsSize, fontScale),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'VS',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(128),
+              fontSize: 14 * fontScale,
+            ),
+          ),
+        ),
+        Expanded(
+          child: _teamColumn(context, teamB, avatarSize, initialsSize, fontScale),
+        ),
+      ],
+    );
+  }
+
+  Widget _teamColumn(BuildContext context, String teamName, double avatarSize, double initialsSize, double fontScale) {
     final initials = _getInitials(teamName);
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          height: 45,
-          width: 45,
+          height: avatarSize,
+          width: avatarSize,
           decoration: const BoxDecoration(
             color: Colors.grey,
             shape: BoxShape.circle,
@@ -106,16 +151,26 @@ class MatchCard extends StatelessWidget {
           child: Center(
             child: Text(
               initials,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: initialsSize,
                 color: Colors.white,
               ),
             ),
           ),
         ),
         const SizedBox(height: 6),
-        Text(teamName, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          teamName,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 13 * fontScale,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
@@ -129,25 +184,27 @@ class MatchCard extends StatelessWidget {
     return text.substring(0, 1).toUpperCase();
   }
 
-  Widget _buildCreateTeamButton() {
+  Widget _buildCreateTeamButton(double fontScale) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onCreateTeam,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
         ),
         child: Text(
           buttonLabel,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 17,
+            fontSize: 15 * fontScale,
             color: Colors.white,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
       ),
     );

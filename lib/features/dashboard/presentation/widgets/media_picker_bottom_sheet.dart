@@ -1,4 +1,3 @@
-import 'package:fanup/app/themes/theme.dart';
 import 'package:flutter/material.dart';
 
 
@@ -22,7 +21,7 @@ class MediaPickerBottomSheet extends StatelessWidget {
   }) {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -49,13 +48,13 @@ class MediaPickerBottomSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.camera),
-              title: const Text('Open Camera'),
+              leading: Icon(Icons.camera, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Open Camera', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
               onTap: onCameraTap,
             ),
             ListTile(
-              leading: const Icon(Icons.browse_gallery),
-              title: const Text('Open Gallery'),
+              leading: Icon(Icons.browse_gallery, color: Theme.of(context).colorScheme.onSurface),
+              title: Text('Open Gallery', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
               onTap: onGalleryTap,
             ),
             
