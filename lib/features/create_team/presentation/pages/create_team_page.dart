@@ -1,4 +1,5 @@
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/responsive_utils.dart';
 import 'package:fanup/features/create_team/domain/entities/player_entity.dart';
 import 'package:fanup/features/create_team/domain/utils/team_validator.dart';
 import 'package:fanup/features/create_team/presentation/state/create_team_state.dart';
@@ -90,12 +91,12 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           state.isCaptainStep ? 'Captain & Vice-Captain' : 'Create Team',
           style: AppTextStyles.poppinsSemiBold18.copyWith(
-            color: AppColors.textDark,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -296,28 +297,44 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
     double creditLeft,
     Map<TeamRole, int> roleCounts,
   ) {
+    final fontScale = context.fontScale;
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(12 * fontScale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$selectedCount/11 selected', style: AppTextStyles.cardTitle),
+          Text(
+            '$selectedCount/11 selected',
+            style: AppTextStyles.cardTitle.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 14 * fontScale,
+            ),
+          ),
           Text(
             'Credit left: ${creditLeft.toStringAsFixed(1)}',
-            style: AppTextStyles.cardSubtitle,
+            style: AppTextStyles.cardSubtitle.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(170),
+              fontSize: 12 * fontScale,
+            ),
           ),
           const SizedBox(height: 10),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             children: TeamRole.values
                 .map(
                   (role) => Chip(
-                    label: Text('${role.label}: ${roleCounts[role] ?? 0}'),
+                    label: Text(
+                      '${role.label}: ${roleCounts[role] ?? 0}',
+                      style: TextStyle(fontSize: 11 * fontScale),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 6 * fontScale),
+                    visualDensity: VisualDensity.compact,
                   ),
                 )
                 .toList(),
@@ -328,8 +345,10 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
   }
 
   Widget _buildMatchHeader() {
+    final fontScale = context.fontScale;
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(12 * fontScale),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.gradientYellow, AppColors.gradientOrange],
@@ -339,16 +358,34 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.args.league, style: AppTextStyles.poppinsSemiBold15),
-          const SizedBox(height: 6),
           Text(
-            '${widget.args.teamA} vs ${widget.args.teamB}',
-            style: AppTextStyles.poppinsBold24.copyWith(fontSize: 20),
+            widget.args.league,
+            style: AppTextStyles.poppinsSemiBold15.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 13 * fontScale,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '${widget.args.teamA} vs ${widget.args.teamB}',
+              style: AppTextStyles.poppinsBold24.copyWith(
+                fontSize: 18 * fontScale,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             DateFormat('d MMM, yy • h:mm a').format(widget.args.startTime),
-            style: AppTextStyles.poppinsRegular15,
+            style: AppTextStyles.poppinsRegular15.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
+              fontSize: 12 * fontScale,
+            ),
           ),
         ],
       ),
@@ -356,23 +393,28 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
   }
 
   Widget _buildRoleTabs(TeamRole? activeRole) {
+    final fontScale = context.fontScale;
+
     return Wrap(
-      spacing: 8,
+      spacing: 6,
+      runSpacing: 6,
       children: [
         ChoiceChip(
           selected: activeRole == null,
-          label: const Text('ALL'),
+          label: Text('ALL', style: TextStyle(fontSize: 12 * fontScale)),
           onSelected: (_) => ref
               .read(createTeamViewModelProvider.notifier)
               .setActiveRole(null),
+          visualDensity: VisualDensity.compact,
         ),
         ...TeamRole.values.map(
           (role) => ChoiceChip(
             selected: activeRole == role,
-            label: Text(role.label),
+            label: Text(role.label, style: TextStyle(fontSize: 12 * fontScale)),
             onSelected: (_) => ref
                 .read(createTeamViewModelProvider.notifier)
                 .setActiveRole(role),
+            visualDensity: VisualDensity.compact,
           ),
         ),
       ],
@@ -381,20 +423,48 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
 
   Widget _buildPlayerTile(CreateTeamState state, PlayerEntity player) {
     final isSelected = state.selectedPlayerIds.contains(player.id);
+    final fontScale = context.fontScale;
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 5),
       child: ListTile(
-        title: Text(player.fullName),
-        subtitle: Text('${player.teamShortName} • ${player.role.label}'),
+        dense: true,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12 * fontScale,
+          vertical: 4,
+        ),
+        title: Text(
+          player.fullName,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 14 * fontScale,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        subtitle: Text(
+          '${player.teamShortName} • ${player.role.label}',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(170),
+            fontSize: 12 * fontScale,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(player.credit.toStringAsFixed(1)),
-            const SizedBox(width: 10),
+            Text(
+              player.credit.toStringAsFixed(1),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 13 * fontScale,
+              ),
+            ),
+            SizedBox(width: 8 * fontScale),
             Icon(
               isSelected ? Icons.check_circle : Icons.add_circle_outline,
-              color: isSelected ? Colors.green : AppColors.primary,
+              color: isSelected ? Colors.green : Theme.of(context).colorScheme.primary,
+              size: 22 * fontScale,
             ),
           ],
         ),
@@ -407,9 +477,9 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
   Widget _buildBottomAction({required Widget child}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: SafeArea(
         top: false,
