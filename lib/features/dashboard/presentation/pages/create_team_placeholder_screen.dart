@@ -14,10 +14,13 @@ class CreateTeamPlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Team Builder'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textDark,
+        title: Text('Team Builder', style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+        )),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Center(
@@ -31,13 +34,15 @@ class CreateTeamPlaceholderScreen extends StatelessWidget {
                     ? 'Edit Team (Coming Next Sprint)'
                     : 'Create Team (Coming Next Sprint)',
                 textAlign: TextAlign.center,
-                style: AppTextStyles.poppinsBold24,
+                style: AppTextStyles.poppinsBold24.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Selected match: $matchLabel',
                 style: AppTextStyles.poppinsRegular16.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
                 ),
                 textAlign: TextAlign.center,
               ),

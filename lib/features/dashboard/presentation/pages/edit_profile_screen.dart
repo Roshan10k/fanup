@@ -240,19 +240,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     final profilePictureFileName = authState.authEntity?.profilePicture;
     final profilePictureUrl = profilePictureFileName != null
-        ? "http://10.0.2.2:3001/uploads/profile-pictures/$profilePictureFileName"
+        ? "${ApiEndpoints.mediaServerUrl}/uploads/profile-pictures/$profilePictureFileName"
         : null;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Edit Profile', style: AppTextStyles.sectionTitle),
+        title: Text('Edit Profile', style: AppTextStyles.sectionTitle.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        )),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -317,7 +319,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white, width: 2),
                             ),
@@ -377,7 +379,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _saveProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -425,7 +427,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     return CircleAvatar(
       radius: 60,
-      backgroundColor: AppColors.primary,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       child: Text(
         initials.length > 2 ? initials.substring(0, 2) : initials,
         style: AppTextStyles.amountLarge.copyWith(
@@ -444,27 +446,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.cardTitle),
+        Text(label, style: AppTextStyles.cardTitle.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        )),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           validator: validator,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, color: AppColors.textSecondary),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withAlpha(128)),
+            prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withAlpha(153)),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              borderSide: BorderSide(color: borderColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              borderSide: BorderSide(color: borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

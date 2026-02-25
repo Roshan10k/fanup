@@ -19,15 +19,17 @@ class HelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Help & Support', style: AppTextStyles.sectionTitle),
+        title: Text('Help & Support', style: AppTextStyles.sectionTitle.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        )),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -39,12 +41,17 @@ class HelpSupportScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Get In Touch',
-                style: AppTextStyles.headerTitle.copyWith(fontSize: 24),
+                style: AppTextStyles.headerTitle.copyWith(
+                  fontSize: 24,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Need support or have questions? Reach out and our team will respond quickly.',
-                style: AppTextStyles.labelText,
+                style: AppTextStyles.labelText.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                ),
               ),
               const SizedBox(height: 24),
               _buildContactCard(
@@ -81,11 +88,11 @@ class HelpSupportScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Theme.of(context).shadowColor.withAlpha(13),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -104,19 +111,25 @@ class HelpSupportScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Text(
                           'Support Hours',
-                          style: AppTextStyles.cardTitle,
+                          style: AppTextStyles.cardTitle.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'Monday - Friday: 9:00 AM - 6:00 PM (NPT)',
-                      style: AppTextStyles.labelText,
+                      style: AppTextStyles.labelText.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Saturday: 10:00 AM - 4:00 PM (NPT)',
-                      style: AppTextStyles.labelText,
+                      style: AppTextStyles.labelText.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -135,29 +148,29 @@ class HelpSupportScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primary.withOpacity(0.1),
-                      AppColors.primary.withOpacity(0.05),
+                      Theme.of(context).colorScheme.primary.withAlpha(25),
+                      Theme.of(context).colorScheme.primary.withAlpha(13),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.primary.withOpacity(0.2),
+                    color: Theme.of(context).colorScheme.primary.withAlpha(51),
                   ),
                 ),
                 child: Column(
                   children: [
                     Icon(
                       Icons.chat_bubble_outline,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 40,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'We usually reply within 24 hours',
                       style: AppTextStyles.cardTitle.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -186,11 +199,11 @@ class HelpSupportScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Theme.of(context).shadowColor.withAlpha(13),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -211,15 +224,19 @@ class HelpSupportScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.cardTitle),
+                  Text(title, style: AppTextStyles.cardTitle.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  )),
                   const SizedBox(height: 4),
-                  Text(value, style: AppTextStyles.labelText),
+                  Text(value, style: AppTextStyles.labelText.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                  )),
                 ],
               ),
             ),
             Icon(
               Icons.copy,
-              color: AppColors.textLight,
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(128),
               size: 20,
             ),
           ],

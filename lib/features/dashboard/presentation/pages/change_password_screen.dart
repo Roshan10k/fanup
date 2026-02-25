@@ -64,16 +64,19 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Change Password', style: AppTextStyles.sectionTitle),
+        title: Text('Change Password', style: AppTextStyles.sectionTitle.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        )),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -88,18 +91,18 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: isDark ? Colors.blue.shade900.withAlpha(77) : Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.blue.shade700),
+                      Icon(Icons.info_outline, color: isDark ? Colors.blue.shade300 : Colors.blue.shade700),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Enter a new password with at least 6 characters',
                           style: AppTextStyles.labelText.copyWith(
-                            color: Colors.blue.shade700,
+                            color: isDark ? Colors.blue.shade300 : Colors.blue.shade700,
                           ),
                         ),
                       ),
@@ -151,7 +154,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _changePassword,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -194,39 +197,45 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     required VoidCallback onToggle,
     String? Function(String?)? validator,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.cardTitle),
+        Text(label, style: AppTextStyles.cardTitle.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        )),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
           validator: validator,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withAlpha(128)),
             prefixIcon:
-                const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.onSurface.withAlpha(153)),
             suffixIcon: IconButton(
               icon: Icon(
                 obscureText ? Icons.visibility_off : Icons.visibility,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
               ),
               onPressed: onToggle,
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              borderSide: BorderSide(color: borderColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              borderSide: BorderSide(color: borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary, width: 2),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

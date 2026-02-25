@@ -44,12 +44,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isTablet = constraints.maxWidth >= 600;
-            final logoSize = isTablet ? 120.0 : 90.0;
-            final spacingBetweenLogoAndText = isTablet ? 20.0 : 14.0;
-            final verticalSpacing = isTablet ? 16.0 : 10.0;
-            final titleFontSize = isTablet ? 28.0 : 24.0;
-            final subtitleFontSize = isTablet ? 18.0 : 16.0;
-            final sectionTitleFontSize = isTablet ? 22.0 : 18.0;
+            final logoSize = isTablet ? 80.0 : 60.0;
+            final spacingBetweenLogoAndText = isTablet ? 16.0 : 12.0;
+            final verticalSpacing = isTablet ? 14.0 : 8.0;
+            final titleFontSize = isTablet ? 22.0 : 18.0;
+            final subtitleFontSize = isTablet ? 14.0 : 12.0;
+            final sectionTitleFontSize = isTablet ? 18.0 : 15.0;
 
             // Get user balance from wallet state
             final userBalance = (walletState.summary?.balance ?? 0).toDouble();
@@ -75,39 +75,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           fit: BoxFit.contain,
                         ),
                         SizedBox(width: spacingBetweenLogoAndText),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Fan',
-                                    style: AppTextStyles.poppinsBold24.copyWith(
-                                      fontSize: titleFontSize,
-                                      color: AppColors.textDark,
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Fan',
+                                      style: AppTextStyles.poppinsBold24.copyWith(
+                                        fontSize: titleFontSize,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: 'Up',
-                                    style: AppTextStyles.poppinsBold24.copyWith(
-                                      fontSize: titleFontSize,
-                                      color: AppColors.primary,
+                                    TextSpan(
+                                      text: 'Up',
+                                      style: AppTextStyles.poppinsBold24.copyWith(
+                                        fontSize: titleFontSize,
+                                        color: AppColors.primary,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            SizedBox(height: verticalSpacing / 2),
-                            Text(
-                              'Build your dream team',
-                              style: AppTextStyles.poppinsRegular16.copyWith(
-                                fontSize: subtitleFontSize,
-                                color: AppColors.textSecondary,
+                              SizedBox(height: verticalSpacing / 2),
+                              Text(
+                                'Build your dream team',
+                                style: AppTextStyles.poppinsRegular16.copyWith(
+                                  fontSize: subtitleFontSize,
+                                  color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -122,7 +125,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         'Matches',
                         style: AppTextStyles.poppinsSemiBold18.copyWith(
                           fontSize: sectionTitleFontSize,
-                          color: AppColors.textDark,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -178,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Text(
           'No matches found.',
           style: AppTextStyles.poppinsRegular16.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
           ),
         ),
       );
@@ -194,7 +197,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Text(
             'No teams created yet.',
             style: AppTextStyles.poppinsRegular16.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
             ),
           ),
         );
@@ -228,7 +231,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Text(
           'No upcoming matches found.',
           style: AppTextStyles.poppinsRegular16.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
           ),
         ),
       );
@@ -255,7 +258,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -300,7 +303,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Text(
             label,
             style: AppTextStyles.poppinsSemiBold13.copyWith(
-              color: isActive ? Colors.white : AppColors.textSecondary,
+              color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface.withAlpha(153),
             ),
           ),
         ),

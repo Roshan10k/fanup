@@ -4,15 +4,16 @@ import 'package:fanup/features/dashboard/presentation/pages/profile_screen.dart'
 import 'package:fanup/features/dashboard/presentation/pages/wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BottomNavigationScreen extends StatefulWidget {
+class BottomNavigationScreen extends ConsumerStatefulWidget {
   const BottomNavigationScreen({super.key});
 
   @override
-  State<BottomNavigationScreen> createState() => _BottomNavigationScreenState();
+  ConsumerState<BottomNavigationScreen> createState() => _BottomNavigationScreenState();
 }
 
-class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
+class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = const [
@@ -40,17 +41,17 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           body: _screens[_selectedIndex],
 
           bottomNavigationBar: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(28),
                 topRight: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
+                  color: Theme.of(context).shadowColor.withAlpha(31),
                   blurRadius: 6,
-                  offset: Offset(0, -2),
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
@@ -149,7 +150,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           Icon(
             icon,
             size: iconSize,
-            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.onSurface.withAlpha(153),
           ),
 
           Text(
@@ -161,7 +162,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
                   )
                 : AppTextStyles.poppinsSemiBold13.copyWith(
                     fontSize: fontSize,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
                   ),
           ),
         ],

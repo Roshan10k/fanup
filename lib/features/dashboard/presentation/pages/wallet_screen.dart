@@ -1,4 +1,5 @@
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/responsive_utils.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_summary_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_transaction_entity.dart';
 import 'package:fanup/features/dashboard/presentation/state/wallet_state.dart';
@@ -30,7 +31,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final walletState = ref.watch(walletViewModelProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () =>
@@ -58,16 +59,20 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("My Wallet", style: AppTextStyles.headerTitle),
+          Text("My Wallet", style: AppTextStyles.headerTitle.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          )),
           const SizedBox(height: 4),
-          Text("Manage your credits", style: AppTextStyles.headerSubtitle),
+          Text("Manage your credits", style: AppTextStyles.headerSubtitle.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+          )),
         ],
       ),
     );
@@ -76,132 +81,185 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget _buildBalanceCard(WalletState state) {
     final WalletSummaryEntity? summary = state.summary;
     final balance = summary?.balance ?? 0;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final gradientColors = isDark
+        ? const [Color(0xFF1C2637), Color(0xFF2B3550)]
+        : const [Color(0xFFFFD54F), Color(0xFFFFA726)];
+    final onGradient = isDark ? theme.colorScheme.onSurface : Colors.black87;
+    final shadowColor = isDark
+        ? Colors.black.withOpacity(0.45)
+        : const Color(0xFFFFA726).withOpacity(0.3);
+    final fontScale = context.fontScale;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFD54F), Color(0xFFFFA726)],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFA726).withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                "Total Credits",
-                style: AppTextStyles.cardTitle.copyWith(color: Colors.black87),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.monetization_on,
-                size: 20,
-                color: Colors.black87.withValues(alpha: 0.7),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmall = constraints.maxWidth < 350;
+        final padding = isSmall ? 18.0 : 24.0;
+        final balanceFontSize = isSmall ? 28.0 : 36.0;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.all(padding),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: gradientColors),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: shadowColor,
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            _creditFormat.format(balance),
-            style: AppTextStyles.amountLarge.copyWith(
-              fontSize: 40,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildBalanceDetail(
-                "Credits In",
-                _creditFormat.format(summary?.totalCredit ?? 0),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Total Credits",
+                      style: AppTextStyles.cardTitle.copyWith(
+                        color: onGradient.withAlpha(220),
+                        fontSize: 14 * fontScale,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.monetization_on,
+                    size: 18 * fontScale,
+                    color: onGradient.withAlpha(180),
+                  ),
+                ],
               ),
-              _buildBalanceDetail(
-                "Credits Out",
-                _creditFormat.format(summary?.totalDebit ?? 0),
+              const SizedBox(height: 10),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _creditFormat.format(balance),
+                  style: AppTextStyles.amountLarge.copyWith(
+                    fontSize: balanceFontSize * fontScale,
+                    color: onGradient,
+                  ),
+                ),
               ),
-              _buildBalanceDetail(
-                "Transactions",
-                '${summary?.transactionCount ?? 0}',
+              const SizedBox(height: 20),
+              // Use Wrap for better responsiveness on small screens
+              Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                children: [
+                  _buildBalanceDetail(
+                    "Credits In",
+                    _creditFormat.format(summary?.totalCredit ?? 0),
+                  ),
+                  _buildBalanceDetail(
+                    "Credits Out",
+                    _creditFormat.format(summary?.totalDebit ?? 0),
+                  ),
+                  _buildBalanceDetail(
+                    "Transactions",
+                    '${summary?.transactionCount ?? 0}',
+                  ),
+                ],
+              ),
+              if (state.errorMessage != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  state.errorMessage!,
+                  style: AppTextStyles.labelText.copyWith(
+                    color: Colors.red.shade800,
+                    fontSize: 12 * fontScale,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              if (state.infoMessage != null) ...[
+                const SizedBox(height: 10),
+                Text(
+                  state.infoMessage!,
+                  style: AppTextStyles.labelText.copyWith(
+                    color: Colors.green.shade800,
+                    fontSize: 12 * fontScale,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: state.isClaimingBonus
+                      ? null
+                      : _showEarnCreditsBottomSheet,
+                  icon: state.isClaimingBonus
+                      ? SizedBox(
+                          width: 16 * fontScale,
+                          height: 16 * fontScale,
+                          child: const CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(Icons.stars, size: 18 * fontScale),
+                  label: Flexible(
+                    child: Text(
+                      state.isClaimingBonus ? "Processing..." : "Earn More Credits",
+                      style: AppTextStyles.cardTitle.copyWith(
+                        color: const Color(0xFFFFA726),
+                        fontSize: 14 * fontScale,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFFFFA726),
+                    padding: EdgeInsets.symmetric(vertical: 12 * fontScale),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
               ),
             ],
           ),
-          if (state.errorMessage != null) ...[
-            const SizedBox(height: 14),
-            Text(
-              state.errorMessage!,
-              style: AppTextStyles.labelText.copyWith(
-                color: Colors.red.shade800,
-              ),
-            ),
-          ],
-          if (state.infoMessage != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              state.infoMessage!,
-              style: AppTextStyles.labelText.copyWith(
-                color: Colors.green.shade800,
-              ),
-            ),
-          ],
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: state.isClaimingBonus
-                  ? null
-                  : _showEarnCreditsBottomSheet,
-              icon: state.isClaimingBonus
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.stars, size: 20),
-              label: Text(
-                state.isClaimingBonus ? "Processing..." : "Earn More Credits",
-                style: AppTextStyles.cardTitle.copyWith(
-                  color: const Color(0xFFFFA726),
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFFFFA726),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildBalanceDetail(String label, String amount) {
+    final theme = Theme.of(context);
+    final labelColor = theme.colorScheme.onSurface.withAlpha(170);
+    final valueColor = theme.colorScheme.onSurface;
+    final fontScale = context.fontScale;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
-          style: AppTextStyles.labelText.copyWith(color: Colors.black54),
+          style: AppTextStyles.labelText.copyWith(
+            color: labelColor,
+            fontSize: 11 * fontScale,
+          ),
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Text(
           amount,
-          style: AppTextStyles.amountSmall.copyWith(color: Colors.black87),
+          style: AppTextStyles.amountSmall.copyWith(
+            color: valueColor,
+            fontSize: 14 * fontScale,
+          ),
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
@@ -216,14 +274,19 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Recent Transactions", style: AppTextStyles.sectionTitle),
+              Flexible(
+                child: Text("Recent Transactions", style: AppTextStyles.cardTitle.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 14,
+                ), overflow: TextOverflow.ellipsis),
+              ),
               TextButton(
                 onPressed: () =>
                     ref.read(walletViewModelProvider.notifier).loadWallet(),
                 child: Text(
                   "Refresh",
-                  style: AppTextStyles.cardTitle.copyWith(
-                    color: AppColors.primary,
+                  style: AppTextStyles.labelText.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -248,12 +311,14 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
                     'No transactions yet.',
-                    style: AppTextStyles.labelText,
+                    style: AppTextStyles.labelText.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                    ),
                   ),
                 );
               }
@@ -277,56 +342,67 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final iconAndColor = _iconForTransaction(transaction);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Theme.of(context).shadowColor.withAlpha(13),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: iconAndColor.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(iconAndColor.icon, color: iconAndColor.color, size: 24),
+            child: Icon(iconAndColor.icon, color: iconAndColor.color, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(transaction.title, style: AppTextStyles.cardTitle),
-                const SizedBox(height: 4),
+                Text(transaction.title, style: AppTextStyles.cardSubtitle.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ), maxLines: 1, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 2),
                 Row(
                   children: [
                     Icon(
                       Icons.access_time,
-                      size: 14,
-                      color: AppColors.textSecondary,
+                      size: 12,
+                      color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
                     ),
                     const SizedBox(width: 4),
-                    Text(formattedDate, style: AppTextStyles.labelText),
+                    Flexible(
+                      child: Text(formattedDate, style: AppTextStyles.captionText.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+                      ), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
             "${transaction.type == WalletTransactionType.credit ? '+' : '-'}${_creditFormat.format(transaction.amount)}",
-            style: AppTextStyles.amountSmall.copyWith(
+            style: AppTextStyles.labelText.copyWith(
               color: transaction.type == WalletTransactionType.credit
                   ? const Color(0xFF4CAF50)
                   : const Color(0xFFF44336),
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
           ),
         ],

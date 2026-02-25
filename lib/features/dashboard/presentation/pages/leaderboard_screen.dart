@@ -1,4 +1,5 @@
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/responsive_utils.dart';
 import 'package:fanup/features/dashboard/domain/entities/leaderboard_contest_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/leaderboard_payload_entity.dart';
 import 'package:fanup/features/dashboard/presentation/state/leaderboard_state.dart';
@@ -34,7 +35,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         .firstOrNull;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => ref
@@ -71,92 +72,126 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Leaderboard", style: AppTextStyles.headerTitle),
+          Text("Leaderboard", style: AppTextStyles.headerTitle.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          )),
           const SizedBox(height: 4),
-          Text("Match contest rankings", style: AppTextStyles.headerSubtitle),
+          Text("Match contest rankings", style: AppTextStyles.headerSubtitle.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+          )),
         ],
       ),
     );
   }
 
   Widget _buildControls(LeaderboardState state) {
+    final fontScale = context.fontScale;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Text(
-                  'COMPLETED CONTESTS',
-                  style: AppTextStyles.labelText.copyWith(
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: state.selectedMatchId.isEmpty
-                          ? null
-                          : state.selectedMatchId,
-                      hint: const Text('Select match'),
-                      isExpanded: true,
-                      items: state.contests
-                          .map(
-                            (item) => DropdownMenuItem<String>(
-                              value: item.id,
-                              child: Text(
-                                item.matchLabel,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          )
-                          .toList(growable: false),
-                      onChanged: state.contests.isEmpty
-                          ? null
-                          : (value) {
-                              if (value == null) return;
-                              ref
-                                  .read(leaderboardViewModelProvider.notifier)
-                                  .loadMatchLeaderboard(matchId: value);
-                            },
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isSmall = constraints.maxWidth < 360;
+
+              if (isSmall) {
+                // Stack vertically on very small screens
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildStatusBadge(fontScale),
+                    const SizedBox(height: 10),
+                    _buildMatchDropdown(state, fontScale),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  _buildStatusBadge(fontScale),
+                  const SizedBox(width: 12),
+                  Expanded(child: _buildMatchDropdown(state, fontScale)),
+                ],
+              );
+            },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(double fontScale) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 10 * fontScale,
+        vertical: 6 * fontScale,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Text(
+        'COMPLETED',
+        style: AppTextStyles.labelText.copyWith(
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+          color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+          fontSize: 10 * fontScale,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _buildMatchDropdown(LeaderboardState state, double fontScale) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 10 * fontScale,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: state.selectedMatchId.isEmpty ? null : state.selectedMatchId,
+          hint: Text(
+            'Select match',
+            style: TextStyle(fontSize: 13 * fontScale),
+          ),
+          isExpanded: true,
+          items: state.contests
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item.id,
+                  child: Text(
+                    item.matchLabel,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13 * fontScale),
+                  ),
+                ),
+              )
+              .toList(growable: false),
+          onChanged: state.contests.isEmpty
+              ? null
+              : (value) {
+                  if (value == null) return;
+                  ref
+                      .read(leaderboardViewModelProvider.notifier)
+                      .loadMatchLeaderboard(matchId: value);
+                },
+        ),
       ),
     );
   }
@@ -178,30 +213,44 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   }
 
   Widget _buildContestSummary(LeaderboardContestEntity contest) {
+    final fontScale = context.fontScale;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(contest.matchLabel, style: AppTextStyles.sectionTitle),
+          Text(
+            contest.matchLabel,
+            style: AppTextStyles.sectionTitle.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16 * fontScale,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 4),
           Text(
             DateFormat('yyyy-MM-dd HH:mm').format(contest.startsAt.toLocal()),
-            style: AppTextStyles.labelText,
+            style: AppTextStyles.labelText.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+              fontSize: 11 * fontScale,
+            ),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            spacing: 16,
+            runSpacing: 10,
             children: [
-              _summaryValue('Fee', _credits.format(contest.entryFee)),
-              _summaryValue('Players', '${contest.participantsCount}'),
-              _summaryValue('Prize', _credits.format(contest.prizePool)),
+              _summaryValue(context, 'Fee', _credits.format(contest.entryFee)),
+              _summaryValue(context, 'Players', '${contest.participantsCount}'),
+              _summaryValue(context, 'Prize', _credits.format(contest.prizePool)),
             ],
           ),
         ],
@@ -209,13 +258,32 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     );
   }
 
-  Widget _summaryValue(String title, String value) {
+  Widget _summaryValue(BuildContext context, String title, String value) {
+    final theme = Theme.of(context);
+    final labelColor = theme.colorScheme.onSurface.withAlpha(170);
+    final valueColor = theme.colorScheme.onSurface;
+    final fontScale = context.fontScale;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: AppTextStyles.labelText),
+        Text(
+          title,
+          style: AppTextStyles.labelText.copyWith(
+            color: labelColor,
+            fontSize: 10 * fontScale,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value, style: AppTextStyles.cardTitle),
+        Text(
+          value,
+          style: AppTextStyles.cardTitle.copyWith(
+            color: valueColor,
+            fontSize: 13 * fontScale,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }
@@ -235,10 +303,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text('No leaderboard data yet.', style: AppTextStyles.labelText),
+        child: Text('No leaderboard data yet.', style: AppTextStyles.labelText.copyWith(
+          color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+        )),
       );
     }
 
@@ -255,6 +325,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   }
 
   Widget _podiumCard(LeaderboardLeaderEntity leader) {
+    final fontScale = context.fontScale;
     Color bgColor;
     Color borderColor;
 
@@ -278,8 +349,8 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(14 * fontScale),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
@@ -290,17 +361,22 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         children: [
           Text(
             'Rank #${leader.rank}',
-            style: AppTextStyles.labelText.copyWith(color: Colors.grey.shade600),
+            style: AppTextStyles.labelText.copyWith(
+              color: Colors.grey.shade600,
+              fontSize: 11 * fontScale,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             leader.name,
-            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 16 * fontScale),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             '${leader.pts.toStringAsFixed(1)} points',
-            style: AppTextStyles.labelText,
+            style: AppTextStyles.labelText.copyWith(fontSize: 11 * fontScale),
           ),
           const SizedBox(height: 4),
           Text(
@@ -308,7 +384,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             style: AppTextStyles.cardSubtitle.copyWith(
               color: Colors.green.shade700,
               fontWeight: FontWeight.w600,
+              fontSize: 12 * fontScale,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -328,10 +406,14 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         ),
         child: Text(
           'You do not have a standing yet for this contest.',
-          style: AppTextStyles.labelText,
+          style: AppTextStyles.labelText.copyWith(
+            fontSize: 12 * context.fontScale,
+          ),
         ),
       );
     }
+
+    final fontScale = context.fontScale;
 
     return Container(
       width: double.infinity,
@@ -344,37 +426,58 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Your Standing', style: AppTextStyles.cardTitle),
+          Text(
+            'Your Standing',
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 14 * fontScale),
+          ),
           const SizedBox(height: 8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '#${myEntry.rank}',
-                    style: AppTextStyles.amountLarge.copyWith(
-                      color: AppColors.textDark,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '#${myEntry.rank}',
+                        style: AppTextStyles.amountLarge.copyWith(
+                          color: AppColors.textDark,
+                          fontSize: 28 * fontScale,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${myEntry.pts.toStringAsFixed(1)} pts · ${myEntry.winRate.toStringAsFixed(0)}% win rate',
-                    style: AppTextStyles.labelText,
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${myEntry.pts.toStringAsFixed(1)} pts · ${myEntry.winRate.toStringAsFixed(0)}% win',
+                      style: AppTextStyles.labelText.copyWith(
+                        fontSize: 11 * fontScale,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Prize', style: AppTextStyles.labelText),
+                  Text(
+                    'Prize',
+                    style: AppTextStyles.labelText.copyWith(
+                      fontSize: 11 * fontScale,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_credits.format(myEntry.prize)} credits',
+                    '${_credits.format(myEntry.prize)}',
                     style: AppTextStyles.cardTitle.copyWith(
                       color: Colors.green.shade700,
+                      fontSize: 13 * fontScale,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -400,40 +503,53 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   }
 
   Widget _leaderRow(LeaderboardLeaderEntity leader) {
+    final fontScale = context.fontScale;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(12 * fontScale),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           SizedBox(
-            width: 32,
-            child: Text('${leader.rank}.', style: AppTextStyles.cardTitle),
+            width: 28 * fontScale,
+            child: Text(
+              '${leader.rank}.',
+              style: AppTextStyles.cardTitle.copyWith(fontSize: 13 * fontScale),
+            ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(leader.name, style: AppTextStyles.cardTitle),
+                Text(
+                  leader.name,
+                  style: AppTextStyles.cardTitle.copyWith(fontSize: 13 * fontScale),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
                 const SizedBox(height: 2),
                 Text(
                   '${leader.teams} team${leader.teams != 1 ? 's' : ''} · ${leader.pts.toStringAsFixed(1)} pts',
-                  style: AppTextStyles.labelText,
+                  style: AppTextStyles.labelText.copyWith(fontSize: 10 * fontScale),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '${leader.winRate.toStringAsFixed(0)}%',
                 style: AppTextStyles.cardSubtitle.copyWith(
                   color: AppColors.primary,
+                  fontSize: 11 * fontScale,
                 ),
               ),
               const SizedBox(height: 2),
@@ -441,6 +557,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 _credits.format(leader.prize),
                 style: AppTextStyles.labelText.copyWith(
                   color: Colors.green.shade700,
+                  fontSize: 10 * fontScale,
                 ),
               ),
             ],
