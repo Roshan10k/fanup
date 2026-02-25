@@ -9,6 +9,12 @@ class OnboardingSlide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final secondary = onSurface.withAlpha(179);
+    final circleFill = theme.colorScheme.surfaceContainerHighest;
+    final iconColor = theme.colorScheme.primary;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isTablet = constraints.maxWidth >= 600;
@@ -29,13 +35,13 @@ class OnboardingSlide extends StatelessWidget {
               height: iconContainerSize,
               width: iconContainerSize,
               decoration: BoxDecoration(
-                color: AppColors.inputBackground,
+                color: circleFill,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 data.icon,
                 size: iconSize,
-                color: Colors.amber,
+                color: iconColor,
               ),
             ),
 
@@ -46,6 +52,7 @@ class OnboardingSlide extends StatelessWidget {
               data.title,
               style: AppTextStyles.poppinsBold24.copyWith(
                 fontSize: titleFontSize,
+                color: onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -56,7 +63,7 @@ class OnboardingSlide extends StatelessWidget {
             Text(
               data.description,
               style: AppTextStyles.poppinsRegular16.copyWith(
-                color: AppColors.textSecondary,
+                color: secondary,
                 fontSize: descriptionFontSize,
               ),
               textAlign: TextAlign.center,

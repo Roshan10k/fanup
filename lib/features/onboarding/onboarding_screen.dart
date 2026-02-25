@@ -27,7 +27,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final secondary = onSurface.withAlpha(179);
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -66,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(
                             fontSize: fontSizeHeader,
                             fontFamily: 'Poppins Regular',
-                            color: AppColors.textDark,
+                            color: onSurface,
                           ),
                         ),
                         TextButton(
@@ -81,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             style: TextStyle(
                               fontSize: fontSizeHeader,
                               fontFamily: 'Poppins SemiBold',
-                              color: AppColors.textDark,
+                              color: onSurface,
                             ),
                           ),
                         ),
@@ -110,8 +115,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           decoration: BoxDecoration(
                             color: i == step
-                                ? AppColors.primary
-                                : AppColors.textSecondary.withOpacity(0.3),
+                                ? theme.colorScheme.primary
+                                : secondary.withOpacity(0.35),
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -126,8 +131,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: buttonPadding),
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: theme.colorScheme.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
                           ),
