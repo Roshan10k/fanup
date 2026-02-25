@@ -5,10 +5,12 @@ import 'package:flutter/foundation.dart';
 class ApiEndpoints {
   ApiEndpoints._();
 
-  static const bool isPhysicalDevice = false;
+  // Set to true when testing on physical device
+  static const bool isPhysicalDevice = true;
+  // Replace with your computer's local IP (run `ifconfig | grep inet` to find it)
   static const String configuredPhysicalDeviceIp = String.fromEnvironment(
     'API_HOST',
-    defaultValue: '192.168.1.1',
+    defaultValue: '192.168.1.111',
   );
   static const int port = int.fromEnvironment('API_PORT', defaultValue: 3001);
 
