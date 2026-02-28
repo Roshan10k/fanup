@@ -16,10 +16,7 @@ class SensorState {
   const SensorState({this.lux, this.isNear});
 
   SensorState copyWith({double? lux, bool? isNear}) {
-    return SensorState(
-      lux: lux ?? this.lux,
-      isNear: isNear ?? this.isNear,
-    );
+    return SensorState(lux: lux ?? this.lux, isNear: isNear ?? this.isNear);
   }
 }
 
@@ -55,11 +52,16 @@ class ShakeEventNotifier extends Notifier<int> {
 }
 
 class SensorNotifier extends Notifier<SensorState> {
-  static const double _darkThreshold = 10.0;  // Very low light triggers dark mode
-  static const double _lightThreshold = 200.0; // Higher threshold for light mode (wider hysteresis gap)
-  static const double _shakeThreshold = 20.0;  // Stronger shake needed to trigger
+  static const double _darkThreshold =
+      10.0; // Very low light triggers dark mode
+  static const double _lightThreshold =
+      200.0; // Higher threshold for light mode (wider hysteresis gap)
+  static const double _shakeThreshold =
+      20.0; // Stronger shake needed to trigger
   static const Duration _shakeCooldown = Duration(milliseconds: 800);
-  static const Duration _themeCooldown = Duration(seconds: 3); // Debounce theme changes
+  static const Duration _themeCooldown = Duration(
+    seconds: 3,
+  ); // Debounce theme changes
 
   StreamSubscription<int>? _proximitySub;
   StreamSubscription<int>? _lightSub;
@@ -85,11 +87,14 @@ class SensorNotifier extends Notifier<SensorState> {
     });
 
     final light = Light();
-    _lightSub = light.lightSensorStream.listen(_handleLux, onError: (Object e) {
-      debugPrint('Light sensor error: $e');
-    });
+    _lightSub = light.lightSensorStream.listen(
+      _handleLux,
+      onError: (Object e) {
+        debugPrint('Light sensor error: $e');
+      },
+    );
 
-    _accelerometerSub = userAccelerometerEvents.listen(
+    _accelerometerSub = userAccelerometerEventStream().listen(
       _handleUserAccelerometer,
       onError: (Object e) => debugPrint('Accelerometer error: $e'),
     );

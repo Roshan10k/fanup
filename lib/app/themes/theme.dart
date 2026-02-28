@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Light theme colors matching web version
+/// Light theme colors
 class LightColors {
-  // Primary/Brand Colors (matching web --brand)
+  // Primary/Brand Colors (
   static const Color primary = Color(0xFFE74B5B); // softer coral red
   static const Color primaryDark = Color(0xFFC73D4E);
   static const Color brandGold = Color(0xFFF6C453);
@@ -13,14 +13,14 @@ class LightColors {
   static const Color splashGradientStart = Color(0xFFFFD300);
   static const Color splashGradientEnd = Color(0xFFFF8C00);
 
-  // Text Colors (matching web)
+  // Text Colors
   static const Color foreground = Color(0xFF111827);
   static const Color textPrimary = Color(0xFF111827);
   static const Color textSecondary = Color(0xFF4B5563); // --ink-soft
   static const Color textLight = Color(0xFF6B7280);
   static const Color textDark = Color(0xFF000000);
 
-  // Background Colors (matching web)
+  // Background Colors
   static const Color background = Color(0xFFF6F7FB); // --background
   static const Color surface = Color(0xFFFFFFFF); // --surface
   static const Color mutedSurface = Color(0xFFF9FAFB); // --muted-surface
@@ -36,7 +36,7 @@ class LightColors {
   static const Color iconGrey = Color(0xFF6B7280);
 }
 
-/// Dark theme colors matching web version
+/// Dark theme colors
 class DarkColors {
   // Primary/Brand Colors (softened for dark mode)
   static const Color primary = Color(0xFFE74B5B);
@@ -171,14 +171,12 @@ class AppTextStyles {
   );
   static TextStyle buttonText = poppinsSemiBold18.copyWith(color: Colors.white);
 
-  
-
   // ========== SCREEN HEADERS ==========
   static TextStyle headerTitle = poppinsBold24.copyWith(
     fontSize: 18,
     color: AppColors.textDark,
   );
-  
+
   static TextStyle headerSubtitle = poppinsRegular16.copyWith(
     fontSize: 12,
     color: AppColors.textSecondary,
@@ -195,12 +193,12 @@ class AppTextStyles {
     fontSize: 12,
     color: AppColors.textDark,
   );
-  
+
   static TextStyle cardSubtitle = poppinsRegular15.copyWith(
     fontSize: 11,
     color: AppColors.textSecondary,
   );
-  
+
   static TextStyle cardValue = poppinsSemiBold18.copyWith(
     fontSize: 14,
     color: AppColors.textDark,
@@ -211,7 +209,7 @@ class AppTextStyles {
     fontSize: 14,
     color: AppColors.textDark,
   );
-  
+
   static TextStyle menuItemSubtitle = poppinsRegular15.copyWith(
     fontSize: 10,
     color: AppColors.textSecondary,
@@ -222,7 +220,7 @@ class AppTextStyles {
     fontSize: 11,
     color: AppColors.textSecondary,
   );
-  
+
   static TextStyle captionText = poppinsRegular15.copyWith(
     fontSize: 10,
     color: AppColors.textLight,
@@ -233,12 +231,12 @@ class AppTextStyles {
     fontSize: 24,
     color: AppColors.textDark,
   );
-  
+
   static TextStyle amountMedium = poppinsBold24.copyWith(
     fontSize: 18,
     color: AppColors.textDark,
   );
-  
+
   static TextStyle amountSmall = poppinsSemiBold15.copyWith(
     fontSize: 14,
     color: AppColors.textDark,
@@ -320,7 +318,9 @@ ThemeData getLightTheme() {
       backgroundColor: LightColors.surface,
       selectedItemColor: LightColors.primary,
       unselectedItemColor: LightColors.iconGrey,
-      selectedLabelStyle: AppTextStyles.poppinsSemiBold13.copyWith(fontSize: 15),
+      selectedLabelStyle: AppTextStyles.poppinsSemiBold13.copyWith(
+        fontSize: 15,
+      ),
       unselectedLabelStyle: AppTextStyles.poppinsSemiBold13,
     ),
 
@@ -336,9 +336,7 @@ ThemeData getLightTheme() {
       thickness: 1,
     ),
 
-    iconTheme: IconThemeData(
-      color: LightColors.iconGrey,
-    ),
+    iconTheme: IconThemeData(color: LightColors.iconGrey),
 
     textTheme: _buildTextTheme(isLight: true),
   );
@@ -353,11 +351,8 @@ ThemeData getDarkTheme() {
     onPrimary: Colors.white,
     secondary: DarkColors.brandGold,
     onSecondary: Color(0xFF0B101A),
-    background: DarkColors.background,
-    onBackground: DarkColors.foreground,
     surface: DarkColors.surface,
     onSurface: DarkColors.foreground,
-    surfaceVariant: DarkColors.surfaceElevated,
     onSurfaceVariant: DarkColors.textSecondary,
     tertiary: DarkColors.brandGold,
     onTertiary: Color(0xFF0B101A),
@@ -434,7 +429,9 @@ ThemeData getDarkTheme() {
       backgroundColor: darkScheme.surface,
       selectedItemColor: AppColors.primary,
       unselectedItemColor: DarkColors.iconGrey,
-      selectedLabelStyle: AppTextStyles.poppinsSemiBold13.copyWith(fontSize: 15),
+      selectedLabelStyle: AppTextStyles.poppinsSemiBold13.copyWith(
+        fontSize: 15,
+      ),
       unselectedLabelStyle: AppTextStyles.poppinsSemiBold13,
     ),
 
@@ -450,9 +447,7 @@ ThemeData getDarkTheme() {
       thickness: 1,
     ),
 
-    iconTheme: IconThemeData(
-      color: DarkColors.iconGrey,
-    ),
+    iconTheme: IconThemeData(color: DarkColors.iconGrey),
 
     textTheme: _buildTextTheme(isLight: false),
   );
@@ -461,7 +456,9 @@ ThemeData getDarkTheme() {
 /// Build text theme based on brightness
 TextTheme _buildTextTheme({required bool isLight}) {
   final textColor = isLight ? LightColors.textPrimary : DarkColors.textPrimary;
-  final secondaryColor = isLight ? LightColors.textSecondary : DarkColors.textSecondary;
+  final secondaryColor = isLight
+      ? LightColors.textSecondary
+      : DarkColors.textSecondary;
 
   return TextTheme(
     displayLarge: AppTextStyles.poppinsBold36.copyWith(color: textColor),
@@ -474,7 +471,10 @@ TextTheme _buildTextTheme({required bool isLight}) {
     bodyLarge: AppTextStyles.poppinsRegular16.copyWith(color: textColor),
     bodyMedium: AppTextStyles.poppinsRegular15.copyWith(color: textColor),
     labelLarge: AppTextStyles.poppinsMedium18.copyWith(color: textColor),
-    bodySmall: AppTextStyles.poppinsRegular15.copyWith(color: secondaryColor, fontSize: 12),
+    bodySmall: AppTextStyles.poppinsRegular15.copyWith(
+      color: secondaryColor,
+      fontSize: 12,
+    ),
   );
 }
 

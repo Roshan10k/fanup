@@ -42,16 +42,13 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<Either<Failure, AuthEntity>> getCurrentUser() async {
     try {
-      // First check if we have a local user
       final localUser = await _authDataSource.getCurrentUser();
       
-      // If connected, fetch fresh data from server to sync changes made from other platforms (e.g., web)
       if (await _networkInfo.isConnected && localUser != null && localUser.authId != null) {
         try {
           final remoteUser = await _authRemoteDataSource.getUserById(localUser.authId!);
           
           if (remoteUser != null) {
-            // Update local storage with fresh server data
             await _authDataSource.updateLocalUser(
               fullName: remoteUser.fullName,
               phone: remoteUser.phone,
@@ -63,11 +60,9 @@ class AuthRepository implements IAuthRepository {
           }
         } catch (e) {
           debugPrint('Failed to sync from server, using local data: $e');
-          // Fall through to return local user if server sync fails
         }
       }
       
-      // Return local user if available
       if (localUser != null) {
         return Right(localUser.toEntity());
       }

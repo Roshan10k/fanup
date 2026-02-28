@@ -39,16 +39,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             final bool isTablet = constraints.maxWidth >= 600;
 
             // Responsive sizes
-            final double horizontalPadding =
-                isTablet ? constraints.maxWidth * 0.15 : constraints.maxWidth * 0.06;
-            final double verticalPadding =
-                isTablet ? constraints.maxHeight * 0.03 : constraints.maxHeight * 0.02;
-            final double slideHeight =
-                isTablet ? constraints.maxHeight * 0.55 : constraints.maxHeight * 0.60;
-            final double spacingSmall = isTablet ? constraints.maxHeight * 0.025 : constraints.maxHeight * 0.02;
-            final double spacingMedium = isTablet ? constraints.maxHeight * 0.09 : constraints.maxHeight * 0.08;
-             final double spacingLarge = isTablet ? constraints.maxHeight * 0.06 : constraints.maxHeight * 0.045;
-            final double buttonPadding = isTablet ? constraints.maxHeight * 0.025 : constraints.maxHeight * 0.02;
+            final double horizontalPadding = isTablet
+                ? constraints.maxWidth * 0.15
+                : constraints.maxWidth * 0.06;
+            final double verticalPadding = isTablet
+                ? constraints.maxHeight * 0.03
+                : constraints.maxHeight * 0.02;
+            final double slideHeight = isTablet
+                ? constraints.maxHeight * 0.55
+                : constraints.maxHeight * 0.60;
+            final double spacingSmall = isTablet
+                ? constraints.maxHeight * 0.025
+                : constraints.maxHeight * 0.02;
+            final double spacingMedium = isTablet
+                ? constraints.maxHeight * 0.09
+                : constraints.maxHeight * 0.08;
+            final double spacingLarge = isTablet
+                ? constraints.maxHeight * 0.06
+                : constraints.maxHeight * 0.045;
+            final double buttonPadding = isTablet
+                ? constraints.maxHeight * 0.025
+                : constraints.maxHeight * 0.02;
             final double fontSizeHeader = isTablet ? 20 : 16;
             final double fontSizeButton = isTablet ? 18 : 16;
 
@@ -78,7 +89,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (_) => const LoginPage()),
+                              MaterialPageRoute(
+                                builder: (_) => const LoginPage(),
+                              ),
                             );
                           },
                           child: Text(
@@ -116,7 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           decoration: BoxDecoration(
                             color: i == step
                                 ? theme.colorScheme.primary
-                                : secondary.withOpacity(0.35),
+                                : secondary.withValues(alpha: 0.35),
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -130,7 +143,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: buttonPadding),
+                          padding: EdgeInsets.symmetric(
+                            vertical: buttonPadding,
+                          ),
                           backgroundColor: theme.colorScheme.primary,
                           foregroundColor: theme.colorScheme.onPrimary,
                           shape: RoundedRectangleBorder(
