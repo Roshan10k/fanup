@@ -29,12 +29,22 @@ class MatchCard extends StatelessWidget {
         final verticalMargin = isTablet ? 12.0 : 8.0;
         final fontScale = context.fontScale;
 
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final cardColor =
+            Theme.of(context).cardTheme.color ??
+            Theme.of(context).colorScheme.surface;
+
         return Container(
           margin: EdgeInsets.symmetric(vertical: verticalMargin, horizontal: 8),
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: cardColor,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark
+                  ? Theme.of(context).colorScheme.outline.withAlpha(150)
+                  : Theme.of(context).colorScheme.outline.withAlpha(70),
+            ),
             boxShadow: [
               BoxShadow(
                 color: Theme.of(context).shadowColor.withAlpha(31),
@@ -60,24 +70,21 @@ class MatchCard extends StatelessWidget {
   Widget _buildHeader(BuildContext context, double fontScale) {
     return Row(
       children: [
-        Flexible(
-          flex: 2,
-          child: _leagueBadge(context, fontScale),
-        ),
+        Flexible(flex: 2, child: _leagueBadge(context, fontScale)),
         const SizedBox(width: 8),
-        Flexible(
-          flex: 3,
-          child: _dateLiveIndicator(context, fontScale),
-        ),
+        Flexible(flex: 3, child: _dateLiveIndicator(context, fontScale)),
       ],
     );
   }
 
   Widget _leagueBadge(BuildContext context, double fontScale) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: isDark
+            ? Theme.of(context).colorScheme.surface.withAlpha(170)
+            : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -116,7 +123,13 @@ class MatchCard extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _teamColumn(context, teamA, avatarSize, initialsSize, fontScale),
+          child: _teamColumn(
+            context,
+            teamA,
+            avatarSize,
+            initialsSize,
+            fontScale,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -130,22 +143,37 @@ class MatchCard extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: _teamColumn(context, teamB, avatarSize, initialsSize, fontScale),
+          child: _teamColumn(
+            context,
+            teamB,
+            avatarSize,
+            initialsSize,
+            fontScale,
+          ),
         ),
       ],
     );
   }
 
-  Widget _teamColumn(BuildContext context, String teamName, double avatarSize, double initialsSize, double fontScale) {
+  Widget _teamColumn(
+    BuildContext context,
+    String teamName,
+    double avatarSize,
+    double initialsSize,
+    double fontScale,
+  ) {
     final initials = _getInitials(teamName);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           height: avatarSize,
           width: avatarSize,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
+          decoration: BoxDecoration(
+            color: isDark
+                ? Theme.of(context).colorScheme.surface.withAlpha(190)
+                : Colors.grey,
             shape: BoxShape.circle,
           ),
           child: Center(
