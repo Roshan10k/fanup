@@ -28,6 +28,17 @@ class WalletTransactionApiModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'title': title,
+      'amount': amount,
+      'type': type,
+      'source': source,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
   static int _asInt(dynamic value) {
     if (value is int) return value;
     if (value is num) return value.toInt();

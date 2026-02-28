@@ -23,6 +23,16 @@ class WalletSummaryApiModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'balance': balance,
+      'totalCredit': totalCredit,
+      'totalDebit': totalDebit,
+      'transactionCount': transactionCount,
+      'lastTransactionAt': lastTransactionAt?.toIso8601String(),
+    };
+  }
+
   static int _asInt(dynamic value) {
     if (value is int) return value;
     if (value is num) return value.toInt();

@@ -27,6 +27,17 @@ class HomeMatchApiModel {
   factory HomeMatchApiModel.fromJson(Map<String, dynamic> json) =>
       _$HomeMatchApiModelFromJson(json);
 
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'league': league,
+      'startTime': startTime,
+      'status': status,
+      'teamA': teamA?.toJson(),
+      'teamB': teamB?.toJson(),
+    };
+  }
+
   HomeMatchEntity toEntity({bool hasExistingEntry = false}) {
     return HomeMatchEntity(
       id: id ?? '',
@@ -47,12 +58,12 @@ class TeamData {
   final String? shortName;
   final String? name;
 
-  TeamData({
-    this.id,
-    this.shortName,
-    this.name,
-  });
+  TeamData({this.id, this.shortName, this.name});
 
   factory TeamData.fromJson(Map<String, dynamic> json) =>
       _$TeamDataFromJson(json);
+
+  Map<String, dynamic> toJson() {
+    return {'_id': id, 'shortName': shortName, 'name': name};
+  }
 }
