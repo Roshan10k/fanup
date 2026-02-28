@@ -20,6 +20,8 @@ abstract interface class IDashboardRemoteDataSource {
 
   Future<List<ContestEntryApiModel>> getMyContestEntries();
 
+  Future<void> deleteMyContestEntry({required String matchId});
+
   Future<WalletSummaryApiModel> getWalletSummary();
 
   Future<List<WalletTransactionApiModel>> getWalletTransactions({
@@ -38,23 +40,31 @@ abstract interface class IDashboardRemoteDataSource {
   });
 }
 
-class DashboardCachedHomeData {
-  final List<CompletedMatchApiModel> matches;
+class DashboardLocalHomeData {
+  final List<HomeMatchApiModel> matches;
   final List<ContestEntryApiModel> entries;
-  final DateTime cachedAt;
+  final DateTime storedAt;
 
-  const DashboardCachedHomeData({
+  const DashboardLocalHomeData({
     required this.matches,
     required this.entries,
-    required this.cachedAt,
+    required this.storedAt,
   });
 }
 
 abstract interface class IDashboardLocalDataSource {
-  Future<void> cacheHomeData({
-    required List<CompletedMatchApiModel> matches,
+  Future<void> saveHomeData({
+    required List<HomeMatchApiModel> matches,
     required List<ContestEntryApiModel> entries,
   });
 
-  Future<DashboardCachedHomeData?> getCachedHomeData();
+  Future<DashboardLocalHomeData?> getHomeData();
+
+  Future<void> saveWalletSummary(WalletSummaryApiModel summary);
+
+  Future<void> saveWalletTransactions(List<WalletTransactionApiModel> items);
+
+  Future<WalletSummaryApiModel?> getWalletSummary();
+
+  Future<List<WalletTransactionApiModel>?> getWalletTransactions();
 }

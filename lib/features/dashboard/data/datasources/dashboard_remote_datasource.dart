@@ -109,6 +109,23 @@ class DashboardRemoteDataSource implements IDashboardRemoteDataSource {
   }
 
   @override
+  Future<void> deleteMyContestEntry({required String matchId}) async {
+    final response = await _apiClient.delete(
+      ApiEndpoints.deleteContestEntry(matchId),
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        message:
+            response.data['message']?.toString() ??
+            'Failed to delete contest entry',
+      );
+    }
+  }
+
+  @override
   Future<WalletSummaryApiModel> getWalletSummary() async {
     final response = await _apiClient.get(ApiEndpoints.walletSummary);
 

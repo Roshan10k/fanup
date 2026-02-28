@@ -19,7 +19,7 @@ class ApiClient {
   final SharedPreferences _prefs;
 
   ApiClient({required SharedPreferences sharedPreferences})
-      : _prefs = sharedPreferences {
+    : _prefs = sharedPreferences {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
@@ -111,6 +111,21 @@ class ApiClient {
     );
   }
 
+  // PATCH request
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    return _dio.patch(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
   // DELETE request
   Future<Response> delete(
     String path, {
@@ -150,18 +165,13 @@ class _AuthInterceptor extends Interceptor {
   _AuthInterceptor(this._prefs);
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Auth endpoints (NO TOKEN REQUIRED)
-    final authEndpoints = [
-      ApiEndpoints.login,
-      ApiEndpoints.register,
-    ];
+    final authEndpoints = [ApiEndpoints.login, ApiEndpoints.register];
 
-    final isAuthEndpoint =
-        authEndpoints.any((endpoint) => options.path.startsWith(endpoint));
+    final isAuthEndpoint = authEndpoints.any(
+      (endpoint) => options.path.startsWith(endpoint),
+    );
 
     // Attach token only if NOT auth endpoint
     if (!isAuthEndpoint) {

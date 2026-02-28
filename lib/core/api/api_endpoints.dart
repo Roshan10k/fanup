@@ -6,7 +6,7 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // Set to true when testing on physical device
-  static const bool isPhysicalDevice = true;
+  static const bool isPhysicalDevice = false;
   // Replace with your computer's local IP (run `ifconfig | grep inet` to find it)
   static const String configuredPhysicalDeviceIp = String.fromEnvironment(
     'API_HOST',
@@ -38,7 +38,7 @@ class ApiEndpoints {
   static const String updateProfile = '/users/profile';
   static const String profileStats = '/users/profile/stats';
 
-  // Home dashboard 
+  // Home dashboard
   static const String matches = '/matches';
   static const String completedMatches = '/matches/completed';
   static const String myContestEntries = '/leaderboard/my-entries';
@@ -48,11 +48,20 @@ class ApiEndpoints {
   static const String leaderboardContests = '/leaderboard/contests';
   static String leaderboardContestByMatch(String matchId) =>
       '/leaderboard/contests/$matchId';
+  static String deleteContestEntry(String matchId) =>
+      '/leaderboard/contests/$matchId/entry';
 
   // Wallet
   static const String walletSummary = '/wallet/summary';
   static const String walletTransactions = '/wallet/transactions';
   static const String walletDailyBonus = '/wallet/daily-bonus';
+
+  // Notifications
+  static const String notifications = '/notifications';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+  static const String registerDeviceToken = '/notifications/devices/register';
+  static String unregisterDeviceToken(String token) =>
+      '/notifications/devices/$token';
 
   static String profilePicture(String filename) {
     if (filename.startsWith('http://') || filename.startsWith('https://')) {

@@ -25,4 +25,6 @@ abstract interface class IDashboardRepository {
   Future<Either<Failure, LeaderboardPayloadEntity>> getMatchLeaderboard({
     required String matchId,
   });
+
+  Future<Either<Failure, void>> deleteMyContestEntry({required String matchId});
 }

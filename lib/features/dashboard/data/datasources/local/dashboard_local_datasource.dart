@@ -1,7 +1,10 @@
 import 'package:fanup/core/services/hive/hive_service.dart';
 import 'package:fanup/features/dashboard/data/datasources/dashboard_datasource.dart';
-import 'package:fanup/features/dashboard/data/models/completed_match_api_model.dart';
 import 'package:fanup/features/dashboard/data/models/contest_entry_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/home_match_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/dashboard_home_hive_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_summary_api_model.dart';
+import 'package:fanup/features/dashboard/data/models/wallet_transaction_api_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,67 +15,70 @@ final dashboardLocalDataSourceProvider = Provider<IDashboardLocalDataSource>((
 });
 
 class DashboardLocalDataSource implements IDashboardLocalDataSource {
-  static const _homeDataCacheKey = 'dashboard_home_data_cache_v1';
   final HiveService _hiveService;
 
   DashboardLocalDataSource({required HiveService hiveService})
     : _hiveService = hiveService;
 
   @override
-  Future<void> cacheHomeData({
-    required List<CompletedMatchApiModel> matches,
+  Future<void> saveHomeData({
+    required List<HomeMatchApiModel> matches,
     required List<ContestEntryApiModel> entries,
   }) async {
-    final payload = <String, dynamic>{
-      'cachedAt': DateTime.now().toIso8601String(),
-      'matches': matches.map((e) => e.toJson()).toList(growable: false),
-      'entries': entries.map((e) => e.toJson()).toList(growable: false),
-    };
-
-    await _hiveService.putAppData(_homeDataCacheKey, payload);
+    final home = DashboardHomeHiveModel.fromApiModels(
+      matches: matches,
+      entries: entries,
+    );
+    await _hiveService.saveDashboardHome(home);
   }
 
   @override
-  Future<DashboardCachedHomeData?> getCachedHomeData() async {
+  Future<DashboardLocalHomeData?> getHomeData() async {
     try {
-      final raw = _hiveService.getAppData<dynamic>(_homeDataCacheKey);
-      if (raw is! Map) {
+      final home = _hiveService.getDashboardHome();
+      if (home == null) {
         return null;
       }
 
-      final map = Map<String, dynamic>.from(raw);
-      final cachedAtRaw = map['cachedAt']?.toString() ?? '';
-      final cachedAt =
-          DateTime.tryParse(cachedAtRaw) ??
-          DateTime.fromMillisecondsSinceEpoch(0);
-
-      final rawMatches = (map['matches'] as List?) ?? const [];
-      final rawEntries = (map['entries'] as List?) ?? const [];
-
-      final matches = rawMatches
-          .whereType<Map>()
-          .map(
-            (item) => CompletedMatchApiModel.fromJson(
-              Map<String, dynamic>.from(item),
-            ),
-          )
-          .toList(growable: false);
-
-      final entries = rawEntries
-          .whereType<Map>()
-          .map(
-            (item) =>
-                ContestEntryApiModel.fromJson(Map<String, dynamic>.from(item)),
-          )
-          .toList(growable: false);
-
-      return DashboardCachedHomeData(
-        matches: matches,
-        entries: entries,
-        cachedAt: cachedAt,
+      return DashboardLocalHomeData(
+        matches: home.toHomeMatches(),
+        entries: home.toContestEntries(),
+        storedAt: home.storedAt,
       );
     } catch (e) {
-      debugPrint('Dashboard cache read error: $e');
+      debugPrint('Dashboard home read error: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<void> saveWalletSummary(WalletSummaryApiModel summary) async {
+    await _hiveService.saveDashboardWalletSummary(summary);
+  }
+
+  @override
+  Future<void> saveWalletTransactions(
+    List<WalletTransactionApiModel> items,
+  ) async {
+    await _hiveService.saveDashboardWalletTransactions(items);
+  }
+
+  @override
+  Future<WalletSummaryApiModel?> getWalletSummary() async {
+    try {
+      return _hiveService.getDashboardWalletSummary();
+    } catch (e) {
+      debugPrint('Dashboard wallet summary read error: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<List<WalletTransactionApiModel>?> getWalletTransactions() async {
+    try {
+      return _hiveService.getDashboardWalletTransactions();
+    } catch (e) {
+      debugPrint('Dashboard wallet transactions read error: $e');
       return null;
     }
   }

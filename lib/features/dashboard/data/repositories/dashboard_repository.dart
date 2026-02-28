@@ -32,6 +32,7 @@ final dashboardRepositoryProvider = Provider<IDashboardRepository>((ref) {
 
 class DashboardRepository implements IDashboardRepository {
   final IDashboardRemoteDataSource _dashboardRemoteDataSource;
+  final IDashboardLocalDataSource _dashboardLocalDataSource;
   final NetworkInfo _networkInfo;
 
   DashboardRepository({
@@ -39,6 +40,7 @@ class DashboardRepository implements IDashboardRepository {
     required IDashboardLocalDataSource dashboardLocalDataSource,
     required NetworkInfo networkInfo,
   }) : _dashboardRemoteDataSource = dashboardRemoteDataSource,
+       _dashboardLocalDataSource = dashboardLocalDataSource,
        _networkInfo = networkInfo;
 
   @override
@@ -46,9 +48,11 @@ class DashboardRepository implements IDashboardRepository {
     final isConnected = await _networkInfo.isConnected;
 
     if (!isConnected) {
-      return const Left(
-        NetworkFailure(message: 'No internet connection'),
-      );
+      final localHome = await _dashboardLocalDataSource.getHomeData();
+      if (localHome != null) {
+        return Right(_buildHomeFeed(localHome.matches, localHome.entries));
+      }
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
 
     try {
@@ -59,9 +63,16 @@ class DashboardRepository implements IDashboardRepository {
 
       final matches = results[0] as List<HomeMatchApiModel>;
       final entries = results[1] as List<ContestEntryApiModel>;
-      // TODO: Implement cache for HomeMatchApiModel
+      await _dashboardLocalDataSource.saveHomeData(
+        matches: matches,
+        entries: entries,
+      );
       return Right(_buildHomeFeed(matches, entries));
     } on DioException catch (e) {
+      final localHome = await _dashboardLocalDataSource.getHomeData();
+      if (localHome != null) {
+        return Right(_buildHomeFeed(localHome.matches, localHome.entries));
+      }
       return Left(
         ApiFailure(
           message:
@@ -90,9 +101,7 @@ class DashboardRepository implements IDashboardRepository {
         )
         .toList(growable: false);
 
-    final mappedEntries = entries
-        .map(_mapContestEntry)
-        .toList(growable: false);
+    final mappedEntries = entries.map(_mapContestEntry).toList(growable: false);
 
     return HomeFeedEntity(matches: homeMatches, entries: mappedEntries);
   }
@@ -124,13 +133,22 @@ class DashboardRepository implements IDashboardRepository {
   @override
   Future<Either<Failure, WalletSummaryEntity>> getWalletSummary() async {
     if (!await _networkInfo.isConnected) {
+      final localSummary = await _dashboardLocalDataSource.getWalletSummary();
+      if (localSummary != null) {
+        return Right(_mapWalletSummary(localSummary));
+      }
       return const Left(NetworkFailure());
     }
 
     try {
       final summary = await _dashboardRemoteDataSource.getWalletSummary();
+      await _dashboardLocalDataSource.saveWalletSummary(summary);
       return Right(_mapWalletSummary(summary));
     } on DioException catch (e) {
+      final localSummary = await _dashboardLocalDataSource.getWalletSummary();
+      if (localSummary != null) {
+        return Right(_mapWalletSummary(localSummary));
+      }
       return Left(
         ApiFailure(
           message:
@@ -151,16 +169,33 @@ class DashboardRepository implements IDashboardRepository {
     int size = 20,
   }) async {
     if (!await _networkInfo.isConnected) {
+      final localTransactions = await _dashboardLocalDataSource
+          .getWalletTransactions();
+      if (localTransactions != null) {
+        return Right(
+          localTransactions.map(_mapWalletTransaction).toList(growable: false),
+        );
+      }
       return const Left(NetworkFailure());
     }
 
     try {
       final transactions = await _dashboardRemoteDataSource
           .getWalletTransactions(page: page, size: size);
+      if (page == 1) {
+        await _dashboardLocalDataSource.saveWalletTransactions(transactions);
+      }
       return Right(
         transactions.map(_mapWalletTransaction).toList(growable: false),
       );
     } on DioException catch (e) {
+      final localTransactions = await _dashboardLocalDataSource
+          .getWalletTransactions();
+      if (localTransactions != null) {
+        return Right(
+          localTransactions.map(_mapWalletTransaction).toList(growable: false),
+        );
+      }
       return Left(
         ApiFailure(
           message:
@@ -285,6 +320,32 @@ class DashboardRepository implements IDashboardRepository {
               e.response?.data['message']?.toString() ??
               e.message ??
               'Failed to load leaderboard',
+          statusCode: e.response?.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteMyContestEntry({
+    required String matchId,
+  }) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+
+    try {
+      await _dashboardRemoteDataSource.deleteMyContestEntry(matchId: matchId);
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(
+        ApiFailure(
+          message:
+              e.response?.data['message']?.toString() ??
+              e.message ??
+              'Failed to delete team',
           statusCode: e.response?.statusCode,
         ),
       );
