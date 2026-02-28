@@ -1,6 +1,7 @@
 import 'package:fanup/features/dashboard/presentation/pages/home_screen.dart';
 import 'package:fanup/features/dashboard/presentation/pages/leaderboard_screen.dart';
 import 'package:fanup/features/dashboard/presentation/pages/profile_screen.dart';
+import 'package:fanup/features/dashboard/presentation/state/dashboard_nav_state.dart';
 import 'package:fanup/features/dashboard/presentation/pages/wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fanup/app/themes/theme.dart';
@@ -14,8 +15,6 @@ class BottomNavigationScreen extends ConsumerStatefulWidget {
 }
 
 class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen> {
-  int _selectedIndex = 0;
-
   final List<Widget> _screens = const [
     HomeScreen(),
     LeaderboardScreen(),
@@ -25,6 +24,8 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final selectedIndex = ref.watch(dashboardTabIndexProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isTablet = constraints.maxWidth >= 600;
@@ -38,7 +39,7 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
         final double fontSize = isTablet ? 16 : 13;
 
         return Scaffold(
-          body: _screens[_selectedIndex],
+          body: _screens[selectedIndex],
 
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
@@ -65,6 +66,7 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
                       Icons.home,
                       "Home",
                       0,
+                      selectedIndex,
                       iconSize,
                       fontSize,
                       indicatorWidth,
@@ -75,6 +77,7 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
                       Icons.leaderboard,
                       "Leaderboard",
                       1,
+                      selectedIndex,
                       iconSize,
                       fontSize,
                       indicatorWidth,
@@ -85,6 +88,7 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
                       Icons.wallet,
                       "Wallet",
                       2,
+                      selectedIndex,
                       iconSize,
                       fontSize,
                       indicatorWidth,
@@ -95,6 +99,7 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
                       Icons.person,
                       "Profile",
                       3,
+                      selectedIndex,
                       iconSize,
                       fontSize,
                       indicatorWidth,
@@ -115,16 +120,17 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
     IconData icon,
     String label,
     int index,
+    int selectedIndex,
     double iconSize,
     double fontSize,
     double indicatorWidth,
     double indicatorHeight,
     double spacing,
   ) {
-    final bool isSelected = _selectedIndex == index;
+    final bool isSelected = selectedIndex == index;
 
     return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
+      onTap: () => ref.read(dashboardTabIndexProvider.notifier).setTab(index),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

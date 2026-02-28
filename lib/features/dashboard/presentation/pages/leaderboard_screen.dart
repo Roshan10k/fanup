@@ -79,13 +79,19 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Leaderboard", style: AppTextStyles.headerTitle.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-          )),
+          Text(
+            "Leaderboard",
+            style: AppTextStyles.headerTitle.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text("Match contest rankings", style: AppTextStyles.headerSubtitle.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
-          )),
+          Text(
+            "Match contest rankings",
+            style: AppTextStyles.headerSubtitle.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+            ),
+          ),
         ],
       ),
     );
@@ -154,10 +160,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 
   Widget _buildMatchDropdown(LeaderboardState state, double fontScale) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 10 * fontScale,
-        vertical: 2,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 10 * fontScale, vertical: 2),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
@@ -250,7 +253,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             children: [
               _summaryValue(context, 'Fee', _credits.format(contest.entryFee)),
               _summaryValue(context, 'Players', '${contest.participantsCount}'),
-              _summaryValue(context, 'Prize', _credits.format(contest.prizePool)),
+              _summaryValue(
+                context,
+                'Prize',
+                _credits.format(contest.prizePool),
+              ),
             ],
           ),
         ],
@@ -306,9 +313,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text('No leaderboard data yet.', style: AppTextStyles.labelText.copyWith(
-          color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
-        )),
+        child: Text(
+          'No leaderboard data yet.',
+          style: AppTextStyles.labelText.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+          ),
+        ),
       );
     }
 
@@ -472,7 +482,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_credits.format(myEntry.prize)}',
+                    _credits.format(myEntry.prize),
                     style: AppTextStyles.cardTitle.copyWith(
                       color: Colors.green.shade700,
                       fontSize: 13 * fontScale,
@@ -528,14 +538,18 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
               children: [
                 Text(
                   leader.name,
-                  style: AppTextStyles.cardTitle.copyWith(fontSize: 13 * fontScale),
+                  style: AppTextStyles.cardTitle.copyWith(
+                    fontSize: 13 * fontScale,
+                  ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${leader.teams} team${leader.teams != 1 ? 's' : ''} · ${leader.pts.toStringAsFixed(1)} pts',
-                  style: AppTextStyles.labelText.copyWith(fontSize: 10 * fontScale),
+                  style: AppTextStyles.labelText.copyWith(
+                    fontSize: 10 * fontScale,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

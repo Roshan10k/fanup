@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 class BalanceCardWidget extends StatelessWidget {
   final double credit;
   final VoidCallback? onAddCredit;
+  final VoidCallback? onOpenWallet;
 
   const BalanceCardWidget({
     super.key,
     required this.credit,
     this.onAddCredit,
+    this.onOpenWallet,
   });
 
   @override
@@ -80,6 +82,10 @@ class BalanceCardWidget extends StatelessWidget {
                 flex: 2,
                 child: TextButton.icon(
                   onPressed: () {
+                    if (onOpenWallet != null) {
+                      onOpenWallet!();
+                      return;
+                    }
                     AppRoutes.push(context, const WalletScreen());
                   },
                   icon: Icon(Icons.wallet, color: iconColor, size: 18 * fontScale),

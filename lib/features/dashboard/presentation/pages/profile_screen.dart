@@ -37,6 +37,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sensorState = ref.watch(sensorProvider);
+    final privacyShieldOn = sensorState.isNear ?? false;
+
     // Listen for shake events to navigate to help screen
     ref.listen<int>(
       shakeEventProvider,
@@ -57,11 +60,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _buildHeader(),
+              _buildHeader(privacyShieldOn),
               const SizedBox(height: 24),
-              _buildProfileCard(),
+              _buildProfileCard(privacyShieldOn),
               const SizedBox(height: 16),
-              _buildContactCard(),
+              _buildContactCard(privacyShieldOn),
               const SizedBox(height: 24),
               _buildMenuItems(),
               const SizedBox(height: 24),
@@ -74,7 +77,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool privacyShieldOn) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -90,12 +93,39 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           )),
           const SizedBox(height: 4),
           Text("Manage your account", style: AppTextStyles.headerSubtitle),
+          if (privacyShieldOn) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withAlpha(30),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.privacy_tip_outlined,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Privacy shield active',
+                    style: AppTextStyles.poppinsSemiBold13.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildProfileCard() {
+  Widget _buildProfileCard(bool privacyShieldOn) {
     final authState = ref.watch(authViewModelProvider);
     final fontScale = context.fontScale;
 
@@ -166,7 +196,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            authState.authEntity?.email ?? "user@example.com",
+            privacyShieldOn
+                ? _maskEmail(authState.authEntity?.email ?? "user@example.com")
+                : (authState.authEntity?.email ?? "user@example.com"),
             style: AppTextStyles.labelText.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
               fontSize: 12 * fontScale,
@@ -205,7 +237,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildContactCard() {
+  Widget _buildContactCard(bool privacyShieldOn) {
     final authState = ref.watch(authViewModelProvider);
     final phone = authState.authEntity?.phone;
     final fontScale = context.fontScale;
@@ -237,12 +269,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           SizedBox(height: 14 * fontScale),
           _buildInfoRow(
             Icons.email_outlined,
-            authState.authEntity?.email ?? "user@example.com",
+            privacyShieldOn
+                ? _maskEmail(authState.authEntity?.email ?? "user@example.com")
+                : (authState.authEntity?.email ?? "user@example.com"),
           ),
           SizedBox(height: 10 * fontScale),
           _buildInfoRow(
             Icons.phone_outlined,
-            phone != null && phone.isNotEmpty ? phone : "Not added",
+            phone != null && phone.isNotEmpty
+                ? (privacyShieldOn ? _maskPhone(phone) : phone)
+                : "Not added",
             isPlaceholder: phone == null || phone.isEmpty,
           ),
         ],
@@ -294,6 +330,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       ],
     );
+  }
+
+  String _maskEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2) return '***';
+    final local = parts[0];
+    final domain = parts[1];
+    if (local.length <= 2) return '**@$domain';
+    return '${local.substring(0, 2)}***@$domain';
+  }
+
+  String _maskPhone(String phone) {
+    final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) return '***';
+    if (digits.length <= 2) return '**';
+    return '*** *** ${digits.substring(digits.length - 2)}';
   }
 
   Widget _buildMenuItems() {
@@ -456,9 +508,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   onPressed: () async {
                     Navigator.pop(context);
                     await ref.read(authViewModelProvider.notifier).logoutUser();
-                    if (context.mounted) {
-                      AppRoutes.pushAndRemoveUntil(context, const LoginPage());
-                    }
+                    if (!mounted) return;
+                    AppRoutes.pushAndRemoveUntil(context, const LoginPage());
                   },
                   child: const Text(
                     "Logout",

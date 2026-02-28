@@ -88,8 +88,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         : const [Color(0xFFFFD54F), Color(0xFFFFA726)];
     final onGradient = isDark ? theme.colorScheme.onSurface : Colors.black87;
     final shadowColor = isDark
-        ? Colors.black.withOpacity(0.45)
-        : const Color(0xFFFFA726).withOpacity(0.3);
+        ? Colors.black.withValues(alpha: 0.45)
+        : const Color(0xFFFFA726).withValues(alpha: 0.3);
     final fontScale = context.fontScale;
 
     return LayoutBuilder(
@@ -432,9 +432,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   }
 
   void _showEarnCreditsBottomSheet() {
+    final theme = Theme.of(context);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -448,13 +451,20 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               children: [
                 const Icon(Icons.stars, color: Color(0xFFFFA726), size: 28),
                 const SizedBox(width: 12),
-                Text("Earn More Credits", style: AppTextStyles.sectionTitle),
+                Text(
+                  "Earn More Credits",
+                  style: AppTextStyles.sectionTitle.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               "Complete tasks to earn free credits",
-              style: AppTextStyles.cardSubtitle,
+              style: AppTextStyles.cardSubtitle.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(170),
+              ),
             ),
             const SizedBox(height: 24),
             _buildEarnCreditTile(
@@ -507,22 +517,34 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final tileBackground = isDark
+        ? Color.alphaBlend(color.withValues(alpha: 0.18), theme.colorScheme.surface)
+        : color.withValues(alpha: 0.05);
+    final tileBorder = isDark
+        ? color.withValues(alpha: 0.45)
+        : color.withValues(alpha: 0.2);
+    final iconBackground = isDark
+        ? color.withValues(alpha: 0.25)
+        : color.withValues(alpha: 0.1);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.05),
+          color: tileBackground,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          border: Border.all(color: tileBorder),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: iconBackground,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -532,9 +554,19 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.cardTitle),
+                  Text(
+                    title,
+                    style: AppTextStyles.cardTitle.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: AppTextStyles.labelText),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.labelText.copyWith(
+                      color: theme.colorScheme.onSurface.withAlpha(170),
+                    ),
+                  ),
                 ],
               ),
             ),
