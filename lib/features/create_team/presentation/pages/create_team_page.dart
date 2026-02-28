@@ -19,6 +19,7 @@ class CreateTeamPageArgs {
   final List<String>? existingPlayerIds;
   final String? existingCaptainId;
   final String? existingViceCaptainId;
+  final bool isViewOnly;
 
   const CreateTeamPageArgs({
     required this.matchId,
@@ -31,6 +32,7 @@ class CreateTeamPageArgs {
     this.existingPlayerIds,
     this.existingCaptainId,
     this.existingViceCaptainId,
+    this.isViewOnly = false,
   });
 
   bool get isEditing => existingTeamId != null && existingTeamId!.isNotEmpty;
@@ -94,7 +96,13 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          state.isCaptainStep ? 'Captain & Vice-Captain' : 'Create Team',
+          widget.args.isViewOnly
+              ? 'Team Preview'
+              : state.isPreviewStep
+              ? 'Preview Team'
+              : state.isCaptainStep
+              ? 'Captain & Vice-Captain'
+              : 'Create Team',
           style: AppTextStyles.poppinsSemiBold18.copyWith(
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -104,6 +112,10 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
           ? const Center(child: CircularProgressIndicator())
           : state.status == CreateTeamStatus.error && state.players.isEmpty
           ? _buildError(state)
+          : widget.args.isViewOnly
+          ? _buildPreviewStep(state, readOnly: true)
+          : state.isPreviewStep
+          ? _buildPreviewStep(state)
           : state.isCaptainStep
           ? _buildCaptainStep(state)
           : _buildPlayerSelectionStep(state, roleCounts, usedCredits),
@@ -203,41 +215,55 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
             children: [
               Text('Select Captain', style: AppTextStyles.sectionTitle),
               const SizedBox(height: 8),
-              ...selectedPlayers.map(
-                (player) => RadioListTile<String>(
-                  value: player.id,
-                  groupValue: state.captainId,
-                  onChanged: (value) {
-                    if (value != null) {
-                      ref
-                          .read(createTeamViewModelProvider.notifier)
-                          .setCaptain(value);
-                    }
-                  },
-                  title: Text(player.fullName),
-                  subtitle: Text(
-                    '${player.teamShortName} • ${player.role.label}',
-                  ),
+              RadioGroup<String>(
+                groupValue: state.captainId.isEmpty ? null : state.captainId,
+                onChanged: (value) {
+                  if (value != null) {
+                    ref
+                        .read(createTeamViewModelProvider.notifier)
+                        .setCaptain(value);
+                  }
+                },
+                child: Column(
+                  children: selectedPlayers
+                      .map(
+                        (player) => RadioListTile<String>(
+                          value: player.id,
+                          title: Text(player.fullName),
+                          subtitle: Text(
+                            '${player.teamShortName} • ${player.role.label}',
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
                 ),
               ),
               const SizedBox(height: 16),
               Text('Select Vice-Captain', style: AppTextStyles.sectionTitle),
               const SizedBox(height: 8),
-              ...selectedPlayers.map(
-                (player) => RadioListTile<String>(
-                  value: player.id,
-                  groupValue: state.viceCaptainId,
-                  onChanged: (value) {
-                    if (value != null) {
-                      ref
-                          .read(createTeamViewModelProvider.notifier)
-                          .setViceCaptain(value);
-                    }
-                  },
-                  title: Text(player.fullName),
-                  subtitle: Text(
-                    '${player.teamShortName} • ${player.role.label}',
-                  ),
+              RadioGroup<String>(
+                groupValue: state.viceCaptainId.isEmpty
+                    ? null
+                    : state.viceCaptainId,
+                onChanged: (value) {
+                  if (value != null) {
+                    ref
+                        .read(createTeamViewModelProvider.notifier)
+                        .setViceCaptain(value);
+                  }
+                },
+                child: Column(
+                  children: selectedPlayers
+                      .map(
+                        (player) => RadioListTile<String>(
+                          value: player.id,
+                          title: Text(player.fullName),
+                          subtitle: Text(
+                            '${player.teamShortName} • ${player.role.label}',
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
                 ),
               ),
               if (state.errorMessage != null) ...[
@@ -266,23 +292,12 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: state.status == CreateTeamStatus.submitting
-                      ? null
-                      : () async {
-                          await ref
-                              .read(createTeamViewModelProvider.notifier)
-                              .submitEntry(matchId: widget.args.matchId);
-                        },
-                  child: state.status == CreateTeamStatus.submitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Submit Team'),
+                  onPressed: () {
+                    ref
+                        .read(createTeamViewModelProvider.notifier)
+                        .canContinueToPreviewStep();
+                  },
+                  child: const Text('Preview Team'),
                 ),
               ),
             ],
@@ -346,13 +361,16 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
 
   Widget _buildMatchHeader() {
     final fontScale = context.fontScale;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerGradient = isDark
+        ? const [Color(0xFF2A3347), Color(0xFF1C2436)]
+        : const [AppColors.gradientYellow, AppColors.gradientOrange];
+    final primaryTextColor = Theme.of(context).colorScheme.onSurface;
 
     return Container(
       padding: EdgeInsets.all(12 * fontScale),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.gradientYellow, AppColors.gradientOrange],
-        ),
+        gradient: LinearGradient(colors: headerGradient),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -361,7 +379,7 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
           Text(
             widget.args.league,
             style: AppTextStyles.poppinsSemiBold15.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: primaryTextColor,
               fontSize: 13 * fontScale,
             ),
             overflow: TextOverflow.ellipsis,
@@ -375,7 +393,7 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
               '${widget.args.teamA} vs ${widget.args.teamB}',
               style: AppTextStyles.poppinsBold24.copyWith(
                 fontSize: 18 * fontScale,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: primaryTextColor,
               ),
             ),
           ),
@@ -383,7 +401,7 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
           Text(
             DateFormat('d MMM, yy • h:mm a').format(widget.args.startTime),
             style: AppTextStyles.poppinsRegular15.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
+              color: primaryTextColor.withAlpha(190),
               fontSize: 12 * fontScale,
             ),
           ),
@@ -463,7 +481,9 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
             SizedBox(width: 8 * fontScale),
             Icon(
               isSelected ? Icons.check_circle : Icons.add_circle_outline,
-              color: isSelected ? Colors.green : Theme.of(context).colorScheme.primary,
+              color: isSelected
+                  ? Colors.green
+                  : Theme.of(context).colorScheme.primary,
               size: 22 * fontScale,
             ),
           ],
@@ -471,6 +491,149 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
         onTap: () =>
             ref.read(createTeamViewModelProvider.notifier).togglePlayer(player),
       ),
+    );
+  }
+
+  Widget _buildPreviewStep(CreateTeamState state, {bool readOnly = false}) {
+    final selectedPlayers = state.selectedPlayers;
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildMatchHeader(),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withAlpha(100),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        state.teamName.isEmpty
+                            ? 'Unnamed Team'
+                            : state.teamName,
+                        style: AppTextStyles.poppinsSemiBold18.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(35),
+                      ),
+                      child: Text(
+                        '${selectedPlayers.length}/11',
+                        style: AppTextStyles.poppinsSemiBold13.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...selectedPlayers.map((player) {
+                final isCaptain = state.captainId == player.id;
+                final isViceCaptain = state.viceCaptainId == player.id;
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    title: Text(player.fullName),
+                    subtitle: Text(
+                      '${player.teamShortName} • ${player.role.label}',
+                    ),
+                    trailing: Wrap(
+                      spacing: 6,
+                      children: [
+                        if (isCaptain)
+                          Chip(
+                            label: const Text('C'),
+                            visualDensity: VisualDensity.compact,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary.withAlpha(35),
+                          ),
+                        if (isViceCaptain)
+                          Chip(
+                            label: const Text('VC'),
+                            visualDensity: VisualDensity.compact,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.secondary.withAlpha(60),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        _buildBottomAction(
+          child: Row(
+            children: [
+              if (!readOnly) ...[
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: ref
+                        .read(createTeamViewModelProvider.notifier)
+                        .backToCaptainSelection,
+                    child: const Text('Back'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: readOnly
+                    ? ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close'),
+                      )
+                    : ElevatedButton(
+                        onPressed: state.status == CreateTeamStatus.submitting
+                            ? null
+                            : () async {
+                                await ref
+                                    .read(createTeamViewModelProvider.notifier)
+                                    .submitEntry(matchId: widget.args.matchId);
+                              },
+                        child: state.status == CreateTeamStatus.submitting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                widget.args.isEditing
+                                    ? 'Update Team'
+                                    : 'Save Team',
+                              ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

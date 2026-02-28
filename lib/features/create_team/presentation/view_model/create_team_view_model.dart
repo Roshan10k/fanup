@@ -46,6 +46,7 @@ class CreateTeamViewModel extends Notifier<CreateTeamState> {
       captainId: '',
       viceCaptainId: '',
       isCaptainStep: false,
+      isPreviewStep: false,
       clearTeamId: true,
     );
 
@@ -157,7 +158,32 @@ class CreateTeamViewModel extends Notifier<CreateTeamState> {
   }
 
   void backToPlayerSelection() {
-    state = state.copyWith(isCaptainStep: false, clearInfoMessage: true);
+    state = state.copyWith(
+      isCaptainStep: false,
+      isPreviewStep: false,
+      clearInfoMessage: true,
+    );
+  }
+
+  bool canContinueToPreviewStep() {
+    final validation = TeamValidator.validateSubmission(
+      selectedPlayers: state.selectedPlayers,
+      teamName: state.teamName,
+      captainId: state.captainId,
+      viceCaptainId: state.viceCaptainId,
+    );
+
+    if (!validation.isValid) {
+      state = state.copyWith(errorMessage: validation.message);
+      return false;
+    }
+
+    state = state.copyWith(isPreviewStep: true, clearErrorMessage: true);
+    return true;
+  }
+
+  void backToCaptainSelection() {
+    state = state.copyWith(isPreviewStep: false, clearInfoMessage: true);
   }
 
   void setCaptain(String playerId) {

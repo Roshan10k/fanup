@@ -14,6 +14,7 @@ class CreateTeamState extends Equatable {
   final String viceCaptainId;
   final String? teamId;
   final bool isCaptainStep;
+  final bool isPreviewStep;
   final String? infoMessage;
   final String? errorMessage;
 
@@ -27,6 +28,7 @@ class CreateTeamState extends Equatable {
     this.viceCaptainId = '',
     this.teamId,
     this.isCaptainStep = false,
+    this.isPreviewStep = false,
     this.infoMessage,
     this.errorMessage,
   });
@@ -60,6 +62,7 @@ class CreateTeamState extends Equatable {
     String? teamId,
     bool clearTeamId = false,
     bool? isCaptainStep,
+    bool? isPreviewStep,
     String? infoMessage,
     bool clearInfoMessage = false,
     String? errorMessage,
@@ -75,6 +78,7 @@ class CreateTeamState extends Equatable {
       viceCaptainId: viceCaptainId ?? this.viceCaptainId,
       teamId: clearTeamId ? null : (teamId ?? this.teamId),
       isCaptainStep: isCaptainStep ?? this.isCaptainStep,
+      isPreviewStep: isPreviewStep ?? this.isPreviewStep,
       infoMessage: clearInfoMessage ? null : (infoMessage ?? this.infoMessage),
       errorMessage: clearErrorMessage
           ? null
@@ -93,6 +97,7 @@ class CreateTeamState extends Equatable {
     viceCaptainId,
     teamId,
     isCaptainStep,
+    isPreviewStep,
     infoMessage,
     errorMessage,
   ];
