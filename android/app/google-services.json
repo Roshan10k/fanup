@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "300701729455",
+    "project_id": "fanup-38014",
+    "storage_bucket": "fanup-38014.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300701729455:android:42bffb219c41dfc4f68a5a",
+        "android_client_info": {
+          "package_name": "com.roshan.fanup.fanup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYlE_aKHGdbnXQ5vCZYdupi4o_D88hGSo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
