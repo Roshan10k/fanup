@@ -1,25 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:fanup/core/api/api_endpoints.dart';
-import 'package:fanup/core/services/storage/user_session_service.dart';
+import 'package:fanup/core/services/storage/token_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 // Provider for ApiClient
 final apiClientProvider = Provider<ApiClient>((ref) {
-  final sharedPreferences = ref.watch(sharedPreferencesProvider);
-  return ApiClient(sharedPreferences: sharedPreferences);
+  final tokenService = ref.watch(tokenServiceProvider);
+  return ApiClient(tokenService: tokenService);
 });
 
 class ApiClient {
   late final Dio _dio;
-  final SharedPreferences _prefs;
 
-  ApiClient({required SharedPreferences sharedPreferences})
-    : _prefs = sharedPreferences {
+  ApiClient({required TokenService tokenService}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
@@ -33,7 +30,7 @@ class ApiClient {
     );
 
     // Add interceptors
-    _dio.interceptors.add(_AuthInterceptor(_prefs));
+    _dio.interceptors.add(_AuthInterceptor(tokenService));
 
     // Auto retry on network failures
     _dio.interceptors.add(
@@ -159,10 +156,9 @@ class ApiClient {
 
 // Auth Interceptor to add JWT token to requests
 class _AuthInterceptor extends Interceptor {
-  final SharedPreferences _prefs;
-  static const String _tokenKey = 'auth_token';
+  final TokenService _tokenService;
 
-  _AuthInterceptor(this._prefs);
+  _AuthInterceptor(this._tokenService);
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -175,7 +171,7 @@ class _AuthInterceptor extends Interceptor {
 
     // Attach token only if NOT auth endpoint
     if (!isAuthEndpoint) {
-      final token = _prefs.getString(_tokenKey);
+      final token = _tokenService.getToken();
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
       }
@@ -188,7 +184,7 @@ class _AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 401) {
       // Token expired or invalid
-      _prefs.remove(_tokenKey);
+      _tokenService.deleteToken();
       // Later sprint: redirect to login
     }
     handler.next(err);
