@@ -1,7 +1,19 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'leaderboard_payload_api_model.g.dart';
+
+@JsonSerializable(createToJson: false)
 class LeaderboardMatchMetaApiModel {
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String id;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String matchLabel;
+
+  @JsonKey(fromJson: _parseDateTime)
   final DateTime startsAt;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: 'completed')
   final String status;
 
   const LeaderboardMatchMetaApiModel({
@@ -11,25 +23,37 @@ class LeaderboardMatchMetaApiModel {
     required this.status,
   });
 
-  factory LeaderboardMatchMetaApiModel.fromJson(Map<String, dynamic> json) {
-    return LeaderboardMatchMetaApiModel(
-      id: json['id']?.toString() ?? '',
-      matchLabel: json['matchLabel']?.toString() ?? '',
-      startsAt:
-          DateTime.tryParse(json['startsAt']?.toString() ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0),
-      status: json['status']?.toString() ?? 'completed',
-    );
-  }
+  factory LeaderboardMatchMetaApiModel.fromJson(Map<String, dynamic> json) =>
+      _$LeaderboardMatchMetaApiModelFromJson(json);
+
+  static String _toRequiredString(dynamic value) => value?.toString() ?? '';
+
+  static DateTime _parseDateTime(dynamic value) =>
+      DateTime.tryParse(value?.toString() ?? '') ??
+      DateTime.fromMillisecondsSinceEpoch(0);
 }
 
+@JsonSerializable(createToJson: false)
 class LeaderboardLeaderApiModel {
+  @JsonKey(fromJson: _toRequiredString, defaultValue: '')
   final String userId;
+
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int rank;
+
+  @JsonKey(fromJson: _toRequiredString, defaultValue: 'User')
   final String name;
+
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int teams;
+
+  @JsonKey(fromJson: _asDouble, defaultValue: 0.0)
   final double pts;
+
+  @JsonKey(fromJson: _asDouble, defaultValue: 0.0)
   final double winRate;
+
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int prize;
 
   const LeaderboardLeaderApiModel({
@@ -42,22 +66,33 @@ class LeaderboardLeaderApiModel {
     required this.prize,
   });
 
-  factory LeaderboardLeaderApiModel.fromJson(Map<String, dynamic> json) {
-    return LeaderboardLeaderApiModel(
-      userId: json['userId']?.toString() ?? '',
-      rank: _asInt(json['rank']),
-      name: json['name']?.toString() ?? 'User',
-      teams: _asInt(json['teams']),
-      pts: _asDouble(json['pts']),
-      winRate: _asDouble(json['winRate']),
-      prize: _asInt(json['prize']),
-    );
+  factory LeaderboardLeaderApiModel.fromJson(Map<String, dynamic> json) =>
+      _$LeaderboardLeaderApiModelFromJson(json);
+
+  static String _toRequiredString(dynamic value) => value?.toString() ?? '';
+
+  static int _asInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static double _asDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
   }
 }
 
+@JsonSerializable(createToJson: false)
 class LeaderboardPayloadApiModel {
+  @JsonKey(fromJson: _parseMatch)
   final LeaderboardMatchMetaApiModel match;
+
+  @JsonKey(fromJson: _parseLeaders)
   final List<LeaderboardLeaderApiModel> leaders;
+
+  @JsonKey(fromJson: _parseMyEntry)
   final LeaderboardLeaderApiModel? myEntry;
 
   const LeaderboardPayloadApiModel({
@@ -66,39 +101,37 @@ class LeaderboardPayloadApiModel {
     required this.myEntry,
   });
 
-  factory LeaderboardPayloadApiModel.fromJson(Map<String, dynamic> json) {
-    final matchMap = Map<String, dynamic>.from(
-      (json['match'] as Map?) ?? const <String, dynamic>{},
-    );
-    final leadersRows = (json['leaders'] as List?) ?? const <dynamic>[];
-    final myEntryMap = json['myEntry'] as Map?;
+  factory LeaderboardPayloadApiModel.fromJson(Map<String, dynamic> json) =>
+      _$LeaderboardPayloadApiModelFromJson(json);
 
-    return LeaderboardPayloadApiModel(
-      match: LeaderboardMatchMetaApiModel.fromJson(matchMap),
-      leaders: leadersRows
+  static LeaderboardMatchMetaApiModel _parseMatch(dynamic value) {
+    if (value is Map) {
+      return LeaderboardMatchMetaApiModel.fromJson(
+        Map<String, dynamic>.from(value),
+      );
+    }
+    return LeaderboardMatchMetaApiModel.fromJson(const <String, dynamic>{});
+  }
+
+  static List<LeaderboardLeaderApiModel> _parseLeaders(dynamic value) {
+    if (value is List) {
+      return value
           .map(
             (item) => LeaderboardLeaderApiModel.fromJson(
               Map<String, dynamic>.from(item as Map),
             ),
           )
-          .toList(growable: false),
-      myEntry: myEntryMap == null
-          ? null
-          : LeaderboardLeaderApiModel.fromJson(
-              Map<String, dynamic>.from(myEntryMap),
-            ),
-    );
+          .toList(growable: false);
+    }
+    return const [];
   }
-}
 
-int _asInt(dynamic value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-double _asDouble(dynamic value) {
-  if (value is double) return value;
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
+  static LeaderboardLeaderApiModel? _parseMyEntry(dynamic value) {
+    if (value is Map) {
+      return LeaderboardLeaderApiModel.fromJson(
+        Map<String, dynamic>.from(value),
+      );
+    }
+    return null;
+  }
 }
