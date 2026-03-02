@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:fanup/features/auth/presentation/state/auth_state.dart';
+import 'package:fanup/features/auth/presentation/widgets/google_sign_in_button.dart';
 import 'package:fanup/features/dashboard/presentation/pages/dashboard_page.dart';
 import '../pages/signup_page.dart';
 
@@ -20,6 +22,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
 
   @override
   void dispose() {
@@ -48,17 +51,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (!mounted) return;
 
     if (state.status == AuthStatus.authenticated) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const BottomNavigationScreen(),
-        ),
-      );
+      AppRoutes.pushReplacement(context, const BottomNavigationScreen());
     } else if (state.status == AuthStatus.error) {
       _showSnackbar(state.errorMessage ?? 'Login failed');
     }
 
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isGoogleLoading = true);
+
+    await ref.read(authViewModelProvider.notifier).loginWithGoogle();
+
+    final state = ref.read(authViewModelProvider);
+
+    if (!mounted) return;
+
+    if (state.status == AuthStatus.authenticated) {
+      AppRoutes.pushReplacement(context, const BottomNavigationScreen());
+      return;
+    } else if (state.status == AuthStatus.error) {
+      _showSnackbar(state.errorMessage ?? 'Google sign-in failed');
+    }
+
+    if (mounted) setState(() => _isGoogleLoading = false);
   }
 
   void _showSnackbar(String message) {
@@ -68,10 +85,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _navigateToSignup() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SignUpScreen()),
-    );
+    AppRoutes.push(context, const SignUpScreen());
   }
 
   @override
@@ -90,9 +104,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             children: [
               const SizedBox(height: 40),
 
-              Image.asset(
-                'assets/images/logo.png',
-                height: 220,
+              Hero(
+                tag: 'fanup-logo',
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 220,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -174,6 +191,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           style: AppTextStyles.buttonText,
                         ),
                 ),
+              ),
+
+              const SizedBox(height: 24),
+
+              const OrDivider(),
+
+              const SizedBox(height: 24),
+
+              GoogleSignInButton(
+                key: const Key('google_login_button'),
+                onPressed: _handleGoogleLogin,
+                isLoading: _isGoogleLoading,
               ),
 
               const SizedBox(height: 24),

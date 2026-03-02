@@ -1,7 +1,10 @@
 import 'package:fanup/features/auth/presentation/state/auth_state.dart';
 import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
+import 'package:fanup/features/auth/presentation/widgets/google_sign_in_button.dart';
 
+import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +19,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _agreeToTerms = false;
+  bool _isGoogleLoading = false;
 
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -53,6 +57,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         );
         Navigator.pop(context);
       }
+
+      if (next.status == AuthStatus.authenticated) {
+        AppRoutes.pushAndRemoveUntil(
+            context, const BottomNavigationScreen());
+      }
     });
 
     return Scaffold(
@@ -64,7 +73,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             children: [
               const SizedBox(height: 40),
 
-              Image.asset("assets/images/logo.png", height: 120),
+              Hero(
+                tag: 'fanup-logo',
+                child: Image.asset("assets/images/logo.png", height: 120),
+              ),
 
               const SizedBox(height: 16),
 
@@ -187,6 +199,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text("Sign Up", style: AppTextStyles.buttonText),
                 ),
+              ),
+
+              const SizedBox(height: 24),
+
+              const OrDivider(),
+
+              const SizedBox(height: 24),
+
+              GoogleSignInButton(
+                onPressed: () async {
+                  setState(() => _isGoogleLoading = true);
+                  await ref.read(authViewModelProvider.notifier).loginWithGoogle();
+                  if (mounted) setState(() => _isGoogleLoading = false);
+                },
+                isLoading: _isGoogleLoading,
               ),
 
               const SizedBox(height: 24),
