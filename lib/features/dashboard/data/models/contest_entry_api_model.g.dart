@@ -41,7 +41,7 @@ Map<String, dynamic> _$ContestEntryApiModelToJson(
       'playerIds': instance.playerIds,
       'points': instance.points,
       'updatedAt': instance.updatedAt?.toIso8601String(),
-      'match': instance.match,
+      'match': instance.match?.toJson(),
     };
 
 ContestEntryMatchApiModel _$ContestEntryMatchApiModelFromJson(
@@ -70,8 +70,8 @@ Map<String, dynamic> _$ContestEntryMatchApiModelToJson(
       'league': instance.league,
       'startTime': instance.startTime?.toIso8601String(),
       'status': instance.status,
-      'teamA': instance.teamA,
-      'teamB': instance.teamB,
+      'teamA': instance.teamA?.toJson(),
+      'teamB': instance.teamB?.toJson(),
     };
 
 ContestEntryTeamApiModel _$ContestEntryTeamApiModelFromJson(

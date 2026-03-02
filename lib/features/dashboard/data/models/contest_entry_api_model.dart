@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'contest_entry_api_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ContestEntryApiModel {
   @JsonKey(defaultValue: '')
   final String matchId;
@@ -53,7 +53,7 @@ class ContestEntryApiModel {
   Map<String, dynamic> toJson() => _$ContestEntryApiModelToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ContestEntryMatchApiModel {
   @JsonKey(defaultValue: '')
   final String id;
@@ -84,7 +84,7 @@ class ContestEntryMatchApiModel {
   Map<String, dynamic> toJson() => _$ContestEntryMatchApiModelToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ContestEntryTeamApiModel {
   @JsonKey(defaultValue: '')
   final String shortName;
