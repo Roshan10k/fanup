@@ -1,8 +1,22 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'wallet_summary_api_model.g.dart';
+
+@JsonSerializable()
 class WalletSummaryApiModel {
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int balance;
+
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int totalCredit;
+
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int totalDebit;
+
+  @JsonKey(fromJson: _asInt, defaultValue: 0)
   final int transactionCount;
+
+  @JsonKey(fromJson: _asDateTime)
   final DateTime? lastTransactionAt;
 
   const WalletSummaryApiModel({
@@ -13,25 +27,10 @@ class WalletSummaryApiModel {
     required this.lastTransactionAt,
   });
 
-  factory WalletSummaryApiModel.fromJson(Map<String, dynamic> json) {
-    return WalletSummaryApiModel(
-      balance: _asInt(json['balance']),
-      totalCredit: _asInt(json['totalCredit']),
-      totalDebit: _asInt(json['totalDebit']),
-      transactionCount: _asInt(json['transactionCount']),
-      lastTransactionAt: _asDateTime(json['lastTransactionAt']),
-    );
-  }
+  factory WalletSummaryApiModel.fromJson(Map<String, dynamic> json) =>
+      _$WalletSummaryApiModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'balance': balance,
-      'totalCredit': totalCredit,
-      'totalDebit': totalDebit,
-      'transactionCount': transactionCount,
-      'lastTransactionAt': lastTransactionAt?.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$WalletSummaryApiModelToJson(this);
 
   static int _asInt(dynamic value) {
     if (value is int) return value;
