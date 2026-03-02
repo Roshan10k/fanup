@@ -87,11 +87,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo
-              Image.asset(
-                'assets/images/logo.png',
-                width: logoWidth,
-                height: logoHeight,
-                fit: BoxFit.contain,
+              Hero(
+                tag: 'fanup-logo',
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: logoWidth,
+                  height: logoHeight,
+                  fit: BoxFit.contain,
+                ),
               ),
 
               const SizedBox(height: 16),

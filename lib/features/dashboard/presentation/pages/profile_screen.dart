@@ -45,12 +45,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       shakeEventProvider,
       (prev, next) {
         if (!mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const HelpSupportScreen(),
-          ),
-        );
+        AppRoutes.push(context, const HelpSupportScreen());
       },
     );
 
@@ -367,34 +362,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildMenuItem(
             icon: Icons.person_outline,
             title: "Edit Profile",
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const EditProfileScreen(),
-              ),
-            ),
+            onTap: () => AppRoutes.push(context, const EditProfileScreen()),
           ),
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.lock_outline,
             title: "Change Password",
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ChangePasswordScreen(),
-              ),
-            ),
+            onTap: () => AppRoutes.push(context, const ChangePasswordScreen()),
           ),
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.help_outline,
             title: "Help and Support",
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HelpSupportScreen(),
-              ),
-            ),
+            onTap: () => AppRoutes.push(context, const HelpSupportScreen()),
           ),
           _buildDivider(),
           _buildThemeToggleItem(),

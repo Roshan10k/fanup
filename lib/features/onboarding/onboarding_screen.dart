@@ -1,3 +1,4 @@
+import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:fanup/features/auth/presentation/pages/login_page.dart';
@@ -16,10 +17,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void next() {
     if (step == onboardingSlides.length - 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      AppRoutes.pushReplacement(context, const LoginPage());
     } else {
       setState(() => step++);
     }
@@ -87,12 +85,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginPage(),
-                              ),
-                            );
+                            AppRoutes.pushReplacement(
+                              context, const LoginPage());
                           },
                           child: Text(
                             "Skip",
