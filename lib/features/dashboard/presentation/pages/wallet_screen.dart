@@ -1,5 +1,6 @@
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/core/utils/responsive_utils.dart';
+import 'package:fanup/core/widgets/shimmer_loading.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_summary_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/wallet_transaction_entity.dart';
 import 'package:fanup/features/dashboard/presentation/state/wallet_state.dart';
@@ -300,10 +301,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             builder: (_) {
               if (state.status == WalletStatus.loading &&
                   state.transactions.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CircularProgressIndicator()),
-                );
+                return const ListItemShimmer();
               }
 
               if (state.transactions.isEmpty) {

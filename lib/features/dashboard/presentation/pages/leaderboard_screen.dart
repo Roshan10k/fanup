@@ -1,5 +1,6 @@
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/core/utils/responsive_utils.dart';
+import 'package:fanup/core/widgets/shimmer_loading.dart';
 import 'package:fanup/features/dashboard/domain/entities/leaderboard_contest_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/leaderboard_payload_entity.dart';
 import 'package:fanup/features/dashboard/presentation/state/leaderboard_state.dart';
@@ -298,10 +299,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   Widget _buildTopThree(LeaderboardState state) {
     final leaders = state.payload?.leaders ?? const <LeaderboardLeaderEntity>[];
     if (state.status == LeaderboardStatus.loading && leaders.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: CircularProgressIndicator(),
-      );
+      return const LeaderboardShimmer();
     }
 
     if (leaders.isEmpty) {

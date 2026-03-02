@@ -1,5 +1,6 @@
 import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/widgets/shimmer_loading.dart';
 import 'package:fanup/features/create_team/presentation/pages/create_team_page.dart';
 import 'package:fanup/features/dashboard/domain/entities/contest_entry_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_match_entity.dart';
@@ -288,10 +289,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildBody(HomeState state) {
     if (state.status == HomeStatus.loading && state.matches.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const MatchCardShimmer();
     }
 
     if (state.status == HomeStatus.error && state.matches.isEmpty) {
