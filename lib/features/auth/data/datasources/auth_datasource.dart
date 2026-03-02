@@ -16,6 +16,7 @@ abstract interface class IAuthDataSource {
 abstract interface class IRemoteAuthDataSource {
   Future<AuthApiModel> registerRemote(AuthApiModel model);
   Future<AuthApiModel?> loginUserRemote(String email, String password);
+  Future<AuthApiModel?> loginWithGoogle(String idToken);
   Future<AuthApiModel?> getUserById(String authId);
   Future<String> uploadProfilePhoto(File photo);
 }

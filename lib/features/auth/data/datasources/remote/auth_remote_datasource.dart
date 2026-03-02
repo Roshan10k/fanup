@@ -75,6 +75,35 @@ class AuthRemoteDatasource implements IRemoteAuthDataSource {
   }
 
   @override
+  Future<AuthApiModel?> loginWithGoogle(String idToken) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.googleLogin,
+      data: {'credential': idToken},
+    );
+
+    if (response.data['success'] == true) {
+      final user = AuthApiModel.fromJson(response.data);
+
+      // Save session
+      await _userSessionService.saveUserSession(
+        authId: user.authId ?? '',
+        email: user.email ?? '',
+        fullName: user.fullName ?? '',
+      );
+
+      // Save token
+      final token = response.data['token'] as String?;
+      if (token != null) {
+        await _tokenService.saveToken(token);
+      }
+
+      return user;
+    }
+
+    return null;
+  }
+
+  @override
   Future<AuthApiModel?> getUserById(String authId) async {
     try {
       final response = await _apiClient.get(
