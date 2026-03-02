@@ -6,6 +6,7 @@ import 'package:fanup/features/dashboard/domain/entities/home_feed_entity.dart';
 import 'package:fanup/features/dashboard/domain/entities/home_match_entity.dart';
 import 'package:fanup/features/dashboard/domain/usecases/get_home_feed_usecase.dart';
 import 'package:fanup/features/dashboard/presentation/pages/home_screen.dart';
+import 'package:fanup/core/widgets/shimmer_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,7 +50,7 @@ void main() {
     await tester.pumpWidget(createTestWidget());
     await tester.pump();
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(MatchCardShimmer), findsOneWidget);
 
     completer.complete(Right(tHomeFeed));
     await tester.pumpAndSettle();

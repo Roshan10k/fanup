@@ -11,14 +11,24 @@ import 'package:fanup/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fanup/features/auth/domain/usecases/register_usecase.dart';
 
 import 'package:fanup/core/services/storage/user_session_service.dart';
+import 'package:fanup/core/services/notifications/push_notification_service.dart';
 import 'package:fanup/features/auth/data/datasources/local/auth_local_datasource.dart';
 import 'package:fanup/features/auth/data/repositories/auth_repository.dart';
+import 'package:fanup/features/auth/domain/usecases/google_login_usecase.dart';
+import 'package:fanup/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:fanup/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:fanup/features/auth/domain/usecases/upload_profile_photo_usecase.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Mock classes - Use the concrete classes, not interfaces
 class MockLoginUsecase extends Mock implements LoginUsecase {}
 class MockRegisterUsecase extends Mock implements RegisterUsecase {}
+class MockGoogleLoginUsecase extends Mock implements GoogleLoginUsecase {}
+class MockGetCurrentUserUsecase extends Mock implements GetCurrentUserUsecase {}
+class MockLogoutUsecase extends Mock implements LogoutUsecase {}
+class MockUploadProfilePhotoUsecase extends Mock implements UploadProfilePhotoUsecase {}
+class MockPushNotificationService extends Mock implements PushNotificationService {}
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 class MockUserSessionService extends Mock implements UserSessionService {}
 class MockAuthLocalDatasource extends Mock implements AuthLocalDatasource {}
@@ -27,6 +37,11 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 void main() {
   late MockLoginUsecase mockLoginUsecase;
   late MockRegisterUsecase mockRegisterUsecase;
+  late MockGoogleLoginUsecase mockGoogleLoginUsecase;
+  late MockGetCurrentUserUsecase mockGetCurrentUserUsecase;
+  late MockLogoutUsecase mockLogoutUsecase;
+  late MockUploadProfilePhotoUsecase mockUploadProfilePhotoUsecase;
+  late MockPushNotificationService mockPushNotificationService;
   late MockSharedPreferences mockSharedPreferences;
   late MockUserSessionService mockUserSessionService;
   late MockAuthLocalDatasource mockAuthLocalDatasource;
@@ -44,6 +59,11 @@ void main() {
   setUp(() {
     mockLoginUsecase = MockLoginUsecase();
     mockRegisterUsecase = MockRegisterUsecase();
+    mockGoogleLoginUsecase = MockGoogleLoginUsecase();
+    mockGetCurrentUserUsecase = MockGetCurrentUserUsecase();
+    mockLogoutUsecase = MockLogoutUsecase();
+    mockUploadProfilePhotoUsecase = MockUploadProfilePhotoUsecase();
+    mockPushNotificationService = MockPushNotificationService();
     mockSharedPreferences = MockSharedPreferences();
     mockUserSessionService = MockUserSessionService();
     mockAuthLocalDatasource = MockAuthLocalDatasource();
@@ -60,6 +80,11 @@ void main() {
         authRepositoryProvider.overrideWithValue(mockAuthRepository),
         loginUsecaseProvider.overrideWithValue(mockLoginUsecase),
         registerUsecaseProvider.overrideWithValue(mockRegisterUsecase),
+        googleLoginUsecaseProvider.overrideWithValue(mockGoogleLoginUsecase),
+        getCurrentUserUsecaseProvider.overrideWithValue(mockGetCurrentUserUsecase),
+        logoutUsecaseProvider.overrideWithValue(mockLogoutUsecase),
+        uploadProfilePhotoUsecaseProvider.overrideWithValue(mockUploadProfilePhotoUsecase),
+        pushNotificationServiceProvider.overrideWithValue(mockPushNotificationService),
       ],
       child: const MaterialApp(home: LoginPage()),
     );
