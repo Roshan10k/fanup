@@ -54,7 +54,6 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^3.0.3
-  riverpod_annotation: ^3.0.3
 
   # Local Database (Offline Storage)
   hive: ^2.2.3
@@ -78,7 +77,6 @@ dependencies:
   shared_preferences: ^2.5.4
   jwt_decoder: ^2.0.1
   google_sign_in: ^7.2.0
-  sign_in_with_apple: ^7.0.1
 
   # Media Handling
   flutter_image_compress: ^2.2.0
@@ -90,28 +88,28 @@ dependencies:
   flutter_svg: ^2.0.10+1
 
   # Real-time Features
-  web_socket_channel: ^3.0.3
 
   # Utilities
-  freezed_annotation: ^3.1.0
   json_annotation: ^4.8.1
  
   uuid: ^4.3.3
   intl: ^0.20.2
 
-  # Background Tasks
-  workmanager: ^0.9.0+3
-
   # Permissions
   permission_handler: ^12.0.1
   equatable: ^2.0.7
   dartz: ^0.10.1
+  firebase_core: ^3.15.2
+  firebase_messaging: ^15.2.7
+  coverage: ^1.15.0
+  test_cov_console: ^0.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  
+  integration_test:
+    sdk: flutter
 
   # Code Generation
   build_runner: ^2.4.13
@@ -122,6 +120,20 @@ dev_dependencies:
   mocktail: ^1.0.3
   fake_async: ^1.3.1
 
+  # Launcher Icons
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
