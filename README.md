@@ -1,16 +1,3 @@
-# fanup
+# FanUp Mobile
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+FanUp is a fantasy cricket mobile application built with Flutter, designed for Nepali cricket fans who want to engage with tournaments like the Nepal Premier League beyond passive watching. Users create virtual cricket teams within a 100-credit budget, earn points based on real player performances, compete on leaderboards, and grow a virtual wallet through daily login rewards. The app features Google OAuth authentication, offline caching via Hive, push notifications via Firebase, and unique sensor integrations including auto theme switching, a proximity privacy shield, and shake-to-navigate.
