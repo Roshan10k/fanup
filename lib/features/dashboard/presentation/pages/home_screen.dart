@@ -1,5 +1,6 @@
 import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/snackbar_utils.dart';
 import 'package:fanup/core/widgets/shimmer_loading.dart';
 import 'package:fanup/features/create_team/presentation/pages/create_team_page.dart';
 import 'package:fanup/features/dashboard/domain/entities/contest_entry_entity.dart';
@@ -468,14 +469,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(failure.message)));
+        SnackbarUtils.showError(context, failure.message);
       },
       (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Team deleted successfully')),
-        );
+        SnackbarUtils.showSuccess(context, 'Team deleted successfully');
         ref.read(homeViewModelProvider.notifier).loadHomeData();
       },
     );

@@ -1,5 +1,6 @@
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/core/utils/responsive_utils.dart';
+import 'package:fanup/core/utils/snackbar_utils.dart';
 import 'package:fanup/features/create_team/domain/entities/player_entity.dart';
 import 'package:fanup/features/create_team/domain/utils/team_validator.dart';
 import 'package:fanup/features/create_team/presentation/state/create_team_state.dart';
@@ -82,9 +83,7 @@ class _CreateTeamPageState extends ConsumerState<CreateTeamPage> {
 
     ref.listen<CreateTeamState>(createTeamViewModelProvider, (prev, next) {
       if (next.infoMessage != null && next.infoMessage != prev?.infoMessage) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.infoMessage!)));
+        SnackbarUtils.showInfo(context, next.infoMessage!);
       }
 
       if (next.status == CreateTeamStatus.success) {

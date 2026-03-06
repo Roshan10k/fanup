@@ -1,4 +1,5 @@
 import 'package:fanup/app/themes/theme.dart';
+import 'package:fanup/core/utils/snackbar_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,13 +8,7 @@ class HelpSupportScreen extends StatelessWidget {
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Copied: $text'),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    SnackbarUtils.showSuccess(context, 'Copied: $text');
   }
 
   @override

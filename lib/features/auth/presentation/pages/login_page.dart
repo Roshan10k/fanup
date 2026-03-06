@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fanup/core/utils/snackbar_utils.dart';
 import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
@@ -79,9 +80,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    SnackbarUtils.showError(context, message);
   }
 
   void _navigateToSignup() {

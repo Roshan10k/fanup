@@ -2,6 +2,7 @@ import 'package:fanup/features/auth/presentation/state/auth_state.dart';
 import 'package:fanup/features/auth/presentation/view_model/auth_view_model.dart';
 import 'package:fanup/features/auth/presentation/widgets/google_sign_in_button.dart';
 
+import 'package:fanup/core/utils/snackbar_utils.dart';
 import 'package:fanup/app/routes/app_routes.dart';
 import 'package:fanup/app/themes/theme.dart';
 import 'package:fanup/features/dashboard/presentation/pages/dashboard_page.dart';
@@ -46,15 +47,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     // Listen to auth state changes
     ref.listen<AuthState>(authViewModelProvider, (previous, next) {
       if (next.status == AuthStatus.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage ?? "Something went wrong")),
-        );
+        SnackbarUtils.showError(context, next.errorMessage ?? "Something went wrong");
       }
 
       if (next.status == AuthStatus.registered) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Registration successful")),
-        );
+        SnackbarUtils.showSuccess(context, "Registration successful");
         Navigator.pop(context);
       }
 
@@ -252,9 +249,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   void _onSignUpPressed() {
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+      SnackbarUtils.showWarning(context, "Passwords do not match");
       return;
     }
 
