@@ -6,11 +6,11 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // Set to true when testing on physical device
-  static const bool isPhysicalDevice = false;
+  static const bool isPhysicalDevice = true;
   // Replace with your computer's local IP (run `ifconfig | grep inet` to find it)
   static const String configuredPhysicalDeviceIp = String.fromEnvironment(
     'API_HOST',
-    defaultValue: '192.168.1.111',
+    defaultValue: '192.168.1.129',
   );
   static const int port = int.fromEnvironment('API_PORT', defaultValue: 3001);
 

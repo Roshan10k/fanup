@@ -39,7 +39,10 @@ class _BottomNavigationScreenState extends ConsumerState<BottomNavigationScreen>
         final double fontSize = isTablet ? 16 : 13;
 
         return Scaffold(
-          body: _screens[selectedIndex],
+          body: IndexedStack(
+            index: selectedIndex,
+            children: _screens,
+          ),
 
           bottomNavigationBar: Container(
             decoration: BoxDecoration(

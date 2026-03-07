@@ -122,7 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           fit: BoxFit.contain,
         ),
         SizedBox(width: isTablet ? 16 : 12),
-        Flexible(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -154,12 +154,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   fontSize: subtitleFontSize,
                   color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
-        const Spacer(),
         Stack(
           clipBehavior: Clip.none,
           children: [

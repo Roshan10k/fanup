@@ -368,7 +368,7 @@ ThemeData getDarkTheme() {
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: darkScheme.surface,
+    scaffoldBackgroundColor: DarkColors.background,
     fontFamily: 'Poppins Regular',
 
     colorScheme: darkScheme,

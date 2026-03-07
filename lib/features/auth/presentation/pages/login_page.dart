@@ -52,12 +52,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (!mounted) return;
 
     if (state.status == AuthStatus.authenticated) {
-      AppRoutes.pushReplacement(context, const BottomNavigationScreen());
+      AppRoutes.pushAndRemoveUntil(context, const BottomNavigationScreen());
+      return;
     } else if (state.status == AuthStatus.error) {
       _showSnackbar(state.errorMessage ?? 'Login failed');
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _handleGoogleLogin() async {
@@ -70,7 +71,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (!mounted) return;
 
     if (state.status == AuthStatus.authenticated) {
-      AppRoutes.pushReplacement(context, const BottomNavigationScreen());
+      AppRoutes.pushAndRemoveUntil(context, const BottomNavigationScreen());
       return;
     } else if (state.status == AuthStatus.error) {
       _showSnackbar(state.errorMessage ?? 'Google sign-in failed');

@@ -80,7 +80,9 @@ class BalanceCardWidget extends StatelessWidget {
               // Open Wallet Button
               Flexible(
                 flex: 2,
-                child: TextButton.icon(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
                   onPressed: () {
                     if (onOpenWallet != null) {
                       onOpenWallet!();
@@ -108,6 +110,7 @@ class BalanceCardWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
+                ),
                 ),
               ),
             ],

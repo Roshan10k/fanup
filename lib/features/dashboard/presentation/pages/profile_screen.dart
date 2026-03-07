@@ -132,6 +132,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         : null;
 
     final avatarSize = 100.0 * fontScale;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -139,6 +140,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(color: Theme.of(context).colorScheme.outline.withAlpha(80))
+            : null,
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).shadowColor.withAlpha(13),
@@ -236,6 +240,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authState = ref.watch(authViewModelProvider);
     final phone = authState.authEntity?.phone;
     final fontScale = context.fontScale;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -243,6 +248,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(color: Theme.of(context).colorScheme.outline.withAlpha(80))
+            : null,
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).shadowColor.withAlpha(13),
@@ -344,11 +352,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildMenuItems() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(color: Theme.of(context).colorScheme.outline.withAlpha(80))
+            : null,
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).shadowColor.withAlpha(13),
